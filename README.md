@@ -50,7 +50,7 @@ Power BI Certification | Microsoft
   
 **Results: Achieved a 20% reduction in defects and improved overall product quality, contributing to increased customer satisfaction.**
 
-### Skills:
+### Skills
 - Data Analysis: Power BI, Tableau, Python, Excel
 - Database Management: MySQL, MS SQL Server
 - Data Transformation: ETL processes
