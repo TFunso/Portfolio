@@ -4,7 +4,7 @@ Dedicated and results-driven Data Analyst with a comprehensive skill set in Powe
 ### Education
 
 - Data Fellowship
-Completed a comprehensive 3-month program with a focus on Power BI, Tableau, MySQL, MS SQL, Excel, and Python for data analysis.
+Completed a comprehensive program with a focus on Power BI, Tableau, MySQL, MS SQL, Excel, and Python for data analysis.
 Executed 25 hands-on projects, showcasing proficiency in transforming and visualizing data.
 - Business Administration, Masters
 - Chemistry, Bachelors
@@ -29,7 +29,6 @@ Quality Analyst | Medtronic | March 2021 - November 2022
 
 ### Certifications
 - Power BI Certification | Microsoft
-- Tableau Desktop Specialist Certification | Tableau
 
 ### Projects
 #### Sales Performance Dashboard | Quantum Analysis
