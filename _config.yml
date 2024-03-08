@@ -1,5 +1,6 @@
 title: Tolulope Funso
-#logos: /assets/img/headshot_circle.png
+logos: /assets/img/headshot_circle.png
+logos: https://github.com/TFunso/Portfolio/blob/main/Git.io.jpg
 #description: text below image
 #show_downloads: true
-theme: jekyll-theme-minimal
+theme: Jekyll-theme-minimal
