@@ -32,6 +32,7 @@ Power BI Certification | Microsoft
 ### Projects
 #### Sales Performance Dashboard | Quantum Analysis
 **Objective: Developed a comprehensive sales performance dashboard in Power BI to provide real-time insights into key metrics.**
+
 **Actions**
 - Utilized Power Query to clean and transform raw sales data from multiple sources.
 - Implemented dynamic visuals and KPIs to track sales revenue, product performance, and customer segmentation.
@@ -41,6 +42,7 @@ Power BI Certification | Microsoft
 
 #### Quality Metrics Optimization | Leviton
 **Objective: Led a project to enhance quality control processes by optimizing key performance indicators (KPIs) tracking.**
+
 **Actions**
 - Designed and implemented interactive dashboards using Tableau, providing a visual representation of quality metrics.
 - Conducted root cause analysis on defects, leading to the identification of process improvements.
