@@ -31,24 +31,20 @@ Power BI Certification | Microsoft
 
 ### Projects
 #### Sales Performance Dashboard | Quantum Analysis
-##### Objective
-Developed a comprehensive sales performance dashboard in Power BI to provide real-time insights into key metrics.
+##### Objective: Developed a comprehensive sales performance dashboard in Power BI to provide real-time insights into key metrics.
 ##### Actions
-Utilized Power Query to clean and transform raw sales data from multiple sources.
-Implemented dynamic visuals and KPIs to track sales revenue, product performance, and customer segmentation.
-Integrated forecasting models to predict future sales trends, aiding in proactive decision-making.
-##### Results
-The dashboard facilitated a 15% increase in sales revenue by enabling the sales team to identify and capitalize on emerging trends.
+- Utilized Power Query to clean and transform raw sales data from multiple sources.
+- Implemented dynamic visuals and KPIs to track sales revenue, product performance, and customer segmentation.
+- Integrated forecasting models to predict future sales trends, aiding in proactive decision-making.
+##### Results: The dashboard facilitated a 15% increase in sales revenue by enabling the sales team to identify and capitalize on emerging trends.
 
 #### Quality Metrics Optimization | Leviton
-##### Objective
-Led a project to enhance quality control processes by optimizing key performance indicators (KPIs) tracking.
+##### Objective: Led a project to enhance quality control processes by optimizing key performance indicators (KPIs) tracking.
 ##### Actions
-Designed and implemented interactive dashboards using Tableau, providing a visual representation of quality metrics.
-Conducted root cause analysis on defects, leading to the identification of process improvements.
-Collaborated with the production team to implement corrective actions based on data-driven insights.
-##### Results
-Achieved a 20% reduction in defects and improved overall product quality, contributing to increased customer satisfaction.
+- Designed and implemented interactive dashboards using Tableau, providing a visual representation of quality metrics.
+- Conducted root cause analysis on defects, leading to the identification of process improvements.
+- Collaborated with the production team to implement corrective actions based on data-driven insights.
+##### Results: Achieved a 20% reduction in defects and improved overall product quality, contributing to increased customer satisfaction.
 
 ### Skills:
 - Data Analysis: Power BI, Tableau, Python, Excel
