@@ -4,7 +4,6 @@ Technical Skills: Power BI, Tableau, SQL, Python, and Excel, KPI monitoring, Roo
 ### Education
 
 - Data Fellowship
-  Completed a comprehensive program with a focus on Power BI, Tableau, MySQL, MS SQL, Excel, and Python for data analysis.
 - Business Administration, Masters
 - Chemistry, Bachelors
 
