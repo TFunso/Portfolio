@@ -10,18 +10,18 @@ Dedicated and results-driven Data Analyst with a comprehensive skill set in Powe
 
 ### Professional Experience
 
-##### Data Analyst | Quantum Analysis | September 2023 - Present
+#### Data Analyst | Quantum Analysis | September 2023 - Present
 - Collaborated with cross-functional teams to develop Power BI dashboards for real-time data visualization.
 - Conducted data analysis and provided insights to support strategic decision-making.
 - Implemented forecasting models for business intelligence, contributing to improved accuracy in predicting trends.
 - Worked with MySQL and MS SQL servers for data extraction, transformation, and loading (ETL) processes.
   
-##### Quality Analyst | Leviton | November 2022 - September 2023
+#### Quality Analyst | Leviton | November 2022 - September 2023
 - Managed and monitored KPIs, ensuring adherence to quality standards.
 - Implemented and maintained interactive dashboards for tracking and reporting quality metrics.
 - Conducted root cause analysis to identify and resolve quality issues.
   
-##### Quality Analyst | Medtronic | March 2021 - November 2022
+#### Quality Analyst | Medtronic | March 2021 - November 2022
 - Led the development of performance dashboards, resulting in a 20% improvement in efficiency.
 - Coordinated with teams to ensure compliance with industry regulations.
 - Conducted regular data analysis to identify areas for process improvement.
