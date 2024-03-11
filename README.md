@@ -1,5 +1,7 @@
 # Analyst
 Technical Skills: Power BI, Tableau, SQL, Python, and Excel, KPI monitoring, Root Cause Analysis
+![image](https://github.com/TFunso/Portfolio/assets/69992739/bb90aa6b-ce95-4a70-a095-7f636927377c)
+
 
 ### Education
 
