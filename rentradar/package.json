@@ -4,6 +4,7 @@
   "private": true,
   "description": "RentRadar - find the cheapest legitimate rentals within a chosen radius.",
   "scripts": {
+    "postinstall": "prisma generate",
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
