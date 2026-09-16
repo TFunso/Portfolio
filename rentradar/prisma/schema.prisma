@@ -1,0 +1,222 @@
+// RentRadar database schema
+// See docs/ARCHITECTURE.md for the entity-relationship narrative.
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum RentalCategory {
+  STUDIO
+  ONE_BEDROOM
+  TWO_BEDROOM
+  THREE_PLUS_BEDROOM
+  PRIVATE_ROOM
+  HOUSE_SHARE
+  ROOMMATE
+}
+
+enum ListingSourceType {
+  MAJOR_MARKETPLACE // Apartments.com, Zillow, Rent.com, Realtor.com, PadMapper, HotPads, Zumper, RentCafe
+  CLASSIFIED // Craigslist, Facebook Marketplace (where legally accessible)
+  AFFORDABLE_HOUSING // HUD, PHA, income-restricted programs
+  PROPERTY_MANAGER_SITE // Direct property management company websites
+  UNIVERSITY_HOUSING
+  ROOM_RENTAL_PLATFORM
+  PUBLIC_FEED // RSS / open data / government feeds
+  MANUAL // manually entered or user-submitted lead
+}
+
+enum ListingStatus {
+  ACTIVE
+  RENTED
+  EXPIRED
+  REMOVED
+  NEEDS_REVIEW // flagged by anti-scam layer
+}
+
+enum AlertChannel {
+  EMAIL
+  SMS
+  PUSH
+}
+
+enum AlertTriggerType {
+  NEW_CHEAPER_LISTING
+  RENT_DROP
+  AVAILABILITY_CHANGE
+  LANDLORD_RESPONSE
+  NEW_MATCH
+}
+
+model Source {
+  id            String            @id @default(cuid())
+  name          String            @unique // e.g. "apartments.com", "craigslist-rss", "hud-affordable"
+  type          ListingSourceType
+  baseUrl       String?
+  robotsAllowed Boolean           @default(true)
+  termsUrl      String?
+  isEnabled     Boolean           @default(true)
+  rateLimitRps  Float             @default(0.5)
+  lastCrawledAt DateTime?
+  listings      Listing[]
+  createdAt     DateTime          @default(now())
+  updatedAt     DateTime          @updatedAt
+}
+
+model Listing {
+  id                String          @id @default(cuid())
+  externalId        String // id/slug on the source site
+  source            Source          @relation(fields: [sourceId], references: [id])
+  sourceId          String
+  sourceType        ListingSourceType
+
+  title             String
+  description       String?         @db.Text
+
+  addressLine1      String?
+  addressLine2      String?
+  city              String
+  state             String
+  zipCode           String
+  latitude          Float?
+  longitude          Float?
+
+  monthlyRent       Int // cents, USD
+  securityDeposit   Int? // cents
+  applicationFee    Int? // cents
+  otherMoveInFees   Int? // cents, sum of misc one-time fees
+  utilitiesIncluded Boolean         @default(false)
+
+  bedrooms          Float // 0 = studio, 0.5 = private room in shared unit
+  bathrooms         Float?
+  squareFeet        Int?
+  category          RentalCategory
+
+  petFriendly       Boolean?
+  parkingAvailable  Boolean?
+  furnished         Boolean?
+  shortTermLease    Boolean?
+  noCreditCheck     Boolean?
+  lowDeposit        Boolean?
+
+  availableFrom     DateTime?
+  listingUrl        String
+  contactName       String?
+  contactPhone      String?
+  contactEmail      String?
+  contactFormUrl    String?
+  officeHours       String?
+
+  status            ListingStatus   @default(ACTIVE)
+  qualityScore      Float?          // 0-100, computed by AI Rent Hunter
+  scamRiskScore     Float?          // 0-100, higher = riskier
+  scamFlags         String[]        @default([])
+  totalMoveInCost   Int?            // cents; derived: rent + deposit + fees
+
+  firstSeenAt       DateTime        @default(now())
+  lastSeenAt        DateTime        @default(now())
+  removedAt         DateTime?
+
+  priceHistory      PriceHistory[]
+  savedBy           SavedListing[]
+  alertMatches      AlertMatch[]
+
+  createdAt         DateTime        @default(now())
+  updatedAt         DateTime        @updatedAt
+
+  @@unique([sourceId, externalId])
+  @@index([city, state, zipCode])
+  @@index([category, monthlyRent])
+  @@index([latitude, longitude])
+  @@index([status])
+}
+
+model PriceHistory {
+  id          String   @id @default(cuid())
+  listing     Listing  @relation(fields: [listingId], references: [id], onDelete: Cascade)
+  listingId   String
+  monthlyRent Int
+  recordedAt  DateTime @default(now())
+
+  @@index([listingId, recordedAt])
+}
+
+model User {
+  id             String          @id @default(cuid())
+  clerkId        String          @unique
+  email          String          @unique
+  phone          String?
+  monthlyIncome  Int? // cents
+  savedSearches  SavedSearch[]
+  savedListings  SavedListing[]
+  alerts         Alert[]
+  createdAt      DateTime        @default(now())
+  updatedAt      DateTime        @updatedAt
+}
+
+model SavedSearch {
+  id              String    @id @default(cuid())
+  user            User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId          String
+  name            String
+  location        String // ZIP, city, or "lat,lng" centroid
+  radiusMiles     Float     @default(5)
+  maxRent         Int? // cents
+  minBedrooms     Float?
+  moveInDate      DateTime?
+  filters         Json      @default("{}") // petFriendly, parking, furnished, etc.
+  alerts          Alert[]
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+}
+
+model SavedListing {
+  id        String   @id @default(cuid())
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId    String
+  listing   Listing  @relation(fields: [listingId], references: [id], onDelete: Cascade)
+  listingId String
+  note      String?
+  createdAt DateTime @default(now())
+
+  @@unique([userId, listingId])
+}
+
+model Alert {
+  id            String            @id @default(cuid())
+  user          User              @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId        String
+  savedSearch   SavedSearch?      @relation(fields: [savedSearchId], references: [id], onDelete: Cascade)
+  savedSearchId String?
+  channel       AlertChannel
+  triggerType   AlertTriggerType
+  isActive      Boolean           @default(true)
+  matches       AlertMatch[]
+  createdAt     DateTime          @default(now())
+}
+
+model AlertMatch {
+  id         String   @id @default(cuid())
+  alert      Alert    @relation(fields: [alertId], references: [id], onDelete: Cascade)
+  alertId    String
+  listing    Listing  @relation(fields: [listingId], references: [id], onDelete: Cascade)
+  listingId  String
+  reason     String // e.g. "rent_drop:2400->2150"
+  notifiedAt DateTime?
+  createdAt  DateTime @default(now())
+}
+
+model CrawlRun {
+  id           String   @id @default(cuid())
+  sourceName   String
+  startedAt    DateTime @default(now())
+  finishedAt   DateTime?
+  listingsSeen Int      @default(0)
+  listingsNew  Int      @default(0)
+  errors       String[] @default([])
+}

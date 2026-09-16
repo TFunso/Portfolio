@@ -30,6 +30,16 @@ Technical Skills: Power BI, Tableau, SQL, Python, and Excel, KPI monitoring, Roo
 Power BI Certification | Microsoft
 
 ### Projects
+#### RentRadar | Personal Project
+**Objective:** Designed and built RentRadar, a full-stack rental search platform that aggregates listings from legally accessible sources and ranks results by total move-in cost.
+
+**Actions**
+- Architected a Next.js/TypeScript/Tailwind frontend with a Prisma/PostgreSQL backend, including a pluggable source-adapter system for aggregating rental data.
+- Built an AI-assisted ingestion agent that deduplicates listings, scores rental quality, flags potential scams, and detects rent drops.
+- Documented the full technical spec, architecture, API, deployment, and legal/data-sourcing considerations.
+
+**Results:** See [`/rentradar`](./rentradar) for the full codebase and docs.
+
 #### Sales Performance Dashboard | Quantum Analysis
 **Objective:** Developed a comprehensive sales performance dashboard in Power BI to provide real-time insights into key metrics.
 

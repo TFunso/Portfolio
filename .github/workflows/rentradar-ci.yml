@@ -1,0 +1,48 @@
+name: RentRadar CI
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "rentradar/**"
+      - ".github/workflows/rentradar-ci.yml"
+  pull_request:
+    paths:
+      - "rentradar/**"
+      - ".github/workflows/rentradar-ci.yml"
+
+defaults:
+  run:
+    working-directory: rentradar
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    env:
+      # Prisma's generator only reads this to resolve the datasource url in
+      # schema.prisma; `generate`/`typecheck`/`test`/`build` never open a
+      # real connection, so a placeholder is sufficient in CI.
+      DATABASE_URL: "postgresql://rentradar:rentradar@localhost:5432/rentradar?schema=public"
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+          cache-dependency-path: rentradar/package-lock.json
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Generate Prisma client
+        run: npx prisma generate
+
+      - name: Typecheck
+        run: npm run typecheck
+
+      - name: Unit tests
+        run: npm test
+
+      - name: Build
+        run: npm run build
