@@ -30,6 +30,16 @@ Technical Skills: Power BI, Tableau, SQL, Python, and Excel, KPI monitoring, Roo
 Power BI Certification | Microsoft
 
 ### Projects
+#### QCOS (Quality Career Operating System) | Personal Project
+**Objective:** Built a local-first application for a Quality Technician II to capture daily work in under 30 seconds, automatically surface the hidden value in routine tasks, track annual goal metrics, and generate evidence-based performance review and promotion material.
+
+**Actions**
+- Architected a Next.js/TypeScript/Tailwind app with a Prisma/Postgres backend and a deterministic, offline "AI Achievement Detector" that classifies each entry (counts Y/N, category, impact, goal alignment) with zero external API dependency.
+- Built 9 features end-to-end: daily brain dump, achievement detection, a "Did This Count?" checker, a weekly wins widget, a DRIVE EFFICIENCY goal dashboard, an evidence vault with filtering, cross-functional impact tracking, monthly reflections, and a December year-end review generator.
+- Deployed live on Vercel with Vercel Postgres.
+
+**Results:** See [`/qcos`](./qcos) for the full codebase and docs.
+
 #### RentRadar | Personal Project
 **Objective:** Designed and built RentRadar, a full-stack rental search platform that aggregates listings from legally accessible sources and ranks results by total move-in cost.
 

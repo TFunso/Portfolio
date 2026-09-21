@@ -1,0 +1,106 @@
+// QCOS - Quality Career Operating System
+// Postgres in production (Vercel Postgres), so the deployed app has a
+// database serverless functions can actually persist to. Local dev can
+// point DATABASE_URL at the same Postgres instance or any local Postgres.
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+// A raw, unstructured daily brain-dump entry. Fast capture, no categories
+// required at write time - the classifier fills those in asynchronously.
+model DailyEntry {
+  id        String   @id @default(cuid())
+  content   String
+  entryDate DateTime @default(now())
+  createdAt DateTime @default(now())
+
+  classification  Classification?
+  evidenceRecords EvidenceRecord[]
+  goalEvents      GoalMetricEvent[]
+
+  @@index([entryDate])
+}
+
+// The AI Achievement Detector's output for one DailyEntry.
+model Classification {
+  id                  String   @id @default(cuid())
+  entryId             String   @unique
+  entry               DailyEntry @relation(fields: [entryId], references: [id], onDelete: Cascade)
+  counts              Boolean
+  reason              String
+  categories          String   // JSON string[]
+  departments         String   // JSON string[] (cross-functional partners touched)
+  impactLevel         String   // "High" | "Medium" | "Low"
+  goalKeys            String   // JSON string[] of GoalMetricKey
+  professionalSummary String
+  createdAt           DateTime @default(now())
+}
+
+// A saved, review-ready accomplishment. Populated automatically from
+// high-value daily entries, "Did This Count?" checks, and monthly
+// reflections, or added manually.
+model EvidenceRecord {
+  id                      String   @id @default(cuid())
+  entryId                 String?
+  entry                   DailyEntry? @relation(fields: [entryId], references: [id])
+  whatHappened            String
+  whyItMattered           String
+  businessImpact          String
+  goalSupported           String?
+  category                String
+  impactLevel             String   // "High" | "Medium" | "Low"
+  suggestedReviewLanguage String
+  source                  String   // "daily-entry" | "did-this-count" | "monthly-reflection" | "manual"
+  recordDate              DateTime @default(now())
+  createdAt               DateTime @default(now())
+
+  @@index([recordDate])
+  @@index([category])
+}
+
+// One occurrence toward an annual DRIVE EFFICIENCY metric (e.g. a No
+// Inspect candidate identified). Logged automatically by the classifier
+// or manually from the Goal Dashboard.
+model GoalMetricEvent {
+  id        String   @id @default(cuid())
+  metricKey String
+  entryId   String?
+  entry     DailyEntry? @relation(fields: [entryId], references: [id])
+  note      String?
+  eventDate DateTime @default(now())
+  createdAt DateTime @default(now())
+
+  @@index([metricKey])
+}
+
+// Ad-hoc "Did This Count?" lookups. Always logged so the user can see
+// their history even if they choose not to save a result as evidence.
+model DidThisCountLog {
+  id                   String   @id @default(cuid())
+  activity             String
+  counts               Boolean
+  businessImpact       String
+  goalAlignment        String
+  promotionValue       String
+  recommendedLanguage  String
+  savedAsEvidence      Boolean  @default(false)
+  createdAt            DateTime @default(now())
+}
+
+// End-of-month reflection: "3 things you did that made somebody else's
+// job easier". Each answer is converted into evidence automatically.
+model MonthlyReflection {
+  id        String   @id @default(cuid())
+  month     Int      // 1-12
+  year      Int
+  answers   String   // JSON string[]
+  createdAt DateTime @default(now())
+
+  @@unique([month, year])
+}
