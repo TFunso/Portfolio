@@ -11,8 +11,8 @@ Query params (all optional):
 
 | Param | Type | Notes |
 |---|---|---|
-| `city` | string | case-insensitive exact match |
-| `zipCode` | string | exact match |
+| `location` | string | freeform city, ZIP, or address; geocoded via Mapbox and filtered by great-circle distance |
+| `radiusMiles` | number | 1-100, default 25; how far from `location` to search |
 | `maxRent` | number | dollars |
 | `bedrooms` | number | minimum bedrooms |
 | `petFriendly` | boolean | |
@@ -29,6 +29,7 @@ Response:
 ```json
 {
   "resultCount": 42,
+  "center": { "lat": 33.8366, "lng": -117.9143 },
   "cheapestOverall": [ScoredListing, ...],
   "cheapestByCategory": {
     "STUDIO": [ScoredListing, ...],
@@ -82,8 +83,9 @@ Only `annualIncome` and `monthlyRent` are required. Response is an
 
 ## `GET /POST /api/saved-searches`
 
-Requires `x-rentradar-user-id` header (stand-in for Clerk session until
-auth is wired in -- see `src/lib/auth.ts`).
+Requires a signed-in Clerk session (cookie-based; no header needed from a
+same-origin client). Returns `401` if Clerk isn't configured on the
+deployment or the request is unauthenticated -- see `src/lib/auth.ts`.
 
 `POST` body:
 
@@ -101,7 +103,7 @@ auth is wired in -- see `src/lib/auth.ts`).
 
 ## `GET /POST /api/alerts`
 
-Requires `x-rentradar-user-id` header.
+Requires a signed-in Clerk session, same as `/api/saved-searches`.
 
 `POST` body:
 

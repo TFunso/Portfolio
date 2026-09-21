@@ -14,8 +14,8 @@ const createSchema = z.object({
   filters: z.record(z.unknown()).default({}),
 });
 
-export async function GET(request: NextRequest) {
-  const userId = await requireUserId(request);
+export async function GET() {
+  const userId = await requireUserId();
   if (!userId) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
   const searches = await prisma.savedSearch.findMany({ where: { userId }, orderBy: { createdAt: "desc" } });
@@ -23,7 +23,7 @@ export async function GET(request: NextRequest) {
 }
 
 export async function POST(request: NextRequest) {
-  const userId = await requireUserId(request);
+  const userId = await requireUserId();
   if (!userId) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
   const parsed = createSchema.safeParse(await request.json().catch(() => null));

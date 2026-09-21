@@ -1,5 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import { ClerkProvider } from "@clerk/nextjs";
+import { AuthNav } from "@/components/AuthNav";
 import "./globals.css";
 
 export const metadata: Metadata = {
@@ -7,7 +9,9 @@ export const metadata: Metadata = {
   description: "Aggregated rental search that ranks results by total move-in cost.",
 };
 
-export default function RootLayout({ children }: { children: React.ReactNode }) {
+const clerkConfigured = Boolean(process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY);
+
+function Shell({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en">
       <body>
@@ -16,9 +20,11 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             <Link href="/" className="text-lg font-bold text-brand-700">
               RentRadar
             </Link>
-            <nav className="flex gap-6 text-sm font-medium text-slate-600">
+            <nav className="flex items-center gap-6 text-sm font-medium text-slate-600">
               <Link href="/dashboard">Search</Link>
               <Link href="/affordability">Affordability Calculator</Link>
+              <Link href="/alerts">Alerts</Link>
+              {clerkConfigured && <AuthNav />}
             </nav>
           </div>
         </header>
@@ -30,4 +36,13 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       </body>
     </html>
   );
+}
+
+export default function RootLayout({ children }: { children: React.ReactNode }) {
+  const body = <Shell>{children}</Shell>;
+  // ClerkProvider throws without a publishableKey, so it's only mounted once
+  // Clerk is actually configured -- keeps the app fully functional (minus
+  // account features) with zero auth setup, same as every other integration
+  // in this project (Mapbox, Twilio, SendGrid, HUD).
+  return clerkConfigured ? <ClerkProvider>{body}</ClerkProvider> : body;
 }
