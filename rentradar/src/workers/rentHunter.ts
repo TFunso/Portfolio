@@ -24,6 +24,8 @@ import { scoreQuality } from "@/lib/aggregation/qualityScore";
 import { totalMoveInCostCents, type NormalizedListing } from "@/types/listing";
 import { sendEmail, rentDropEmail } from "@/lib/notifications/email";
 import { sendSms } from "@/lib/notifications/sms";
+import { haversineMiles, type GeoPoint } from "@/lib/geo";
+import { geocodeLocation } from "@/lib/geocoding";
 
 const SEARCH_GRID: Array<{ city: string; state: string; radiusMiles: number }> = [
   { city: "Columbus", state: "OH", radiusMiles: 10 },
@@ -139,27 +141,52 @@ async function upsertListing(listing: NormalizedListing, marketMedianRentCents: 
   return { row, isNewListing, rentDropped, previousRentCents: existing?.monthlyRent };
 }
 
+/** Geocoding a SavedSearch.location is an HTTP round-trip; this run-scoped
+ *  cache means each distinct saved-search location is only geocoded once
+ *  per ingestion run, no matter how many listings are checked against it. */
+type GeocodeCache = Map<string, GeoPoint | null>;
+
+async function cachedGeocode(location: string, cache: GeocodeCache): Promise<GeoPoint | null> {
+  if (cache.has(location)) return cache.get(location) ?? null;
+  const point = await geocodeLocation(location);
+  cache.set(location, point);
+  return point;
+}
+
 async function notifyMatchingAlerts(params: {
   listingId: string;
-  city: string;
-  zipCode: string;
+  latitude: number | null;
+  longitude: number | null;
   monthlyRentCents: number;
   triggerType: "NEW_MATCH" | "RENT_DROP";
   title: string;
   listingUrl: string;
   previousRentCents?: number;
+  geocodeCache: GeocodeCache;
 }) {
-  const alerts = await prisma.alert.findMany({
+  if (params.latitude == null || params.longitude == null) return; // no coordinates, no radius match possible
+
+  const candidates = await prisma.alert.findMany({
     where: {
       isActive: true,
       triggerType: params.triggerType === "RENT_DROP" ? "RENT_DROP" : { in: ["NEW_CHEAPER_LISTING", "NEW_MATCH"] },
-      savedSearch: {
-        OR: [{ location: params.city }, { location: params.zipCode }],
-        maxRent: { gte: params.monthlyRentCents },
-      },
+      savedSearch: { isNot: null },
     },
     include: { user: true, savedSearch: true },
   });
+
+  const alerts = [];
+  for (const alert of candidates) {
+    const search = alert.savedSearch;
+    if (!search) continue;
+    if (search.maxRent != null && params.monthlyRentCents > search.maxRent) continue;
+
+    const center = await cachedGeocode(search.location, params.geocodeCache);
+    if (!center) continue; // couldn't resolve the saved location this run; skip rather than false-match
+
+    const distance = haversineMiles(center.lat, center.lng, params.latitude, params.longitude);
+    if (distance <= search.radiusMiles) alerts.push(alert);
+  }
 
   for (const alert of alerts) {
     const reason =
@@ -189,6 +216,8 @@ async function notifyMatchingAlerts(params: {
 }
 
 export async function runIngestion() {
+  const geocodeCache: GeocodeCache = new Map();
+
   for (const area of SEARCH_GRID) {
     const crawlRun = await prisma.crawlRun.create({ data: { sourceName: `grid:${area.city}` } });
     const errors: string[] = [];
@@ -207,13 +236,14 @@ export async function runIngestion() {
         if (row.status === "ACTIVE" && (isNewListing || rentDropped)) {
           await notifyMatchingAlerts({
             listingId: row.id,
-            city: row.city,
-            zipCode: row.zipCode,
+            latitude: row.latitude,
+            longitude: row.longitude,
             monthlyRentCents: row.monthlyRent,
             triggerType: rentDropped ? "RENT_DROP" : "NEW_MATCH",
             title: row.title,
             listingUrl: row.listingUrl,
             previousRentCents,
+            geocodeCache,
           });
         }
       }

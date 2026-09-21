@@ -13,7 +13,7 @@ export function SearchForm() {
   function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     const params = new URLSearchParams();
-    if (location) params.set("city", location);
+    if (location) params.set("location", location);
     if (maxBudget) params.set("maxRent", maxBudget);
     if (moveInDate) params.set("moveInDate", moveInDate);
     if (bedrooms) params.set("bedrooms", bedrooms);
@@ -26,7 +26,7 @@ export function SearchForm() {
         Location
         <input
           className="rounded-md border border-slate-300 px-3 py-2 text-sm"
-          placeholder="City or ZIP"
+          placeholder="City, ZIP, or address"
           value={location}
           onChange={(e) => setLocation(e.target.value)}
         />

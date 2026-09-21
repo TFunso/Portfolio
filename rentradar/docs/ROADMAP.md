@@ -17,16 +17,30 @@
       rent drops/new listings → notify (Twilio/SendGrid stubs) → optional
       Claude second opinion on borderline scam scores
 - [x] Unit tests for dedupe, ranking/filtering, and affordability math
+- [x] Real radius search: freeform location geocoded via Mapbox, results
+      filtered by great-circle distance (`src/lib/geo.ts`,
+      `src/lib/geocoding.ts`) instead of exact city-string matching
+- [x] Mock demo data spans 25 cities across 10 states so radius search has
+      real listings to find nationally, not just one metro
+- [x] Clerk auth wired into `src/lib/auth.ts`, `src/middleware.ts`, and
+      sign-in/sign-up pages -- fully optional, the app runs signed-out with
+      zero Clerk config exactly like every other integration here
+- [x] Alerts UI (`/alerts`): create a saved search, attach "new match" /
+      "rent drop" email alerts to it, see active alerts
+- [x] Alert matching in the ingestion worker now geocodes each saved
+      search's location once per run and matches by radius, consistent
+      with the dashboard's search behavior
+- [x] Scheduled ingestion via `.github/workflows/rent-hunter-cron.yml`
+      (every 30 min once `DATABASE_URL` is set as a repo secret)
 
 ## Near-term (post-MVP)
 
-- [ ] Clerk auth wired into `src/lib/auth.ts` and a real sign-in flow
 - [ ] "Saved properties" and "Compare" trays backed by `SavedListing`
       (currently placeholder buttons in `ContactActions`)
 - [ ] Push notifications (web push / FCM) for the `PUSH` alert channel
 - [ ] Draw-your-own radius on the map (currently a slider around a point;
       add a Mapbox Draw polygon tool) and "near work / near school / near
-      transit" presets geocoded via Mapbox Geocoding API
+      transit" presets
 - [ ] University housing board adapters for specific schools once each
       board's terms are reviewed
 - [ ] Real HUD/PHA endpoint wiring (the adapter is built; needs the actual
@@ -34,6 +48,8 @@
 - [ ] Legal review + sign-off to flip `craigslistRssAdapter.legallyIntegrated`
 - [ ] Admin view for `CrawlRun` history and `NEEDS_REVIEW` (high scam-score)
       listings
+- [ ] Clerk webhook to sync `User` updates/deletes instead of the current
+      lazy-create-on-first-sign-in
 
 ## Production hardening
 

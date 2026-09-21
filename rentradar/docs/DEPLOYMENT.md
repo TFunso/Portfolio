@@ -27,37 +27,13 @@ notification/AI calls no-op and log instead of failing.
 4. `npm run db:seed` (optional -- loads the mock dataset so the dashboard
    isn't empty before real ingestion runs)
 5. `npm run build && npm start` (or deploy to Vercel)
-6. Schedule `npm run hunter:run` (Vercel Cron / GitHub Actions `schedule:` /
-   a small cron container) once at least one real adapter is
-   `legallyIntegrated: true` (see `docs/LEGAL_AND_DATA_SOURCES.md`).
-
-## GitHub Actions cron example
-
-```yaml
-# .github/workflows/rent-hunter.yml
-name: rent-hunter
-on:
-  schedule:
-    - cron: "*/30 * * * *"
-jobs:
-  ingest:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
-        with: { node-version: 20 }
-      - run: npm ci
-        working-directory: rentradar
-      - run: npm run hunter:run
-        working-directory: rentradar
-        env:
-          DATABASE_URL: ${{ secrets.DATABASE_URL }}
-          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
-          SENDGRID_API_KEY: ${{ secrets.SENDGRID_API_KEY }}
-          TWILIO_ACCOUNT_SID: ${{ secrets.TWILIO_ACCOUNT_SID }}
-          TWILIO_AUTH_TOKEN: ${{ secrets.TWILIO_AUTH_TOKEN }}
-          TWILIO_FROM_NUMBER: ${{ secrets.TWILIO_FROM_NUMBER }}
-```
+6. Add the `DATABASE_URL` secret (and optionally `ANTHROPIC_API_KEY`,
+   `SENDGRID_API_KEY`, `SENDGRID_FROM_EMAIL`, `TWILIO_ACCOUNT_SID`,
+   `TWILIO_AUTH_TOKEN`, `TWILIO_FROM_NUMBER`, `NEXT_PUBLIC_MAPBOX_TOKEN`) in
+   the GitHub repo's **Settings -> Secrets and variables -> Actions**. The
+   `.github/workflows/rent-hunter-cron.yml` workflow runs `npm run
+   hunter:run` every 30 minutes once `DATABASE_URL` is set -- no other setup
+   needed. It also supports a manual "Run workflow" trigger for testing.
 
 ## Cost estimate (single-metro MVP, monthly)
 

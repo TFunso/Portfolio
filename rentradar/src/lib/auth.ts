@@ -1,11 +1,27 @@
-import { NextRequest } from "next/server";
+import { auth, currentUser } from "@clerk/nextjs/server";
+import { prisma } from "@/lib/db";
 
 /**
- * Auth boundary. Production wiring is Clerk (see .env.example and
- * docs/ARCHITECTURE.md#authentication): swap this for
- * `auth().userId` from `@clerk/nextjs/server` and drop the header fallback.
- * Kept as a thin indirection so routes never import Clerk directly.
+ * Resolves the signed-in user to RentRadar's internal User.id, lazily
+ * creating the local row on first sight of a Clerk session (no webhook
+ * needed for an app this size). Returns null when there's no session, or
+ * when Clerk isn't configured at all -- callers already treat null as
+ * "unauthenticated" so auth-optional routes degrade the same way either way.
  */
-export async function requireUserId(request: NextRequest): Promise<string | null> {
-  return request.headers.get("x-rentradar-user-id");
+export async function requireUserId(): Promise<string | null> {
+  if (!process.env.CLERK_SECRET_KEY) return null;
+
+  const { userId: clerkId } = await auth();
+  if (!clerkId) return null;
+
+  const user = await prisma.user.upsert({
+    where: { clerkId },
+    update: {},
+    create: {
+      clerkId,
+      email: (await currentUser())?.emailAddresses[0]?.emailAddress ?? `${clerkId}@unknown.invalid`,
+    },
+  });
+
+  return user.id;
 }

@@ -9,8 +9,8 @@ const createSchema = z.object({
   triggerType: z.enum(["NEW_CHEAPER_LISTING", "RENT_DROP", "AVAILABILITY_CHANGE", "LANDLORD_RESPONSE", "NEW_MATCH"]),
 });
 
-export async function GET(request: NextRequest) {
-  const userId = await requireUserId(request);
+export async function GET() {
+  const userId = await requireUserId();
   if (!userId) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
   const alerts = await prisma.alert.findMany({
@@ -22,7 +22,7 @@ export async function GET(request: NextRequest) {
 }
 
 export async function POST(request: NextRequest) {
-  const userId = await requireUserId(request);
+  const userId = await requireUserId();
   if (!userId) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
   const parsed = createSchema.safeParse(await request.json().catch(() => null));

@@ -3,8 +3,8 @@ import { z } from "zod";
 import { runSearch } from "@/lib/search";
 
 const searchParamsSchema = z.object({
-  city: z.string().optional(),
-  zipCode: z.string().optional(),
+  location: z.string().optional(),
+  radiusMiles: z.coerce.number().positive().max(100).optional(),
   maxRent: z.coerce.number().positive().optional(), // dollars
   bedrooms: z.coerce.number().min(0).optional(),
   petFriendly: z.coerce.boolean().optional(),
@@ -18,13 +18,14 @@ const searchParamsSchema = z.object({
 });
 
 /**
- * GET /api/search?city=Columbus&maxRent=1200&bedrooms=1
+ * GET /api/search?location=Anaheim,%20CA&radiusMiles=25&maxRent=1200&bedrooms=1
  *
  * Queries the persisted, already-scored listing index (populated by the
  * ingestion worker in src/workers/rentHunter.ts) rather than the live source
- * adapters, so response times stay fast. In production this table-scan is
- * replaced by an Elasticsearch query against the same fields -- see
- * docs/ARCHITECTURE.md.
+ * adapters, so response times stay fast. `location` is geocoded (Mapbox) and
+ * results are filtered by great-circle distance -- see src/lib/search.ts.
+ * In production the table-scan this does is replaced by an Elasticsearch
+ * geo query against the same fields -- see docs/ARCHITECTURE.md.
  */
 export async function GET(request: NextRequest) {
   const parsed = searchParamsSchema.safeParse(Object.fromEntries(request.nextUrl.searchParams));
@@ -34,8 +35,8 @@ export async function GET(request: NextRequest) {
   const params = parsed.data;
 
   const result = await runSearch({
-    city: params.city,
-    zipCode: params.zipCode,
+    location: params.location,
+    radiusMiles: params.radiusMiles,
     bedrooms: params.bedrooms,
     maxRentCents: params.maxRent != null ? Math.round(params.maxRent * 100) : undefined,
     petFriendly: params.petFriendly,
