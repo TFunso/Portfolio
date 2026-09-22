@@ -4,6 +4,7 @@ import { prisma } from "@/lib/prisma";
 import { toJson, fromJson } from "@/lib/json";
 import { classifyEntry } from "@/lib/classifier";
 import { buildEvidenceDraft } from "@/lib/evidence";
+import { polishProfessionalSummary } from "@/lib/ai";
 import { MONTH_NAMES } from "@/lib/dates";
 
 export const dynamic = "force-dynamic";
@@ -52,6 +53,16 @@ export async function POST(req: NextRequest) {
     answers.map(async (answer) => {
       const classification = classifyEntry(answer);
       const draft = buildEvidenceDraft(answer, classification);
+      const polished = await polishProfessionalSummary(
+        answer,
+        {
+          reason: classification.reason,
+          categories: classification.categories,
+          impactLevel: classification.impactLevel,
+          departments: classification.departments,
+        },
+        draft.suggestedReviewLanguage,
+      );
       return prisma.evidenceRecord.create({
         data: {
           whatHappened: draft.whatHappened,
@@ -60,7 +71,7 @@ export async function POST(req: NextRequest) {
           goalSupported: draft.goalSupported,
           category: draft.category,
           impactLevel: draft.impactLevel,
-          suggestedReviewLanguage: `${draft.suggestedReviewLanguage} (${monthName} ${year} reflection.)`,
+          suggestedReviewLanguage: `${polished} (${monthName} ${year} reflection.)`,
           source: "monthly-reflection",
         },
       });

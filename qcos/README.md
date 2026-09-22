@@ -35,10 +35,24 @@ Live app: deployed on Vercel (see the repo's deployment for the current URL).
 │   AI Achievement Detector     │
 │   src/lib/classifier.ts       │
 │   Deterministic keyword/rule  │
-│   engine - offline, instant,  │
-│   explainable. Same function  │
-│   signature a hosted-LLM      │
-│   classifier could replace.   │
+│   engine decides counts Y/N,  │
+│   categories, impact, goal    │
+│   alignment - offline,        │
+│   instant, explainable.       │
+└───────────────┬──────────────┘
+                │ (evidence-worthy entries only)
+┌───────────────▼──────────────┐
+│      AI Polish (optional)     │
+│      src/lib/ai.ts            │
+│      Claude (claude-opus-5)   │
+│      rewrites the verdict     │
+│      into one resume-ready    │
+│      sentence, grounded in    │
+│      only the facts the       │
+│      classifier extracted.    │
+│      No ANTHROPIC_API_KEY ->  │
+│      falls back to the        │
+│      classifier's template.   │
 └───────────────┬──────────────┘
                 │
 ┌───────────────▼──────────────┐
@@ -47,13 +61,26 @@ Live app: deployed on Vercel (see the repo's deployment for the current URL).
 └────────────────────────────────┘
 ```
 
-**Why a rules engine instead of a hosted LLM call?** The spec's
-non-negotiable rule is that daily capture must take under 30 seconds and
-never block on anything external. A local, deterministic classifier
-returns an answer in milliseconds, works with zero API key or network
-dependency, and is fully explainable ("why did this count?" always has a
-traceable answer). `classifyEntry()` in `src/lib/classifier.ts` is the one
-seam to swap in a real LLM later without touching any API route or UI code.
+**Why a rules engine for the verdict, and an LLM only for the prose?** The
+spec's non-negotiable rule is that daily capture must take under 30 seconds
+and never block on anything external. `classifyEntry()` in
+`src/lib/classifier.ts` decides counts Y/N, category, impact, and goal
+alignment locally in milliseconds - no API key or network dependency, and
+fully explainable ("why did this count?" always has a traceable answer).
+That verdict is the source of truth and is never overridden by AI.
+
+What *is* AI-generated is the polished, resume-ready sentence shown as the
+"Professional Summary" / "Suggested Review Language" - the part the spec's
+Feature 2 example ("Supported operational priorities by...") calls for.
+`polishProfessionalSummary()` in `src/lib/ai.ts` sends Claude
+(`claude-opus-5`) the raw note plus the classifier's already-extracted
+facts and asks for one sentence, grounded in exactly those facts - it's
+told explicitly not to invent anything beyond them. This only runs for
+entries that clear the evidence bar (`shouldAutoFile`), not on every
+keystroke, and only if `ANTHROPIC_API_KEY` is set; without a key, or if the
+call fails, it falls back to the classifier's own template sentence. The
+app is fully functional either way - the key only upgrades wording, never
+gates a feature.
 
 **Why Postgres instead of SQLite in production?** The original spec calls
 for local-first SQLite. That's still true for local development (Prisma
@@ -133,7 +160,8 @@ qcos/
 │   │       └── dashboard/route.ts      # homepage aggregate
 │   ├── components/           # Presentational + form components
 │   ├── lib/
-│   │   ├── classifier.ts     # AI Achievement Detector
+│   │   ├── classifier.ts     # AI Achievement Detector (rules engine)
+│   │   ├── ai.ts              # Optional Claude polish pass
 │   │   ├── goals.ts          # Annual goal + metric definitions
 │   │   ├── evidence.ts       # Evidence-record generation
 │   │   ├── dates.ts
@@ -166,6 +194,7 @@ npm install
 #   docker run -e POSTGRES_PASSWORD=postgres -p 5432:5432 -d postgres
 npx prisma migrate dev --name init
 npm run db:seed   # optional sample data
+# optional - set ANTHROPIC_API_KEY in .env to enable AI-polished summaries
 npm run dev
 ```
 
@@ -176,7 +205,7 @@ Run `npm run typecheck` and `npm run build` before shipping changes.
 | Spec feature | Where it lives |
 |---|---|
 | 1. Daily Brain Dump | `src/components/BrainDumpForm.tsx`, `POST /api/entries` |
-| 2. AI Achievement Detector | `src/lib/classifier.ts` |
+| 2. AI Achievement Detector | `src/lib/classifier.ts` (verdict) + `src/lib/ai.ts` (polished language) |
 | 3. Did This Count? | `src/app/did-this-count/page.tsx`, `/api/did-this-count` |
 | 4. Things You Did That Counted | `src/components/ThingsThatCounted.tsx` (homepage) |
 | 5. Goal Dashboard | `src/app/goals/page.tsx`, `/api/goals` |

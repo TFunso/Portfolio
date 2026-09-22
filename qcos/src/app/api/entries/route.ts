@@ -3,6 +3,7 @@ import { z } from "zod";
 import { prisma } from "@/lib/prisma";
 import { classifyEntry } from "@/lib/classifier";
 import { buildEvidenceDraft, shouldAutoFile } from "@/lib/evidence";
+import { polishProfessionalSummary } from "@/lib/ai";
 import { toJson } from "@/lib/json";
 
 export const dynamic = "force-dynamic";
@@ -23,8 +24,13 @@ export async function GET(req: NextRequest) {
 }
 
 // POST /api/entries - the core "Daily Brain Dump" capture path.
-// Fast write first, classification happens in the same request but never
-// blocks on anything external (the classifier is pure, local, synchronous).
+// Classification is instant, local, and always runs first. Only entries
+// that clear the evidence bar (shouldAutoFile) get an extra AI polish pass
+// on their professional-summary sentence before anything is written - that
+// keeps routine entries fast and free, and only spends an API call on
+// entries worth remembering. If no ANTHROPIC_API_KEY is configured, or the
+// call fails, polishProfessionalSummary falls back to the classifier's own
+// template sentence, so this route works either way.
 export async function POST(req: NextRequest) {
   const body = await req.json().catch(() => null);
   const parsed = createSchema.safeParse(body);
@@ -34,6 +40,19 @@ export async function POST(req: NextRequest) {
 
   const { content } = parsed.data;
   const classification = classifyEntry(content);
+
+  if (shouldAutoFile(classification)) {
+    classification.professionalSummary = await polishProfessionalSummary(
+      content,
+      {
+        reason: classification.reason,
+        categories: classification.categories,
+        impactLevel: classification.impactLevel,
+        departments: classification.departments,
+      },
+      classification.professionalSummary,
+    );
+  }
 
   const entry = await prisma.dailyEntry.create({
     data: {
