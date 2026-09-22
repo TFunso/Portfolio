@@ -4,8 +4,13 @@
 // point DATABASE_URL at the same Postgres instance or any local Postgres.
 
 datasource db {
-  provider = "postgresql"
-  url      = env("DATABASE_URL")
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  // Migrations run DDL, which needs a direct (non-pooled) connection -
+  // Neon's pooled connection doesn't support the session locking
+  // `prisma migrate deploy` relies on. Runtime queries still use the
+  // pooled DATABASE_URL above.
+  directUrl = env("DATABASE_URL_UNPOOLED")
 }
 
 generator client {
