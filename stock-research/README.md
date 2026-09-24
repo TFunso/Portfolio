@@ -10,6 +10,7 @@ Buy / hold / avoid research on Nigerian (NGX) stocks, produced with a 15-step fr
 | [Johnson & Johnson](reports/2026-09-24-johnson-and-johnson.md) | 2026-09-24 | Hold (74/100, capped) — buy below ~$230 |
 | [Alcon](reports/2026-09-24-alcon.md) | 2026-09-24 | Buy (75/100) — starter now; add below ~$58 |
 | [Medtronic](reports/2026-09-24-medtronic.md) | 2026-09-24 | Buy (78/100) — core position; add below ~$80 |
+| [GTCO (GTBank)](reports/2026-09-24-gtco.md) | 2026-09-24 | Buy (76/100) — 5% position; add below ~₦110 |
 
 ## Viewing
 
