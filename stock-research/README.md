@@ -7,6 +7,7 @@ Buy / hold / avoid research on Nigerian (NGX) stocks, produced with a 15-step fr
 | [NGX Top 5 screen](reports/2026-09-24-ngx-top-5.md) | 2026-09-24 | GTCO, Zenith, MTN Nigeria, Seplat, Dangote Cement |
 | [Access Holdings](reports/2026-09-24-access-holdings.md) | 2026-09-24 | Hold (64/100) — buy only below ₦25 |
 | [Dangote Refinery IPO](reports/2026-09-24-dangote-refinery-ipo.md) | 2026-09-24 | Watchlist (55/100) — not at ₦525; below ~₦330 |
+| [Johnson & Johnson](reports/2026-09-24-johnson-and-johnson.md) | 2026-09-24 | Hold (74/100, capped) — buy below ~$230 |
 
 ## Viewing
 
