@@ -8,6 +8,7 @@ Buy / hold / avoid research on Nigerian (NGX) stocks, produced with a 15-step fr
 | [Access Holdings](reports/2026-09-24-access-holdings.md) | 2026-09-24 | Hold (64/100) — buy only below ₦25 |
 | [Dangote Refinery IPO](reports/2026-09-24-dangote-refinery-ipo.md) | 2026-09-24 | Watchlist (55/100) — not at ₦525; below ~₦330 |
 | [Johnson & Johnson](reports/2026-09-24-johnson-and-johnson.md) | 2026-09-24 | Hold (74/100, capped) — buy below ~$230 |
+| [Alcon](reports/2026-09-24-alcon.md) | 2026-09-24 | Buy (75/100) — starter now; add below ~$58 |
 
 ## Viewing
 
