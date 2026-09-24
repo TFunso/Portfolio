@@ -41,6 +41,25 @@
     border: 1px solid var(--border); font-size: 14px; white-space: nowrap;
   }
   nav a[aria-current="page"] { background: var(--accent-soft); color: var(--accent); border-color: var(--accent); }
+  .search { position: relative; flex: 1 1 100%; }
+  .search input {
+    width: 100%; font: inherit; font-size: 15px; padding: 9px 12px; border-radius: 8px;
+    border: 1px solid var(--border); background: var(--bg); color: var(--text);
+  }
+  .search input:focus { outline: 2px solid var(--accent); outline-offset: -1px; }
+  .results {
+    position: absolute; left: 0; right: 0; top: calc(100% + 4px); z-index: 10;
+    background: var(--surface); border: 1px solid var(--border); border-radius: 8px;
+    box-shadow: 0 8px 24px rgba(0,0,0,.12); max-height: 70vh; overflow-y: auto;
+  }
+  .results a { display: block; padding: 10px 14px; text-decoration: none; color: var(--text); border-bottom: 1px solid var(--border); }
+  .results a:last-child { border-bottom: 0; }
+  .results a:hover, .results a:focus { background: var(--accent-soft); outline: none; }
+  .results .r-title { font-weight: 600; }
+  .results .r-verdict { color: var(--accent); font-size: 13px; }
+  .results .r-snip { color: var(--muted); font-size: 13px; margin-top: 2px; }
+  .results mark { background: var(--warn-soft); color: inherit; padding: 0 2px; border-radius: 3px; }
+  .results .empty { padding: 12px 14px; font-size: 14px; color: var(--muted); }
   main { max-width: 960px; margin: 0 auto; padding: 24px 16px 64px; }
   .notice {
     background: var(--warn-soft); color: var(--warn); border-radius: 8px;
@@ -56,8 +75,11 @@
   }
   article blockquote p { margin: 0; }
   .table-wrap { overflow-x: auto; margin: 16px 0; border: 1px solid var(--border); border-radius: 8px; }
-  table { border-collapse: collapse; width: 100%; font-size: 14px; background: var(--surface); }
-  th, td { padding: 8px 12px; border-bottom: 1px solid var(--border); text-align: left; vertical-align: top; }
+  table { border-collapse: collapse; width: max-content; min-width: 100%; font-size: 14px; background: var(--surface); }
+  th, td {
+    padding: 8px 12px; border-bottom: 1px solid var(--border); text-align: left; vertical-align: top;
+    overflow-wrap: normal; max-width: 280px;
+  }
   th { background: var(--code); font-weight: 600; }
   tr:last-child td { border-bottom: 0; }
   code { background: var(--code); padding: 1px 5px; border-radius: 4px; }
@@ -69,6 +91,10 @@
   <div class="bar">
     <div class="brand">Stock Research Notes</div>
     <nav id="nav"></nav>
+    <form class="search" id="search-form" role="search" autocomplete="off">
+      <input id="q" type="search" placeholder="Search a stock or ticker, e.g. GTCO, MTNN, Zenith" aria-label="Search stocks">
+      <div id="results" class="results" hidden></div>
+    </form>
   </div>
 </header>
 <main>
@@ -78,9 +104,15 @@
 <footer>Reports live as Markdown in <code>stock-research/reports/</code>.</footer>
 <script>
   const REPORTS = [
-    { id: "top-5", title: "NGX Top 5", file: "reports/2026-09-24-ngx-top-5.md" },
-    { id: "access", title: "Access Holdings", file: "reports/2026-09-24-access-holdings.md" },
-    { id: "dangote-ipo", title: "Dangote Refinery IPO", file: "reports/2026-09-24-dangote-refinery-ipo.md" }
+    { id: "top-5", title: "NGX Top 5", file: "reports/2026-09-24-ngx-top-5.md",
+      verdict: "Screen: GTCO, Zenith, MTN Nigeria, Seplat, Dangote Cement",
+      keywords: "gtco guaranty trust zenith zenithbank mtn mtnn seplat dangote cement dangcem ngx top picks" },
+    { id: "access", title: "Access Holdings", file: "reports/2026-09-24-access-holdings.md",
+      verdict: "Hold (64/100) · buy only below ₦25",
+      keywords: "access bank accesscorp access holdings" },
+    { id: "dangote-ipo", title: "Dangote Refinery IPO", file: "reports/2026-09-24-dangote-refinery-ipo.md",
+      verdict: "Watchlist (55/100) · not at ₦525; below ~₦330",
+      keywords: "dangote refinery petroleum ipo dprp" }
   ];
 
   const nav = document.getElementById("nav");
@@ -104,7 +136,8 @@
     try {
       const res = await fetch(report.file);
       if (!res.ok) throw new Error(res.status);
-      out.innerHTML = marked.parse(await res.text());
+      // "~" means "approximately" in the reports, not strikethrough.
+      out.innerHTML = marked.parse((await res.text()).replace(/~/g, "&#126;"));
       out.querySelectorAll("table").forEach(t => {
         const head = t.querySelector("thead");
         if (head && !head.textContent.trim()) head.remove();
@@ -126,6 +159,55 @@
 
   window.addEventListener("hashchange", show);
   show();
+
+  // Search across report titles, tickers and full text.
+  const q = document.getElementById("q");
+  const results = document.getElementById("results");
+  const texts = {};
+  const loaded = Promise.all(REPORTS.map(r =>
+    fetch(r.file).then(res => res.ok ? res.text() : "").catch(() => "")
+      .then(t => { texts[r.id] = t.replace(/\[([^\]]*)\]\([^)]*\)/g, "$1").replace(/[#*|>_`]/g, " "); })));
+
+  const esc = s => s.replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+  const escRe = s => s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+
+  function snippet(text, term) {
+    const i = text.toLowerCase().indexOf(term);
+    if (i < 0) return "";
+    const s = text.slice(Math.max(0, i - 60), i + term.length + 80).replace(/\s+/g, " ").trim();
+    return "…" + esc(s).replace(new RegExp(escRe(esc(term)), "ig"), m => "<mark>" + m + "</mark>") + "…";
+  }
+
+  async function search() {
+    const term = q.value.trim().toLowerCase();
+    if (!term) { results.hidden = true; return; }
+    await loaded;
+    const hits = REPORTS.map(r => {
+      const text = texts[r.id] || "";
+      const meta = (r.title + " " + r.keywords).toLowerCase();
+      const count = text.toLowerCase().split(term).length - 1;
+      const score = (meta.includes(term) ? 100 : 0) + count;
+      return { r, score, snip: snippet(text, term) };
+    }).filter(h => h.score > 0).sort((a, b) => b.score - a.score);
+
+    results.innerHTML = hits.length
+      ? hits.map(h => `<a href="#${h.r.id}"><div class="r-title">${esc(h.r.title)}</div>` +
+          `<div class="r-verdict">${esc(h.r.verdict)}</div>` +
+          (h.snip ? `<div class="r-snip">${h.snip}</div>` : "") + `</a>`).join("")
+      : `<div class="empty">No report on “${esc(q.value.trim())}” yet. This page only covers stocks that have already been analysed. Ask for a new analysis and it will be added here.</div>`;
+    results.hidden = false;
+  }
+
+  q.addEventListener("input", search);
+  q.addEventListener("focus", search);
+  document.getElementById("search-form").addEventListener("submit", e => {
+    e.preventDefault();
+    const first = results.querySelector("a");
+    if (first) { location.hash = first.getAttribute("href"); results.hidden = true; q.blur(); }
+  });
+  results.addEventListener("click", e => { if (e.target.closest("a")) results.hidden = true; });
+  document.addEventListener("click", e => { if (!e.target.closest(".search")) results.hidden = true; });
+  document.addEventListener("keydown", e => { if (e.key === "Escape") results.hidden = true; });
 </script>
 </body>
 </html>
