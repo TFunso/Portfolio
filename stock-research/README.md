@@ -11,6 +11,7 @@ Buy / hold / avoid research on Nigerian (NGX) stocks, produced with a 15-step fr
 | [Alcon](reports/2026-09-24-alcon.md) | 2026-09-24 | Buy (75/100) — starter now; add below ~$58 |
 | [Medtronic](reports/2026-09-24-medtronic.md) | 2026-09-24 | Buy (78/100) — core position; add below ~$80 |
 | [GTCO (GTBank)](reports/2026-09-24-gtco.md) | 2026-09-24 | Buy (76/100) — 5% position; add below ~₦110 |
+| [BUA Foods](reports/2026-09-25-bua-foods.md) | 2026-09-25 | Watchlist (57/100) — buy only below ~₦550 |
 
 ## Viewing
 
