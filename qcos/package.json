@@ -18,10 +18,13 @@
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.127.0",
+    "@ducanh2912/next-pwa": "^10.2.9",
     "@prisma/client": "^5.20.0",
+    "docx": "^9.0.2",
     "next": "^14.2.5",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
+    "resend": "^4.0.1",
     "zod": "^3.23.8"
   },
   "prisma": {

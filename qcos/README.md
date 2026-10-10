@@ -10,6 +10,30 @@ department, and business better?"**
 
 Live app: deployed on Vercel (see the repo's deployment for the current URL).
 
+## Beyond the original spec
+
+Four additions on top of the 9 spec'd features, all optional / degrade
+gracefully without their env vars:
+
+- **Weekly AI pattern digest** (`src/lib/weeklyDigest.ts`) - a Claude pass
+  over the *whole* previous week's entries (not one at a time), looking for
+  things a single-entry classifier structurally can't see: a recurring
+  issue, a supplier coming up repeatedly, a skill taught more than once.
+  Suggestions show on the homepage ("This Week's Patterns") with one-click
+  "log as evidence" / "log metric" actions - never auto-applied.
+- **Weekly nudge email** (`src/lib/email.ts`, `vercel.json` cron, `/api/cron/weekly-digest`)
+  - a Monday-morning email (Resend) recapping last week and prompting for
+    anything not yet logged. Needs `RESEND_API_KEY` + `NOTIFY_EMAIL`; without
+    them the digest still generates, it just isn't emailed.
+- **Installable PWA + offline capture** (`next.config.js`, `public/manifest.json`,
+  `src/lib/offlineQueue.ts`, `src/components/OfflineSync.tsx`) - add QCOS to
+  your phone's home screen; if a brain-dump entry is submitted with no
+  connection, it's queued in `localStorage` and synced automatically the
+  moment the browser reports it's back online.
+- **Year-End Review Word export** (`src/lib/review.ts`, `/api/review/export`)
+  - "Download as Word" on the Review page, built server-side with the
+    `docx` package from the exact same data as the in-app review.
+
 ---
 
 ## 1. Architecture

@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { queueEntry } from "@/lib/offlineQueue";
 
 const EXAMPLES = [
   "Inspected 6 lots",
@@ -21,6 +22,16 @@ export default function BrainDumpForm({ onSaved }: { onSaved?: () => void }) {
     if (!content || saving) return;
     setSaving(true);
     setError(null);
+
+    if (typeof navigator !== "undefined" && !navigator.onLine) {
+      queueEntry(content);
+      setLastResult(null);
+      setValue("");
+      setSaving(false);
+      setError("You're offline - saved locally and will log automatically once you're back online.");
+      return;
+    }
+
     try {
       const res = await fetch("/api/entries", {
         method: "POST",
@@ -36,7 +47,16 @@ export default function BrainDumpForm({ onSaved }: { onSaved?: () => void }) {
       setValue("");
       onSaved?.();
     } catch (e) {
-      setError(e instanceof Error ? e.message : "Something went wrong.");
+      // Network error (not an HTTP error response) usually means the
+      // request never reached the server - treat it the same as offline
+      // instead of losing the entry.
+      if (e instanceof TypeError) {
+        queueEntry(content);
+        setValue("");
+        setError("Couldn't reach the server - saved locally and will log automatically once you're back online.");
+      } else {
+        setError(e instanceof Error ? e.message : "Something went wrong.");
+      }
     } finally {
       setSaving(false);
     }

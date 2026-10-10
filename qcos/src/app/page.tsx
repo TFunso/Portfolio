@@ -7,6 +7,7 @@ import GoalDashboard from "@/components/GoalDashboard";
 import ThingsThatCounted, { type CountedThing } from "@/components/ThingsThatCounted";
 import RecentEntries, { type RecentEntry } from "@/components/RecentEntries";
 import EvidenceHighlights, { type EvidenceHighlight } from "@/components/EvidenceHighlights";
+import WeeklyPatterns, { type WeeklyDigestData } from "@/components/WeeklyPatterns";
 import type { GoalMetricStatus } from "@/types";
 
 interface DashboardData {
@@ -27,6 +28,7 @@ interface DashboardData {
 export default function HomePage() {
   const [data, setData] = useState<DashboardData | null>(null);
   const [loading, setLoading] = useState(true);
+  const [digest, setDigest] = useState<WeeklyDigestData | null>(null);
 
   const load = useCallback(async () => {
     const res = await fetch("/api/dashboard");
@@ -36,6 +38,10 @@ export default function HomePage() {
 
   useEffect(() => {
     load();
+    fetch("/api/weekly-digest")
+      .then((res) => (res.ok ? res.json() : null))
+      .then((json) => json && setDigest(json.digest))
+      .catch(() => {});
   }, [load]);
 
   return (
@@ -47,6 +53,7 @@ export default function HomePage() {
       ) : (
         <>
           <PromotionReadinessSnapshot {...data.promotionReadiness} />
+          <WeeklyPatterns digest={digest} />
           <GoalDashboard metrics={data.goalDashboard.metrics} />
           <ThingsThatCounted items={data.thingsThatCounted} />
           <div className="grid gap-6 lg:grid-cols-2">

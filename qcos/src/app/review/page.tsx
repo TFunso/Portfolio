@@ -67,6 +67,9 @@ export default function ReviewPage() {
           <button className="btn-secondary" onClick={() => window.print()}>
             Print / Save PDF
           </button>
+          <a className="btn-primary" href={`/api/review/export?year=${year}`} download>
+            Download as Word
+          </a>
         </div>
       </div>
 

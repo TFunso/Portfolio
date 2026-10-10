@@ -1,11 +1,26 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import "./globals.css";
 import DarkModeToggle from "@/components/DarkModeToggle";
 import NavLink from "@/components/NavLink";
+import OfflineSync from "@/components/OfflineSync";
 
 export const metadata: Metadata = {
   title: "QCOS - Quality Career Operating System",
   description: "Capture daily work, surface hidden achievements, and build evidence-based performance reviews.",
+  manifest: "/manifest.json",
+  icons: {
+    icon: "/favicon.png",
+    apple: "/icons/apple-touch-icon.png",
+  },
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: "black-translucent",
+    title: "QCOS",
+  },
+};
+
+export const viewport: Viewport = {
+  themeColor: "#3661f5",
 };
 
 const NAV_ITEMS = [
@@ -22,6 +37,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html lang="en" suppressHydrationWarning>
       <body>
+        <OfflineSync />
         <div className="min-h-screen">
           <header className="sticky top-0 z-10 border-b border-slate-200 bg-white/80 backdrop-blur dark:border-slate-800 dark:bg-slate-950/80">
             <div className="mx-auto flex max-w-6xl flex-wrap items-center justify-between gap-3 px-4 py-3">

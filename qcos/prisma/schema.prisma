@@ -109,3 +109,23 @@ model MonthlyReflection {
 
   @@unique([month, year])
 }
+
+// A weekly AI pass over everything logged that week, looking for patterns
+// a single-entry classification can't see (e.g. the same supplier issue
+// mentioned three times = a Supplier Certification candidate). Generated
+// by the weekly cron (or on demand), shown on the homepage, and emailed as
+// part of the weekly nudge. Suggestions are never auto-applied - the user
+// accepts or dismisses each one.
+model WeeklyDigest {
+  id          String   @id @default(cuid())
+  weekStart   DateTime
+  weekEnd     DateTime
+  entryCount  Int
+  summary     String
+  suggestions String   // JSON DigestSuggestion[]
+  emailSentAt DateTime?
+  createdAt   DateTime @default(now())
+
+  @@unique([weekStart])
+  @@index([weekStart])
+}

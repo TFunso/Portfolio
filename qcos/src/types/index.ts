@@ -57,3 +57,9 @@ export interface GoalMetricStatus {
   actual: number;
   status: GoalStatus;
 }
+
+export interface DigestSuggestion {
+  description: string;
+  suggestedGoalKey: GoalMetricKey | null;
+  suggestedCategory: Category | null;
+}
