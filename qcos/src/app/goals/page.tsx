@@ -2,13 +2,20 @@
 
 import { useCallback, useEffect, useState } from "react";
 import { StatusDot } from "@/components/Badges";
+import KpiTrendChart from "@/components/KpiTrendChart";
 import { GOAL_METRICS } from "@/lib/goals";
-import type { GoalMetricStatus } from "@/types";
+import type { GoalMetricKey, GoalMetricStatus } from "@/types";
+import type { KpiTrendPoint } from "@/lib/kpiTrend";
 
 export default function GoalsPage() {
   const [metrics, setMetrics] = useState<GoalMetricStatus[]>([]);
   const [loading, setLoading] = useState(true);
   const [logging, setLogging] = useState<string | null>(null);
+
+  const [trendPoints, setTrendPoints] = useState<KpiTrendPoint[]>([]);
+  const [trendLoading, setTrendLoading] = useState(true);
+  const [trendMonths, setTrendMonths] = useState(6);
+  const [trendMetric, setTrendMetric] = useState<GoalMetricKey | "">("");
 
   const load = useCallback(async () => {
     const res = await fetch("/api/goals");
@@ -16,9 +23,22 @@ export default function GoalsPage() {
     setLoading(false);
   }, []);
 
+  const loadTrend = useCallback(async () => {
+    setTrendLoading(true);
+    const params = new URLSearchParams({ months: String(trendMonths) });
+    if (trendMetric) params.set("metricKey", trendMetric);
+    const res = await fetch(`/api/goals/trend?${params.toString()}`);
+    if (res.ok) setTrendPoints((await res.json()).points);
+    setTrendLoading(false);
+  }, [trendMonths, trendMetric]);
+
   useEffect(() => {
     load();
   }, [load]);
+
+  useEffect(() => {
+    loadTrend();
+  }, [loadTrend]);
 
   async function logManually(metricKey: string) {
     setLogging(metricKey);
@@ -27,7 +47,7 @@ export default function GoalsPage() {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ metricKey }),
     });
-    await load();
+    await Promise.all([load(), loadTrend()]);
     setLogging(null);
   }
 
@@ -72,6 +92,54 @@ export default function GoalsPage() {
           })}
         </div>
       )}
+
+      <section className="card">
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <div>
+            <h2 className="text-sm font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">
+              KPI Trend
+            </h2>
+            <p className="mt-0.5 text-xs text-slate-400">
+              How many metric events were captured automatically from entries vs. logged by hand, per month.
+            </p>
+          </div>
+          <div className="flex gap-2">
+            <select
+              className="input w-auto text-sm"
+              value={trendMetric}
+              onChange={(e) => setTrendMetric(e.target.value as GoalMetricKey | "")}
+            >
+              <option value="">All metrics</option>
+              {GOAL_METRICS.map((m) => (
+                <option key={m.key} value={m.key}>
+                  {m.label}
+                </option>
+              ))}
+            </select>
+            <select
+              className="input w-auto text-sm"
+              value={trendMonths}
+              onChange={(e) => setTrendMonths(Number(e.target.value))}
+            >
+              <option value={3}>3 months</option>
+              <option value={6}>6 months</option>
+              <option value={12}>12 months</option>
+            </select>
+          </div>
+        </div>
+
+        <div className="mt-4">
+          {trendLoading ? (
+            <div className="h-40 animate-pulse rounded-xl bg-slate-100 dark:bg-slate-800" />
+          ) : trendPoints.every((p) => p.total === 0) ? (
+            <p className="text-sm text-slate-500 dark:text-slate-400">
+              Nothing logged in this window yet - captured and reported counts will show up here once they are.
+            </p>
+          ) : (
+            <KpiTrendChart points={trendPoints} />
+          )}
+        </div>
+      </section>
     </div>
   );
 }
