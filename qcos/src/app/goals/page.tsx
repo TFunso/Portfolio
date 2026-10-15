@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
-import { StatusDot } from "@/components/Badges";
+import { StatusDot, PaceBadge } from "@/components/Badges";
 import KpiTrendChart from "@/components/KpiTrendChart";
 import { GOAL_METRICS } from "@/lib/goals";
 import type { GoalMetricKey, GoalMetricStatus } from "@/types";
@@ -80,6 +80,12 @@ export default function GoalsPage() {
                     </span>
                   )}
                 </p>
+                <div className="mt-2 flex flex-wrap items-center gap-2">
+                  <PaceBadge paceStatus={m.paceStatus} />
+                  {m.paceStatus !== "too-early" && (
+                    <span className="text-xs text-slate-400">projected {m.projected} by Dec 31</span>
+                  )}
+                </div>
                 <button
                   className="btn-secondary mt-3 text-xs"
                   disabled={logging === m.key}

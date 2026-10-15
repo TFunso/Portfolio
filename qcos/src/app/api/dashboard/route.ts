@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { fromJson } from "@/lib/json";
 import { startOfWeek, startOfYear, endOfYear } from "@/lib/dates";
-import { GOAL_METRICS, goalMetricStatus } from "@/lib/goals";
+import { GOAL_METRICS, goalMetricStatus, forecastGoalMetric } from "@/lib/goals";
 import type { Category } from "@/types";
 
 export const dynamic = "force-dynamic";
@@ -42,7 +42,8 @@ export async function GET() {
   for (const e of goalEvents) countsByMetric.set(e.metricKey, (countsByMetric.get(e.metricKey) ?? 0) + 1);
   const goalStatuses = GOAL_METRICS.map((m) => {
     const actual = countsByMetric.get(m.key) ?? 0;
-    return { ...m, actual, status: goalMetricStatus(m, actual) };
+    const { projected, paceStatus } = forecastGoalMetric(m, actual);
+    return { ...m, actual, status: goalMetricStatus(m, actual), projected, paceStatus };
   });
   const onTrackCount = goalStatuses.filter((g) => g.status === "green").length;
 

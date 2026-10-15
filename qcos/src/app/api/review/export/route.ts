@@ -1,20 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
 import { Document, Packer, Paragraph, TextRun, HeadingLevel } from "docx";
 import { getYearInReview, SECTION_LABELS, type YearInReview } from "@/lib/review";
+import { heading, bullet, numbered } from "@/lib/docxHelpers";
 
 export const dynamic = "force-dynamic";
-
-function heading(text: string) {
-  return new Paragraph({ text, heading: HeadingLevel.HEADING_2, spacing: { before: 300, after: 150 } });
-}
-
-function bullet(text: string) {
-  return new Paragraph({ children: [new TextRun(`•  ${text}`)], spacing: { after: 80 } });
-}
-
-function numbered(text: string, index: number) {
-  return new Paragraph({ children: [new TextRun(`${index + 1}.  ${text}`)], spacing: { after: 80 } });
-}
 
 function buildDocument(data: YearInReview): Document {
   const children: Paragraph[] = [

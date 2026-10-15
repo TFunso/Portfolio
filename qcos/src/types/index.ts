@@ -56,6 +56,8 @@ export interface GoalMetricStatus {
   comparator: "min" | "max" | "ongoing";
   actual: number;
   status: GoalStatus;
+  projected: number;
+  paceStatus: "ahead" | "on-pace" | "behind" | "too-early";
 }
 
 export interface DigestSuggestion {

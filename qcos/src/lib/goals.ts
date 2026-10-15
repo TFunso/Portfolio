@@ -93,3 +93,51 @@ export function goalMetricStatus(
 export function goalMetricLabel(key: GoalMetricKey): string {
   return GOAL_METRICS.find((m) => m.key === key)?.label ?? key;
 }
+
+export type PaceStatus = "ahead" | "on-pace" | "behind" | "too-early";
+
+export interface GoalMetricForecast {
+  projected: number;
+  paceStatus: PaceStatus;
+}
+
+const MIN_DAYS_FOR_FORECAST = 14;
+
+function daysBetween(a: Date, b: Date): number {
+  return Math.round((b.getTime() - a.getTime()) / 86_400_000);
+}
+
+// A simple linear "at this pace" projection: actual-so-far divided by days
+// elapsed this year, extrapolated to a full year. Intentionally rough - it's
+// a pace indicator, not a prediction model - so it's suppressed for the
+// first couple weeks of the year, where a single early event would
+// otherwise project to a wildly overstated year-end number.
+export function forecastGoalMetric(
+  metric: GoalMetricDefinition,
+  actual: number,
+  now: Date = new Date(),
+): GoalMetricForecast {
+  const yearStart = new Date(now.getFullYear(), 0, 1);
+  const yearEnd = new Date(now.getFullYear(), 11, 31);
+  const daysElapsed = daysBetween(yearStart, now) + 1;
+  const daysInYear = daysBetween(yearStart, yearEnd) + 1;
+
+  if (daysElapsed < MIN_DAYS_FOR_FORECAST) {
+    return { projected: actual, paceStatus: "too-early" };
+  }
+
+  const projected = Math.round((actual / daysElapsed) * daysInYear);
+
+  let paceStatus: PaceStatus;
+  if (metric.comparator === "min") {
+    if (projected >= metric.target * 1.5) paceStatus = "ahead";
+    else if (projected >= metric.target) paceStatus = "on-pace";
+    else paceStatus = "behind";
+  } else if (metric.comparator === "max") {
+    paceStatus = projected <= metric.target ? "on-pace" : "behind";
+  } else {
+    paceStatus = projected >= 3 ? "on-pace" : "behind";
+  }
+
+  return { projected, paceStatus };
+}

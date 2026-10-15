@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 import { prisma } from "@/lib/prisma";
-import { GOAL_METRICS, goalMetricStatus, ANNUAL_GOAL } from "@/lib/goals";
+import { GOAL_METRICS, goalMetricStatus, forecastGoalMetric, ANNUAL_GOAL } from "@/lib/goals";
 import { startOfYear, endOfYear } from "@/lib/dates";
 import type { GoalMetricStatus } from "@/types";
 
@@ -26,6 +26,7 @@ export async function GET(req: NextRequest) {
 
   const metrics: GoalMetricStatus[] = GOAL_METRICS.map((m) => {
     const actual = counts.get(m.key) ?? 0;
+    const { projected, paceStatus } = forecastGoalMetric(m, actual);
     return {
       key: m.key,
       label: m.label,
@@ -33,6 +34,8 @@ export async function GET(req: NextRequest) {
       comparator: m.comparator,
       actual,
       status: goalMetricStatus(m, actual),
+      projected,
+      paceStatus,
     };
   });
 

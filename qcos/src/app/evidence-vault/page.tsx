@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useState } from "react";
 import { ImpactBadge, CategoryBadge } from "@/components/Badges";
+import ManagerPrepExport from "@/components/ManagerPrepExport";
 import { formatDate, MONTH_NAMES } from "@/lib/dates";
 
 const CATEGORIES = [
@@ -43,19 +44,27 @@ export default function EvidenceVaultPage() {
   const [month, setMonth] = useState("");
   const [category, setCategory] = useState("");
   const [impactLevel, setImpactLevel] = useState("");
+  const [search, setSearch] = useState("");
+  const [debouncedSearch, setDebouncedSearch] = useState("");
   const [showForm, setShowForm] = useState(false);
   const [form, setForm] = useState(emptyForm);
   const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const timer = setTimeout(() => setDebouncedSearch(search.trim()), 300);
+    return () => clearTimeout(timer);
+  }, [search]);
 
   const load = useCallback(async () => {
     const params = new URLSearchParams();
     if (month) params.set("month", month);
     if (category) params.set("category", category);
     if (impactLevel) params.set("impactLevel", impactLevel);
+    if (debouncedSearch) params.set("q", debouncedSearch);
     const res = await fetch(`/api/evidence?${params.toString()}`);
     if (res.ok) setRecords((await res.json()).records);
     setLoading(false);
-  }, [month, category, impactLevel]);
+  }, [month, category, impactLevel, debouncedSearch]);
 
   useEffect(() => {
     load();
@@ -94,6 +103,8 @@ export default function EvidenceVaultPage() {
           {showForm ? "Cancel" : "+ Add evidence"}
         </button>
       </div>
+
+      <ManagerPrepExport />
 
       {showForm && (
         <form onSubmit={submitManual} className="card space-y-3">
@@ -177,7 +188,16 @@ export default function EvidenceVaultPage() {
         </form>
       )}
 
-      <div className="card flex flex-wrap gap-3">
+      <div className="card space-y-3">
+        <input
+          type="search"
+          className="input"
+          placeholder="Search what happened, why it mattered, review language…"
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+          aria-label="Search evidence"
+        />
+        <div className="flex flex-wrap gap-3">
         <select className="input w-auto" value={month} onChange={(e) => setMonth(e.target.value)}>
           <option value="">All months</option>
           {MONTH_NAMES.map((m, i) => (
@@ -198,6 +218,7 @@ export default function EvidenceVaultPage() {
           <option>Medium</option>
           <option>Low</option>
         </select>
+        </div>
       </div>
 
       {loading ? (

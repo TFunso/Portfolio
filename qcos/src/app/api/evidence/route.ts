@@ -16,7 +16,7 @@ const createSchema = z.object({
   suggestedReviewLanguage: z.string().trim().min(1),
 });
 
-// GET /api/evidence?month=9&year=2026&quarter=true&category=Leadership&impactLevel=High
+// GET /api/evidence?month=9&year=2026&quarter=true&category=Leadership&impactLevel=High&q=supplier
 export async function GET(req: NextRequest) {
   const params = req.nextUrl.searchParams;
   const month = params.get("month");
@@ -25,6 +25,7 @@ export async function GET(req: NextRequest) {
   const category = params.get("category");
   const impactLevel = params.get("impactLevel");
   const goal = params.get("goal");
+  const q = params.get("q")?.trim();
 
   const where: Prisma.EvidenceRecordWhereInput = {};
 
@@ -44,6 +45,15 @@ export async function GET(req: NextRequest) {
   if (category) where.category = category;
   if (impactLevel) where.impactLevel = impactLevel;
   if (goal) where.goalSupported = { contains: goal };
+  if (q) {
+    where.OR = [
+      { whatHappened: { contains: q, mode: "insensitive" } },
+      { whyItMattered: { contains: q, mode: "insensitive" } },
+      { businessImpact: { contains: q, mode: "insensitive" } },
+      { suggestedReviewLanguage: { contains: q, mode: "insensitive" } },
+      { goalSupported: { contains: q, mode: "insensitive" } },
+    ];
+  }
 
   const records = await prisma.evidenceRecord.findMany({
     where,
