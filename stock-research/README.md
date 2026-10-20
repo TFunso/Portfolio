@@ -15,6 +15,10 @@ Buy / hold / avoid research on Nigerian (NGX) stocks, produced with a 15-step fr
 | [Wema Bank](reports/2026-09-25-wema-bank.md) | 2026-09-25 | Hold (68/100) — small starter; buy below ~₦26 |
 | [CWG](reports/2026-09-26-cwg.md) | 2026-09-26 | Hold (60/100) — buy only below ~₦15 |
 
+## Dividend calendar
+
+`dividend-calendar.html` maps ~30 viable NGX dividend payers across January–December, with qualification (cut-off) and payment dates, a next-cut-off list, a monthly income planner and a salary-replacement calculator. Data lives in `dividend-data.json`; update it as companies announce new dates.
+
 ## Viewing
 
 `index.html` is a static page that renders the Markdown reports. Open it through any static server (e.g. `npx serve stock-research`) or deploy the folder to Vercel with **Root Directory = `stock-research`** and **Framework Preset = Other**. No build step.

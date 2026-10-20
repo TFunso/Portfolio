@@ -1,0 +1,453 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>NGX Dividend Calendar</title>
+<meta name="description" content="A month-by-month calendar of viable Nigerian dividend stocks, with qualification (cut-off) dates, payment dates and a planner for building a monthly retirement income.">
+<style>
+  :root {
+    --bg: #fbfaf7; --surface: #ffffff; --text: #1d1f23; --muted: #5f6570;
+    --border: #e4e1da; --accent: #0f6b4f; --accent-soft: #e5f2ec;
+    --warn-soft: #fdf3e1; --warn: #8a5a00; --code: #f1efe9; --bar: #0f6b4f;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #121416; --surface: #1a1d20; --text: #e7e8ea; --muted: #a0a6ae;
+      --border: #2c3136; --accent: #4cc39a; --accent-soft: #173229;
+      --warn-soft: #33290f; --warn: #f0c060; --code: #23272b; --bar: #4cc39a;
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg: #121416; --surface: #1a1d20; --text: #e7e8ea; --muted: #a0a6ae;
+    --border: #2c3136; --accent: #4cc39a; --accent-soft: #173229;
+    --warn-soft: #33290f; --warn: #f0c060; --code: #23272b; --bar: #4cc39a;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--text);
+    font: 16px/1.55 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; }
+  a { color: var(--accent); }
+  header { border-bottom: 1px solid var(--border); background: var(--surface); }
+  .bar { max-width: 1100px; margin: 0 auto; padding: 12px 16px; display: flex; flex-wrap: wrap; gap: 8px 16px; align-items: center; }
+  .brand { font-weight: 700; margin-right: auto; }
+  .bar a.back { font-size: 14px; text-decoration: none; }
+  main { max-width: 1100px; margin: 0 auto; padding: 24px 16px 64px; }
+  h1 { font-size: 1.8rem; line-height: 1.25; margin: 0 0 6px; }
+  h2 { font-size: 1.3rem; margin: 40px 0 8px; padding-top: 16px; border-top: 1px solid var(--border); }
+  .lede { color: var(--muted); margin: 0 0 16px; max-width: 70ch; }
+  .notice { background: var(--warn-soft); color: var(--warn); border-radius: 8px; padding: 10px 14px; font-size: 14px; margin: 16px 0; }
+  .tiles { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 12px; margin: 16px 0; }
+  .tile { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 12px 14px; }
+  .tile .k { font-size: 13px; color: var(--muted); }
+  .tile .v { font-size: 1.5rem; font-weight: 700; }
+  .controls { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin: 12px 0; }
+  .seg { display: inline-flex; border: 1px solid var(--border); border-radius: 999px; overflow: hidden; }
+  .seg button { border: 0; background: var(--surface); color: var(--muted); padding: 7px 14px; font: inherit; font-size: 14px; cursor: pointer; }
+  .seg button[aria-pressed="true"] { background: var(--accent-soft); color: var(--accent); font-weight: 600; }
+  .chips { display: flex; flex-wrap: wrap; gap: 6px; margin: 4px 0 12px; }
+  .chip { border: 1px solid var(--border); background: var(--surface); color: var(--muted); border-radius: 999px; padding: 5px 11px; font: inherit; font-size: 13px; cursor: pointer; }
+  .chip[aria-pressed="true"] { background: var(--accent-soft); color: var(--accent); border-color: var(--accent); }
+  input[type="search"], input[type="number"] { font: inherit; font-size: 14px; padding: 7px 10px; border: 1px solid var(--border); border-radius: 8px; background: var(--surface); color: var(--text); }
+  input[type="search"] { min-width: 200px; flex: 1 1 200px; }
+  label.inline { font-size: 14px; color: var(--muted); display: inline-flex; gap: 6px; align-items: center; }
+  .months { display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 12px; }
+  .month { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 12px; min-height: 120px; }
+  .month h3 { margin: 0 0 8px; font-size: 1rem; display: flex; justify-content: space-between; align-items: baseline; }
+  .month h3 .count { font-size: 12px; font-weight: 500; color: var(--muted); }
+  .month.empty { border-style: dashed; }
+  .month .gap { font-size: 13px; color: var(--warn); background: var(--warn-soft); border-radius: 6px; padding: 8px; }
+  .entry { display: block; width: 100%; text-align: left; border: 0; border-top: 1px solid var(--border); background: none; color: inherit; font: inherit; padding: 7px 2px; cursor: pointer; }
+  .entry:first-of-type { border-top: 0; }
+  .entry:hover, .entry:focus-visible { background: var(--accent-soft); outline: none; }
+  .entry .t { font-weight: 700; font-size: 14px; }
+  .entry .s { font-size: 12px; color: var(--muted); }
+  .entry .a { float: right; font-size: 14px; font-weight: 600; }
+  .badge { display: inline-block; font-size: 11px; border: 1px solid var(--border); color: var(--muted); border-radius: 4px; padding: 0 5px; margin-left: 4px; vertical-align: 1px; }
+  .badge.warn { border-color: var(--warn); color: var(--warn); }
+  table { border-collapse: collapse; width: 100%; font-size: 14px; background: var(--surface); }
+  th, td { padding: 8px 10px; border-bottom: 1px solid var(--border); text-align: left; vertical-align: top; }
+  th { background: var(--code); font-weight: 600; white-space: nowrap; }
+  td.num, th.num { text-align: right; white-space: nowrap; }
+  .table-wrap { overflow-x: auto; border: 1px solid var(--border); border-radius: 10px; }
+  .planner-table input[type="number"] { width: 110px; }
+  .presets { display: flex; flex-wrap: wrap; gap: 8px; margin: 8px 0 12px; }
+  .btn { border: 1px solid var(--accent); background: var(--accent-soft); color: var(--accent); border-radius: 8px; padding: 7px 14px; font: inherit; font-size: 14px; cursor: pointer; font-weight: 600; }
+  .btn.ghost { background: var(--surface); color: var(--muted); border-color: var(--border); font-weight: 500; }
+  .strip { display: grid; grid-template-columns: repeat(12, 1fr); gap: 4px; margin: 12px 0; }
+  .strip div { text-align: center; font-size: 12px; border-radius: 6px; padding: 6px 0; border: 1px solid var(--border); background: var(--surface); color: var(--muted); }
+  .strip div.on { background: var(--accent-soft); color: var(--accent); border-color: var(--accent); font-weight: 600; }
+  .strip div.off { border-style: dashed; color: var(--warn); }
+  .chart { position: relative; display: grid; grid-template-columns: repeat(12, 1fr); gap: 6px; align-items: end; height: 220px; padding: 8px 0 0; border-bottom: 1px solid var(--border); margin-top: 12px; }
+  .chart .col { height: 100%; display: flex; flex-direction: column; justify-content: flex-end; align-items: stretch; cursor: default; }
+  .chart .b { background: var(--bar); border-radius: 4px 4px 0 0; min-height: 0; transition: height .2s; }
+  .chart .col:hover .b { opacity: .8; }
+  .axis { display: grid; grid-template-columns: repeat(12, 1fr); gap: 6px; font-size: 12px; color: var(--muted); text-align: center; margin-top: 4px; }
+  .tip { position: absolute; pointer-events: none; background: var(--text); color: var(--bg); font-size: 12px; padding: 6px 8px; border-radius: 6px; white-space: nowrap; transform: translate(-50%, -110%); display: none; z-index: 5; }
+  .summary { font-size: 15px; margin: 12px 0; }
+  .summary strong { font-size: 1.1rem; }
+  .calc { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px; align-items: end; }
+  .calc label { display: flex; flex-direction: column; font-size: 14px; color: var(--muted); gap: 4px; }
+  .calc output { font-size: 1.4rem; font-weight: 700; color: var(--text); }
+  dialog { border: 1px solid var(--border); border-radius: 12px; background: var(--surface); color: var(--text); max-width: 560px; width: calc(100% - 32px); padding: 18px; }
+  dialog::backdrop { background: rgba(0,0,0,.4); }
+  dialog h3 { margin: 0 0 4px; }
+  .muted { color: var(--muted); font-size: 14px; }
+  ol.steps li { margin-bottom: 6px; }
+  footer { max-width: 1100px; margin: 0 auto; padding: 0 16px 32px; color: var(--muted); font-size: 13px; }
+  @media (max-width: 560px) {
+    .strip div, .axis { font-size: 10px; }
+    .chart { height: 180px; gap: 3px; } .axis { gap: 3px; }
+  }
+</style>
+</head>
+<body>
+<header>
+  <div class="bar">
+    <div class="brand">NGX Dividend Calendar</div>
+    <a class="back" href="./">← Stock research notes</a>
+  </div>
+</header>
+<main>
+  <h1>A dividend for (almost) every month</h1>
+  <p class="lede">Viable Nigerian dividend payers mapped from January to December, with the cut-off (qualification) date you must own the shares by, the payment date, the amount and how often each one pays. Use the planner below to see which months your portfolio covers and how much it would pay.</p>
+
+  <div class="notice" id="asof">Loading data…</div>
+
+  <div class="tiles" id="tiles"></div>
+
+  <h2 id="calendar">Calendar</h2>
+  <div class="controls">
+    <div class="seg" role="group" aria-label="Group by">
+      <button type="button" data-view="pay" aria-pressed="true">By payment month</button>
+      <button type="button" data-view="qual" aria-pressed="false">By cut-off month</button>
+    </div>
+    <input type="search" id="q" placeholder="Search a stock or ticker" aria-label="Search stocks">
+    <label class="inline"><input type="checkbox" id="hideIrregular"> Hide irregular payers</label>
+  </div>
+  <div class="chips" id="sectors" aria-label="Filter by sector"></div>
+  <div class="months" id="months"></div>
+
+  <h2 id="upcoming">Next cut-off dates</h2>
+  <p class="muted">Announced dates first. "Expected" rows repeat last year's date and will move once the company announces. Buy several working days <em>before</em> the cut-off date: trades take a few business days to settle, so a purchase on the cut-off day itself is too late. Check your broker's settlement cycle.</p>
+  <div class="table-wrap"><table id="upcomingTable"><thead><tr><th>Cut-off date</th><th>Stock</th><th>Dividend</th><th class="num">Amount (₦)</th><th>Pays</th><th>Status</th></tr></thead><tbody></tbody></table></div>
+
+  <h2 id="planner">Monthly income planner</h2>
+  <p class="muted">Tick stocks and enter how many shares you hold (or plan to buy). The planner uses each stock's latest declared amounts, so it shows roughly what a year would look like, not a promise. Payments declared only in US dollars are not counted in naira totals.</p>
+  <div class="presets">
+    <button class="btn" type="button" id="presetCoverage">Load 11-month coverage mix</button>
+    <button class="btn ghost" type="button" id="presetClear">Clear</button>
+    <label class="inline">Withholding tax <input type="number" id="wht" value="10" min="0" max="50" step="1" style="width:70px">%</label>
+  </div>
+  <div class="strip" id="strip" aria-label="Months covered by your selection"></div>
+  <div class="summary" id="summary"></div>
+  <div class="chart" id="chart" role="img" aria-label="Estimated dividend income by month"><div class="tip" id="tip"></div></div>
+  <div class="axis" id="axis"></div>
+  <details style="margin-top:10px"><summary class="muted">Show monthly income as a table</summary>
+    <div class="table-wrap" style="margin-top:8px"><table id="incomeTable"><thead><tr><th>Month</th><th class="num">Income (₦, after tax)</th><th>From</th></tr></thead><tbody></tbody></table></div>
+  </details>
+  <div id="gaps" class="muted" style="margin-top:12px"></div>
+  <div class="table-wrap" style="margin-top:16px"><table class="planner-table" id="plannerTable"><thead><tr><th></th><th>Stock</th><th>Sector</th><th>Pays in</th><th class="num">Last 12m ₦/share</th><th class="num">Price (₦)</th><th class="num">Yield</th><th class="num">Shares</th></tr></thead><tbody></tbody></table></div>
+
+  <h2 id="retire">How much do I need to replace my salary?</h2>
+  <div class="calc">
+    <label>Target monthly income (₦)<input type="number" id="target" value="500000" min="0" step="10000"></label>
+    <label>Average portfolio dividend yield (%)<input type="number" id="yield" value="7" min="0.5" max="30" step="0.5"></label>
+    <label>Capital needed<output id="capital">–</output></label>
+  </div>
+  <p class="muted">Formula: target × 12 ÷ (yield × (1 − withholding tax)). Naira yields look high partly because inflation is high, so raise your target over time. A dividend that grows slower than inflation still loses buying power.</p>
+
+  <h2 id="how">How to use this to replace a 9–5</h2>
+  <ol class="steps">
+    <li><strong>Accept that dividends are lumpy.</strong> Nigerian payouts bunch in April–May (bank and blue-chip finals) and July–November (interims). No major NGX company pays in January.</li>
+    <li><strong>Pay yourself a salary from a dividend reserve.</strong> Send every dividend into one savings or money-market account, then pay yourself the same amount each month (your annual total ÷ 12). The planner's "pay yourself" figure is this number.</li>
+    <li><strong>Fill the thin months on purpose.</strong> The listed infrastructure funds (NIDF quarterly, Coronation twice a year) and REITs qualify you in January and pay in February. Vitafoam pays in March, Julius Berger in June, and Airtel Africa and Aradel in December.</li>
+    <li><strong>Diversify by sector and payer.</strong> Banks dominate Nigerian dividends, so cap any one sector. If the regulator blocks bank dividends (as happened with Access and UBA), you lose several months at once.</li>
+    <li><strong>Watch the cut-off, not the payment date.</strong> You must be on the register at the close of business on the qualification date. Shares bought after that trade "ex-dividend" and the payout goes to the seller.</li>
+    <li><strong>Register for e-dividend</strong> with each registrar so payments land in your bank account, and claim any unpaid old dividends.</li>
+    <li><strong>Reinvest while you're still working.</strong> Until you retire, reinvesting dividends grows the income much faster than the payouts alone.</li>
+  </ol>
+
+  <h2 id="left-out">Left out on purpose</h2>
+  <ul id="excluded"></ul>
+
+  <h2 id="sources">Sources</h2>
+  <ul id="sourceList" class="muted"></ul>
+</main>
+<footer>Personal research, not financial advice. Dates and amounts come from NGX notices and press coverage, with "expected" dates projected from last year. Always confirm with the company's NGX notice or registrar before buying for a dividend.</footer>
+
+<dialog id="detail">
+  <h3 id="dTitle"></h3>
+  <div class="muted" id="dSub"></div>
+  <div class="table-wrap" style="margin:12px 0"><table><thead><tr><th>Dividend</th><th class="num">₦/share</th><th>Cut-off</th><th>Paid</th></tr></thead><tbody id="dRows"></tbody></table></div>
+  <p class="muted" id="dNote"></p>
+  <p id="dLink"></p>
+  <form method="dialog"><button class="btn ghost" type="submit">Close</button></form>
+</dialog>
+
+<script>
+(async function () {
+  const MONTHS = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+  const MONTHS_LONG = ["January","February","March","April","May","June","July","August","September","October","November","December"];
+  const COVERAGE = { gtco: 0, zenith: 0, stanbic: 0, mtn: 0, airtel: 0, seplat: 0, dangcem: 0, julius: 0, vitafoam: 0, okomu: 0, pz: 0, unilever: 0, ngxgroup: 0, updcreit: 0, nidf: 0, cnif: 0, transcohot: 0 };
+  // Example share counts sized to roughly ₦500k per stock where a verified price exists.
+  const EXAMPLE_SHARES = { gtco: 3800, zenith: 3900, mtn: 560, dangcem: 470 };
+
+  let data;
+  try {
+    const res = await fetch("dividend-data.json");
+    data = await res.json();
+  } catch (e) {
+    document.getElementById("asof").textContent = "Could not load the dividend data.";
+    return;
+  }
+
+  const stocks = data.stocks;
+  const byId = Object.fromEntries(stocks.map(s => [s.id, s]));
+  const today = new Date(); today.setHours(0, 0, 0, 0);
+  const parse = d => d ? new Date(d + "T00:00:00") : null;
+  const fmtDate = d => d ? parse(d).toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" }) : "Not verified";
+  const naira = n => "₦" + Math.round(n).toLocaleString("en-NG");
+  const amt = a => a == null ? "US$" : a.toLocaleString("en-NG", { maximumFractionDigits: 4 });
+  const esc = s => String(s).replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+
+  const payMonth = p => p.pay ? parse(p.pay).getMonth() : (p.payMonth ? p.payMonth - 1 : null);
+  const qualMonth = p => p.qual ? parse(p.qual).getMonth() : (p.qualMonth ? p.qualMonth - 1 : null);
+  const ttmPerShare = s => s.payments.reduce((t, p) => t + (p.amount || 0), 0);
+  const allNaira = s => s.payments.every(p => p.amount != null);
+
+  document.getElementById("asof").innerHTML =
+    `Data as of ${fmtDate(data.asOf)}. ${esc(data.note)}`;
+
+  // Headline tiles
+  const payMonthsCovered = new Set();
+  stocks.forEach(s => s.payments.forEach(p => { const m = payMonth(p); if (m != null) payMonthsCovered.add(m); }));
+  const sectorsAll = [...new Set(stocks.map(s => s.sector))];
+  document.getElementById("tiles").innerHTML = [
+    ["Stocks & funds", stocks.length],
+    ["Sectors", sectorsAll.length],
+    ["Months with payments", payMonthsCovered.size + " of 12"],
+    ["Pay 2+ times a year", stocks.filter(s => s.payments.length > 1).length]
+  ].map(([k, v]) => `<div class="tile"><div class="k">${k}</div><div class="v">${v}</div></div>`).join("");
+
+  // ---------- Calendar ----------
+  let view = "pay", activeSectors = new Set(), query = "", hideIrregular = false;
+  const sectorBox = document.getElementById("sectors");
+  sectorBox.innerHTML = ["All", ...sectorsAll].map(s =>
+    `<button type="button" class="chip" data-sector="${esc(s)}" aria-pressed="${s === "All"}">${esc(s)}</button>`).join("");
+  sectorBox.addEventListener("click", e => {
+    const b = e.target.closest(".chip"); if (!b) return;
+    const s = b.dataset.sector;
+    if (s === "All") activeSectors.clear();
+    else activeSectors.has(s) ? activeSectors.delete(s) : activeSectors.add(s);
+    sectorBox.querySelectorAll(".chip").forEach(c => c.setAttribute("aria-pressed",
+      c.dataset.sector === "All" ? String(activeSectors.size === 0) : String(activeSectors.has(c.dataset.sector))));
+    renderCalendar();
+  });
+  document.querySelectorAll(".seg button").forEach(b => b.addEventListener("click", () => {
+    view = b.dataset.view;
+    document.querySelectorAll(".seg button").forEach(x => x.setAttribute("aria-pressed", String(x === b)));
+    renderCalendar();
+  }));
+  document.getElementById("q").addEventListener("input", e => { query = e.target.value.trim().toLowerCase(); renderCalendar(); });
+  document.getElementById("hideIrregular").addEventListener("change", e => { hideIrregular = e.target.checked; renderCalendar(); });
+
+  function visible(s) {
+    if (hideIrregular && s.irregular) return false;
+    if (activeSectors.size && !activeSectors.has(s.sector)) return false;
+    if (query && !(s.ticker + " " + s.name + " " + s.sector).toLowerCase().includes(query)) return false;
+    return true;
+  }
+
+  const GAP_TIPS = {
+    0: "No major NGX company pays in January. NIDF and Coronation Infrastructure Fund qualify you in late January and pay in early February. Keep December dividends (Airtel Africa, Aradel) aside to cover January.",
+    5: "Thin month. Julius Berger pays here; Dangote Cement and BUA Foods qualify you in June and pay in July.",
+    2: "Thin month. Vitafoam pays here; Africa Prudential qualifies you in March."
+  };
+
+  function renderCalendar() {
+    const buckets = Array.from({ length: 12 }, () => []);
+    const unknown = [];
+    stocks.filter(visible).forEach(s => s.payments.forEach(p => {
+      const m = view === "pay" ? payMonth(p) : qualMonth(p);
+      const item = { s, p };
+      if (m == null) unknown.push(item); else buckets[m].push(item);
+    }));
+    let html = buckets.map((items, m) => {
+      items.sort((a, b) => (a.p[view] || "").localeCompare(b.p[view] || ""));
+      const emptyMsg = view === "pay" ? (GAP_TIPS[m] || "No payments in this month for the current filter.")
+        : "No cut-off dates in this month for the current filter.";
+      const gap = !items.length ? `<div class="gap">${esc(emptyMsg)}</div>`
+        : (GAP_TIPS[m] && view === "pay" && items.length <= 2 ? `<div class="gap" style="margin-top:8px">${esc(GAP_TIPS[m])}</div>` : "");
+      return `<section class="month${items.length ? "" : " empty"}" aria-label="${MONTHS_LONG[m]}">
+        <h3>${MONTHS_LONG[m]}<span class="count">${items.length} ${items.length === 1 ? "payment" : "payments"}</span></h3>
+        ${items.map(entryHtml).join("")}${gap}</section>`;
+    }).join("");
+    if (unknown.length) {
+      html += `<section class="month"><h3>${view === "pay" ? "Payment date" : "Cut-off date"} not verified<span class="count">${unknown.length}</span></h3>${unknown.map(entryHtml).join("")}</section>`;
+    }
+    document.getElementById("months").innerHTML = html;
+  }
+
+  function entryHtml({ s, p }) {
+    const date = view === "pay" ? p.pay : p.qual;
+    const other = view === "pay" ? (p.qual ? "cut-off " + fmtDate(p.qual) : "cut-off not verified") : (p.pay ? "paid " + fmtDate(p.pay) : "payment date not verified");
+    const badges = (p.estimated ? `<span class="badge warn">estimate</span>` : "") + (s.irregular ? `<span class="badge warn">irregular</span>` : "");
+    return `<button type="button" class="entry" data-id="${s.id}">
+      <span class="a">${p.amount == null ? "US$" : "₦" + amt(p.amount)}</span>
+      <span class="t">${esc(s.ticker)}</span>${badges}
+      <div class="s">${esc(p.label)} · ${date ? fmtDate(date) : (view === "pay" ? "date TBC" : "date TBC")}</div>
+      <div class="s">${esc(other)}</div></button>`;
+  }
+
+  document.getElementById("months").addEventListener("click", e => {
+    const b = e.target.closest(".entry"); if (b) openDetail(b.dataset.id);
+  });
+
+  // ---------- Detail dialog ----------
+  const dlg = document.getElementById("detail");
+  function openDetail(id) {
+    const s = byId[id];
+    document.getElementById("dTitle").textContent = `${s.name} (${s.ticker})`;
+    const freq = s.payments.length === 1 ? "Pays once a year" : `Pays ${s.payments.length} times in the latest cycle`;
+    document.getElementById("dSub").textContent = `${s.sector} · ${freq}${s.view ? " · Our view: " + s.view : ""}`;
+    document.getElementById("dRows").innerHTML = s.payments.map(p => `<tr>
+      <td>${esc(p.label)}${p.note ? `<div class="muted">${esc(p.note)}</div>` : ""}</td>
+      <td class="num">${p.amount == null ? "US$" : amt(p.amount)}</td>
+      <td>${p.qual ? fmtDate(p.qual) : (p.qualMonth ? MONTHS_LONG[p.qualMonth - 1] + " (exact date not verified)" : "Not verified")}</td>
+      <td>${p.pay ? fmtDate(p.pay) : (p.payMonth ? MONTHS_LONG[p.payMonth - 1] + (p.estimated ? " (estimate)" : "") : "Not verified")}</td></tr>`).join("");
+    const priceLine = s.price ? `Price ~₦${s.price.toLocaleString("en-NG")} (${s.priceDate}).` : "";
+    const yieldLine = s.price && allNaira(s) ? ` Trailing yield ~${(ttmPerShare(s) / s.price * 100).toFixed(1)}%.` : "";
+    document.getElementById("dNote").textContent = [s.note, priceLine + yieldLine].filter(Boolean).join(" ");
+    document.getElementById("dLink").innerHTML = s.report ? `<a href="./#${s.report}">Read the full analysis →</a>` : "";
+    dlg.showModal();
+  }
+
+  // ---------- Upcoming cut-offs ----------
+  function renderUpcoming() {
+    const horizon = new Date(today); horizon.setDate(horizon.getDate() + 120);
+    const rows = [];
+    stocks.forEach(s => s.payments.forEach(p => {
+      if (!p.qual) return;
+      let q = parse(p.qual), pay = parse(p.pay), expected = false;
+      while (q < today) { q.setFullYear(q.getFullYear() + 1); if (pay) pay.setFullYear(pay.getFullYear() + 1); expected = true; }
+      if (q <= horizon) rows.push({ s, p, q, pay, expected });
+    }));
+    rows.sort((a, b) => a.q - b.q);
+    const f = d => d.toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" });
+    document.querySelector("#upcomingTable tbody").innerHTML = rows.length ? rows.map(r => `<tr>
+      <td>${f(r.q)}</td><td><strong>${esc(r.s.ticker)}</strong><div class="muted">${esc(r.s.name)}</div></td>
+      <td>${esc(r.p.label)}</td><td class="num">${r.p.amount == null ? "US$" : amt(r.p.amount)}</td>
+      <td>${r.pay ? f(r.pay) : "TBC"}</td>
+      <td>${r.expected ? `<span class="badge warn">expected</span> last year's date` : `<span class="badge">announced</span>`}</td></tr>`).join("")
+      : `<tr><td colspan="6" class="muted">No cut-off dates in the next 120 days.</td></tr>`;
+  }
+
+  // ---------- Planner ----------
+  const sel = {}; // id -> shares
+  const tbody = document.querySelector("#plannerTable tbody");
+  tbody.innerHTML = stocks.map(s => {
+    const months = [...new Set(s.payments.map(payMonth).filter(m => m != null))].sort((a, b) => a - b).map(m => MONTHS[m]).join(", ");
+    const y = s.price && allNaira(s) ? (ttmPerShare(s) / s.price * 100).toFixed(1) + "%" : "–";
+    return `<tr><td><input type="checkbox" data-id="${s.id}" aria-label="Include ${esc(s.ticker)}"></td>
+      <td><strong>${esc(s.ticker)}</strong>${s.irregular ? `<span class="badge warn">irregular</span>` : ""}<div class="muted">${esc(s.name)}</div></td>
+      <td>${esc(s.sector)}</td><td>${months || "–"}</td>
+      <td class="num">${allNaira(s) ? amt(ttmPerShare(s)) : amt(ttmPerShare(s)) + " + US$"}</td>
+      <td class="num">${s.price ? s.price.toLocaleString("en-NG") : "–"}</td><td class="num">${y}</td>
+      <td class="num"><input type="number" min="0" step="1" data-shares="${s.id}" placeholder="0" aria-label="Shares of ${esc(s.ticker)}"></td></tr>`;
+  }).join("");
+  tbody.addEventListener("input", e => {
+    const id = e.target.dataset.id || e.target.dataset.shares;
+    if (!id) return;
+    const box = tbody.querySelector(`input[data-id="${id}"]`);
+    const sh = tbody.querySelector(`input[data-shares="${id}"]`);
+    if (e.target === sh && +sh.value > 0) box.checked = true;
+    if (box.checked) sel[id] = +sh.value || 0; else delete sel[id];
+    renderPlanner();
+  });
+
+  function setSelection(map) {
+    Object.keys(sel).forEach(k => delete sel[k]);
+    tbody.querySelectorAll('input[type="checkbox"]').forEach(b => { b.checked = b.dataset.id in map; });
+    tbody.querySelectorAll("input[data-shares]").forEach(i => { const v = map[i.dataset.shares]; i.value = v ? v : ""; });
+    Object.entries(map).forEach(([k, v]) => sel[k] = v);
+    renderPlanner();
+  }
+  document.getElementById("presetCoverage").addEventListener("click", () =>
+    setSelection(Object.fromEntries(Object.keys(COVERAGE).map(k => [k, EXAMPLE_SHARES[k] || 0]))));
+  document.getElementById("presetClear").addEventListener("click", () => setSelection({}));
+  document.getElementById("wht").addEventListener("input", () => { renderPlanner(); renderCalc(); });
+
+  const chart = document.getElementById("chart"), tip = document.getElementById("tip");
+  document.getElementById("axis").innerHTML = MONTHS.map(m => `<div>${m}</div>`).join("");
+
+  function renderPlanner() {
+    const wht = Math.min(Math.max(+document.getElementById("wht").value || 0, 0), 50) / 100;
+    const income = Array(12).fill(0), payers = Array.from({ length: 12 }, () => []), covered = Array(12).fill(0);
+    Object.entries(sel).forEach(([id, shares]) => {
+      const s = byId[id];
+      s.payments.forEach(p => {
+        const m = payMonth(p); if (m == null) return;
+        covered[m]++;
+        if (!payers[m].includes(s.ticker)) payers[m].push(s.ticker);
+        if (p.amount != null && shares > 0) income[m] += p.amount * shares * (1 - wht);
+      });
+    });
+    document.getElementById("strip").innerHTML = MONTHS.map((m, i) =>
+      `<div class="${covered[i] ? "on" : (Object.keys(sel).length ? "off" : "")}" title="${payers[i].join(", ") || "No payments"}">${m}<br>${covered[i] || "–"}</div>`).join("");
+
+    const total = income.reduce((a, b) => a + b, 0);
+    const n = Object.keys(sel).length, monthsOn = covered.filter(Boolean).length;
+    const noShares = Object.entries(sel).filter(([, v]) => !v).map(([k]) => byId[k].ticker);
+    document.getElementById("summary").innerHTML = n
+      ? `<strong>${monthsOn} of 12 months</strong> covered by ${n} ${n === 1 ? "holding" : "holdings"}. ` +
+        (total ? `Estimated income after tax: <strong>${naira(total)}</strong> a year, so you could pay yourself about <strong>${naira(total / 12)}</strong> a month from a dividend reserve.` :
+          `Enter share counts to see naira income.`) +
+        (noShares.length && total ? `<div class="muted" style="margin-top:4px">No share count yet for ${noShares.length} holdings (${esc(noShares.slice(0, 6).join(", "))}${noShares.length > 6 ? "…" : ""}), so the chart understates income. Enter your shares in the table below.</div>` : "")
+      : "Pick stocks below, or load the coverage mix, to see which months pay.";
+
+    const max = Math.max(...income, 1);
+    chart.querySelectorAll(".col").forEach(c => c.remove());
+    income.forEach((v, i) => {
+      const col = document.createElement("div");
+      col.className = "col";
+      col.innerHTML = `<div class="b" style="height:${(v / max * 100).toFixed(1)}%"></div>`;
+      col.addEventListener("mousemove", e => {
+        const r = chart.getBoundingClientRect();
+        tip.style.left = (e.clientX - r.left) + "px"; tip.style.top = (e.clientY - r.top) + "px";
+        tip.textContent = `${MONTHS_LONG[i]}: ${v ? naira(v) : "no income"}${payers[i].length ? " · " + payers[i].join(", ") : ""}`;
+        tip.style.display = "block";
+      });
+      col.addEventListener("mouseleave", () => tip.style.display = "none");
+      chart.appendChild(col);
+    });
+    document.querySelector("#incomeTable tbody").innerHTML = income.map((v, i) =>
+      `<tr><td>${MONTHS_LONG[i]}</td><td class="num">${v ? naira(v) : "–"}</td><td>${payers[i].join(", ") || "–"}</td></tr>`).join("");
+
+    const empty = covered.map((c, i) => c ? null : i).filter(i => i != null);
+    if (n && empty.length) {
+      const tips = empty.map(m => {
+        const fill = stocks.filter(s => !(s.id in sel) && s.payments.some(p => payMonth(p) === m)).map(s => s.ticker);
+        return `<li><strong>${MONTHS_LONG[m]}</strong>: ${fill.length ? "add " + fill.slice(0, 4).join(", ") : esc(GAP_TIPS[m] || "no listed payer found; cover it from your reserve.")}</li>`;
+      }).join("");
+      document.getElementById("gaps").innerHTML = `Months with no income in your selection:<ul>${tips}</ul>`;
+    } else document.getElementById("gaps").innerHTML = "";
+  }
+
+  // ---------- Retirement calculator ----------
+  function renderCalc() {
+    const t = +document.getElementById("target").value || 0;
+    const y = (+document.getElementById("yield").value || 0) / 100;
+    const wht = (+document.getElementById("wht").value || 0) / 100;
+    document.getElementById("capital").textContent = y > 0 ? naira(t * 12 / (y * (1 - wht))) : "–";
+  }
+  ["target", "yield"].forEach(id => document.getElementById(id).addEventListener("input", renderCalc));
+
+  // ---------- Excluded and sources ----------
+  document.getElementById("excluded").innerHTML = data.excluded.map(x => `<li><strong>${esc(x.name)}</strong>: ${esc(x.reason)}</li>`).join("");
+  document.getElementById("sourceList").innerHTML = data.sources.map(s => `<li><a href="${esc(s.url)}" target="_blank" rel="noopener">${esc(s.title)}</a></li>`).join("");
+
+  renderCalendar(); renderUpcoming(); renderPlanner(); renderCalc();
+})();
+</script>
+</body>
+</html>

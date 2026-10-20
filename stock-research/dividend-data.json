@@ -1,0 +1,262 @@
+{
+  "asOf": "2026-10-20",
+  "note": "Most recent dividend cycle per stock (Aug 2025 - Oct 2026). Dates are qualification (register / cut-off) and payment dates from NGX notices and press coverage. Amounts in naira per share before withholding tax unless noted. Verify every date with the NGX notice or registrar before trading.",
+  "stocks": [
+    {
+      "id": "gtco", "ticker": "GTCO", "name": "Guaranty Trust Holding Co. (GTBank)", "sector": "Banking",
+      "view": "Buy (76/100)", "report": "gtco", "price": 132, "priceDate": "Sep 2026",
+      "payments": [
+        { "label": "FY2025 final", "amount": 11.76, "qual": "2026-04-13", "pay": "2026-04-28" },
+        { "label": "H1 2026 interim", "amount": 1.00, "qual": "2026-10-12", "pay": "2026-10-20" }
+      ]
+    },
+    {
+      "id": "zenith", "ticker": "ZENITHBANK", "name": "Zenith Bank", "sector": "Banking",
+      "view": "Top-5 screen pick", "report": "top-5", "price": 128.40, "priceDate": "21 Sep 2026",
+      "payments": [
+        { "label": "FY2025 final", "amount": 8.75, "qual": "2026-04-24", "pay": "2026-05-05" },
+        { "label": "H1 2026 interim", "amount": 1.50, "qual": "2026-10-23", "pay": "2026-10-30" }
+      ]
+    },
+    {
+      "id": "stanbic", "ticker": "STANBIC", "name": "Stanbic IBTC Holdings", "sector": "Banking",
+      "payments": [
+        { "label": "FY2025 final", "amount": 4.00, "qual": "2026-05-04", "pay": "2026-05-26" },
+        { "label": "H1 2026 interim", "amount": 4.50, "qual": "2026-10-15", "pay": "2026-11-13" }
+      ]
+    },
+    {
+      "id": "uba", "ticker": "UBA", "name": "United Bank for Africa", "sector": "Banking", "irregular": true,
+      "note": "FY2025 final dividend was not paid after the CBN forbearance exit. Management says dividends resume in 2026; no 2026 dates announced yet.",
+      "payments": [
+        { "label": "H1 2025 interim", "amount": 0.25, "qual": "2025-10-03", "pay": "2025-10-10" }
+      ]
+    },
+    {
+      "id": "mtn", "ticker": "MTNN", "name": "MTN Nigeria", "sector": "Telecom",
+      "view": "Top-5 screen pick", "report": "top-5", "price": 890, "priceDate": "21 Sep 2026",
+      "payments": [
+        { "label": "FY2025 final", "amount": 15.00, "qual": "2026-04-08", "pay": "2026-05-05" },
+        { "label": "H1 2026 interim", "amount": 26.00, "qual": "2026-08-20", "pay": "2026-09-07" }
+      ]
+    },
+    {
+      "id": "airtel", "ticker": "AIRTELAFRI", "name": "Airtel Africa", "sector": "Telecom",
+      "note": "Declared in US cents; NGX holders can elect naira or dollars. Financial year ends March.",
+      "payments": [
+        { "label": "Interim (half year to Sep 2025)", "amount": 43.68, "qual": "2025-11-04", "pay": "2025-12-12", "note": "US 2.84 cents" },
+        { "label": "Final (year to Mar 2026)", "amount": null, "qual": null, "pay": "2026-07-24", "note": "US 4.26 cents; NGX qualification date not verified" }
+      ]
+    },
+    {
+      "id": "seplat", "ticker": "SEPLAT", "name": "Seplat Energy", "sector": "Oil & gas",
+      "view": "Top-5 screen pick", "report": "top-5", "price": 14907.80, "priceDate": "21 Sep 2026 (single source)",
+      "note": "Declares in US cents; naira amount is fixed near payment. Pays several times a year.",
+      "payments": [
+        { "label": "Q3 2025 interim", "amount": null, "qual": "2025-11-13", "pay": "2025-11-28", "note": "US$ interim; naira amount not verified" },
+        { "label": "FY2025 final + special", "amount": null, "qual": "2026-05-15", "pay": "2026-05-29", "note": "US 5c final + 3.3c special" },
+        { "label": "H1 2026 interim + special", "amount": 164.23, "qual": "2026-08-13", "pay": "2026-08-28", "note": "US 5c + 7c special at ₦1,368.50/$" }
+      ]
+    },
+    {
+      "id": "aradel", "ticker": "ARADEL", "name": "Aradel Holdings", "sector": "Oil & gas",
+      "payments": [
+        { "label": "9M 2025 interim", "amount": 10.00, "qual": null, "pay": null, "payMonth": 12, "estimated": true, "note": "Declared 30 Oct 2025; ex-date 21 Nov 2025; payment date not verified" },
+        { "label": "FY2025 final", "amount": 23.00, "qual": "2026-07-09", "pay": "2026-07-30" }
+      ]
+    },
+    {
+      "id": "dangcem", "ticker": "DANGCEM", "name": "Dangote Cement", "sector": "Industrial",
+      "view": "Top-5 screen pick", "report": "top-5", "price": 1060, "priceDate": "Sep 2026",
+      "payments": [
+        { "label": "FY2025 final", "amount": 45.00, "qual": "2026-06-17", "pay": "2026-07-02" }
+      ]
+    },
+    {
+      "id": "julius", "ticker": "JBERGER", "name": "Julius Berger Nigeria", "sector": "Industrial",
+      "payments": [
+        { "label": "FY2025 final", "amount": 4.25, "qual": "2026-05-29", "pay": "2026-06-19" }
+      ]
+    },
+    {
+      "id": "buafoods", "ticker": "BUAFOODS", "name": "BUA Foods", "sector": "Consumer goods",
+      "view": "Watchlist (57/100)", "report": "bua-foods", "price": 715.10, "priceDate": "17 Sep 2026",
+      "payments": [
+        { "label": "FY2025 final", "amount": 28.00, "qual": null, "qualMonth": 6, "pay": null, "payMonth": 7, "note": "Qualified in June 2026, paid in July 2026; exact dates not verified" }
+      ]
+    },
+    {
+      "id": "unilever", "ticker": "UNILEVER", "name": "Unilever Nigeria", "sector": "Consumer goods",
+      "payments": [
+        { "label": "FY2025 final", "amount": 3.25, "qual": "2026-04-10", "pay": "2026-05-08" },
+        { "label": "H1 2026 interim", "amount": 2.00, "qual": "2026-08-03", "pay": "2026-08-14", "note": "From dividend trackers; company notice not seen" }
+      ]
+    },
+    {
+      "id": "pz", "ticker": "PZ", "name": "PZ Cussons Nigeria", "sector": "Consumer goods",
+      "note": "Financial year ends May, so its final dividend lands in October.",
+      "payments": [
+        { "label": "FY2026 final", "amount": 2.50, "qual": "2026-10-09", "pay": "2026-10-30" }
+      ]
+    },
+    {
+      "id": "guinness", "ticker": "GUINNESS", "name": "Guinness Nigeria", "sector": "Consumer goods", "irregular": true,
+      "note": "First dividend since 2022 after a return to profit. Treat as irregular until a track record rebuilds.",
+      "payments": [
+        { "label": "Interim (quarter to Mar 2026)", "amount": 2.00, "qual": "2026-04-20", "pay": "2026-04-24" }
+      ]
+    },
+    {
+      "id": "vitafoam", "ticker": "VITAFOAM", "name": "Vitafoam Nigeria", "sector": "Consumer goods",
+      "note": "Financial year ends September, which is why it pays in March.",
+      "payments": [
+        { "label": "FY2025 final", "amount": 3.00, "qual": "2026-02-06", "pay": "2026-03-05" }
+      ]
+    },
+    {
+      "id": "honeywell", "ticker": "HONYFLOUR", "name": "Honeywell Flour Mills", "sector": "Consumer goods",
+      "payments": [
+        { "label": "FY2026 final", "amount": 0.20, "qual": "2026-08-28", "pay": "2026-09-17" }
+      ]
+    },
+    {
+      "id": "okomu", "ticker": "OKOMUOIL", "name": "Okomu Oil Palm", "sector": "Agriculture",
+      "note": "Usually pays interim dividends in Aug and Nov plus a final in May. 2026 interims not verified in this update.",
+      "payments": [
+        { "label": "H1 2025 interim", "amount": 30.00, "qual": "2025-08-08", "pay": "2025-08-22" },
+        { "label": "9M 2025 interim", "amount": 10.00, "qual": "2025-10-31", "pay": "2025-11-14" },
+        { "label": "FY2025 final", "amount": 15.00, "qual": "2026-04-27", "pay": "2026-05-26" }
+      ]
+    },
+    {
+      "id": "presco", "ticker": "PRESCO", "name": "Presco", "sector": "Agriculture",
+      "note": "Paid two interims together in Nov 2025. FY2025 final dates not verified.",
+      "payments": [
+        { "label": "H1 2025 interim", "amount": 20.00, "qual": "2025-11-07", "pay": "2025-11-21" },
+        { "label": "9M 2025 interim", "amount": 10.00, "qual": "2025-11-07", "pay": "2025-11-21" }
+      ]
+    },
+    {
+      "id": "fidson", "ticker": "FIDSON", "name": "Fidson Healthcare", "sector": "Healthcare",
+      "note": "Long gap: qualifies in April, pays at the end of July.",
+      "payments": [
+        { "label": "FY2025 final", "amount": 1.50, "qual": "2026-04-14", "pay": "2026-07-31" }
+      ]
+    },
+    {
+      "id": "cwg", "ticker": "CWG", "name": "CWG Plc", "sector": "IT & fintech",
+      "view": "Hold (60/100)", "report": "cwg", "price": 19.40, "priceDate": "4 Sep 2026",
+      "payments": [
+        { "label": "FY2025 final", "amount": 0.70, "qual": null, "pay": "2026-04-17", "note": "Qualification date not verified" }
+      ]
+    },
+    {
+      "id": "etranzact", "ticker": "ETRANZACT", "name": "eTranzact International", "sector": "IT & fintech",
+      "payments": [
+        { "label": "FY2025 final", "amount": 0.125, "qual": null, "pay": "2026-07-23", "note": "Qualification date not verified" }
+      ]
+    },
+    {
+      "id": "vfd", "ticker": "VFDGROUP", "name": "VFD Group", "sector": "IT & fintech",
+      "payments": [
+        { "label": "2026 interim", "amount": 0.24, "qual": "2026-08-03", "pay": "2026-08-10" }
+      ]
+    },
+    {
+      "id": "ngxgroup", "ticker": "NGXGROUP", "name": "Nigerian Exchange Group", "sector": "Financial services",
+      "note": "Pays three times a year. FY2025 also included a 1-for-3 bonus issue.",
+      "payments": [
+        { "label": "Q3 2025 interim", "amount": 1.00, "qual": null, "pay": "2025-11-18", "note": "Qualification date not verified" },
+        { "label": "FY2025 final", "amount": 2.00, "qual": "2026-04-10", "pay": "2026-04-29" },
+        { "label": "H1 2026 interim", "amount": 1.30, "qual": "2026-07-29", "pay": "2026-08-05" }
+      ]
+    },
+    {
+      "id": "custodian", "ticker": "CUSTODIAN", "name": "Custodian Investment", "sector": "Financial services",
+      "payments": [
+        { "label": "2026 interim", "amount": 0.25, "qual": "2026-08-17", "pay": "2026-09-08" }
+      ]
+    },
+    {
+      "id": "afriprud", "ticker": "AFRIPRUD", "name": "Africa Prudential", "sector": "Financial services",
+      "payments": [
+        { "label": "FY2025 final", "amount": 0.40, "qual": "2026-03-11", "pay": "2026-04-02", "note": "Sources differ by one day (11 or 12 Mar)" }
+      ]
+    },
+    {
+      "id": "updcreit", "ticker": "UPDCREIT", "name": "UPDC Real Estate Investment Trust", "sector": "Real estate",
+      "payments": [
+        { "label": "FY2025 final", "amount": 0.33, "qual": "2026-04-17", "pay": "2026-05-06" },
+        { "label": "2026 interim", "amount": 0.40, "qual": "2026-08-31", "pay": "2026-09-04", "note": "From dividend trackers; company notice not seen" }
+      ]
+    },
+    {
+      "id": "mofireif", "ticker": "MOFIREIF", "name": "MOFI Real Estate Investment Fund", "sector": "Real estate",
+      "payments": [
+        { "label": "2025 distribution", "amount": 9.7192, "qual": "2026-02-20", "pay": "2026-02-27" }
+      ]
+    },
+    {
+      "id": "nidf", "ticker": "NIDF", "name": "Chapel Hill Denham Nigeria Infrastructure Debt Fund", "sector": "Infrastructure fund",
+      "note": "Listed fund that pays every quarter. Q3 2026 distribution not yet announced (expected late Oct to Nov).",
+      "payments": [
+        { "label": "Q4 2025 distribution", "amount": 4.68, "qual": "2026-01-28", "pay": "2026-02-05" },
+        { "label": "Q1 2026 distribution", "amount": 4.53, "qual": null, "pay": "2026-05-06", "note": "Ex-date 29 Apr 2026" },
+        { "label": "Q2 2026 distribution", "amount": 4.40, "qual": "2026-07-17", "pay": "2026-07-27" }
+      ]
+    },
+    {
+      "id": "cnif", "ticker": "CNIF", "name": "Coronation Infrastructure Fund", "sector": "Infrastructure fund",
+      "note": "Listed fund that pays twice a year (Feb and Jul).",
+      "payments": [
+        { "label": "H2 2025 distribution", "amount": 9.11, "qual": "2026-01-29", "pay": "2026-02-03" },
+        { "label": "H1 2026 distribution", "amount": 8.985, "qual": "2026-07-22", "pay": "2026-07-28" }
+      ]
+    },
+    {
+      "id": "transcohot", "ticker": "TRANSCOHOT", "name": "Transcorp Hotels", "sector": "Hospitality",
+      "payments": [
+        { "label": "FY2025 final", "amount": 1.20, "qual": "2026-02-13", "pay": "2026-02-27" }
+      ]
+    }
+  ],
+  "excluded": [
+    { "name": "Access Holdings", "reason": "No FY2025 dividend: regulator blocked payment over a foreign-subsidiary limit breach." },
+    { "name": "Wema Bank", "reason": "Declared ₦1.25 for FY2025, but qualification and payment dates could not be verified." },
+    { "name": "BUA Cement, Nestlé Nigeria, TotalEnergies Marketing, Lafarge Africa, Dangote Sugar", "reason": "2026 dividend dates not verified in this update." },
+    { "name": "Ikeja Hotel, University Press, Learn Africa, Academy Press, Red Star Express, Chams, Cornerstone Insurance", "reason": "Very small payouts and thin trading. Not viable building blocks for retirement income." }
+  ],
+  "sources": [
+    { "title": "Nairametrics – 18 NGX companies paying dividends in May 2026", "url": "http://nairametrics.com/2026/05/05/see-18-ngx-listed-companies-paying-dividends-in-may-2026/" },
+    { "title": "Nairametrics – 10 companies qualifying for dividends in June 2026", "url": "http://nairametrics.com/2026/05/29/10-ngx-listed-companies-qualifying-investors-for-dividends-in-june-2026/" },
+    { "title": "Nairametrics – 7 companies paying dividends in July 2026", "url": "https://nairametrics.com/2026/07/01/see-7-ngx-listed-companies-paying-dividends-in-july-2026/" },
+    { "title": "Nairametrics – August 2026 qualification dates", "url": "https://nairametrics.com/2026/08/04/august-dividend-race-begins-as-8-ngx-companies-set-qualification-dates/" },
+    { "title": "Nairametrics – 8 stocks paying dividends in September 2026", "url": "http://nairametrics.com/2026/09/01/8-ngx-stocks-set-to-pay-dividends-in-september-mtn-leads/" },
+    { "title": "Nairametrics – GTCO, Stanbic IBTC and PZ qualification dates (Oct 2026)", "url": "https://nairametrics.com/2026/10/07/gtco-stanbic-ibtc-and-pz-reveal-dates-for-dividends-qualifications/" },
+    { "title": "Nairametrics – Zenith Bank H1 2026 interim dividend", "url": "https://nairametrics.com/2026/10/10/zenith-banks-pre-tax-profit-hits-n637-6-billion-interim-dividend-rises-20-to-n1-50/" },
+    { "title": "BusinessPost – Stanbic IBTC ₦4.50 interim", "url": "https://businesspost.ng/banking/stanbic-ibtc-offers-n4-50-interim-dividend-as-h126-net-profit-surges-38/" },
+    { "title": "NGX notice – UBA H1 2025 interim dividend", "url": "https://doclib.ngxgroup.com/Financial_NewsDocs/44980_UNITED_BANK_FOR_AFRICA_PLC-CORPORATE_ACTION_ANNOUNCEMENT_CORPORATE_ACTIONS_SEPTEMBER_2025.pdf" },
+    { "title": "Nairametrics – UBA to resume dividends in 2026", "url": "https://nairametrics.com/2026/04/27/uba-to-resume-dividends-in-2026-focuses-on-debt-recovery/" },
+    { "title": "MTN Nigeria – final dividend NGX notification", "url": "https://doclib.ngxgroup.com/Financial_NewsDocs/MTN_Nigeria_-_NGX_Notification_Dividend.pdf" },
+    { "title": "Nairametrics – Airtel Africa interim dividend", "url": "http://nairametrics.com/2025/11/04/airtel-africa-declares-interim-dividend-of-n43-68-per-share-in-q2-2025/" },
+    { "title": "Airtel Africa – dividend page", "url": "https://www.airtel.africa/dividend" },
+    { "title": "NGX notice – Seplat Q2 2026 interim dividend", "url": "https://doclib.ngxgroup.com/Financial_NewsDocs/47643_SEPLAT_ENERGY_PLC-ANNOUNCEMENT_ON_Q2_2026_INTERIM_DIVIDEND_CORPORATE_ACTIONS_JULY_2026.pdf" },
+    { "title": "NGX notice – Seplat FY2025 final and special dividend", "url": "https://doclib.ngxgroup.com/Financial_NewsDocs/Seplat_Announcement_on_FY_2025_Final_and_Special_Dividend.pdf" },
+    { "title": "StockAnalysis – Seplat dividend history", "url": "https://stockanalysis.com/quote/ngx/SEPLAT/dividend/" },
+    { "title": "Nairametrics – Aradel ₦23 final dividend", "url": "http://nairametrics.com/2026/06/20/aradel-reports-n835-billion-pre-tax-profit-in-2025-announces-n23-final-dividend/" },
+    { "title": "Marketscreener – Unilever Nigeria dividend announcement", "url": "https://www.marketscreener.com/news/unilever-nigeria-unilever-nigeria-plc-dividend-announcement-ce7e5edddf8ef620" },
+    { "title": "NGX notice – Guinness Nigeria interim dividend", "url": "https://doclib.ngxgroup.com/Financial_NewsDocs/46655_GUINNESS_NIG_PLC-GUINNESS_NIGERIA_PLC._-_INTERIM_DIVIDEND_ANNOUNCEMENT_CORPORATE_ACTIONS_APRIL_2026.pdf" },
+    { "title": "Nairametrics – Okomu ₦30 interim", "url": "http://nairametrics.com/2025/07/25/okomu-oil-declares-n30-dividend-after-strong-q2-performance-outlines-eligibility-and-payment-date/" },
+    { "title": "NGX notice – Okomu 9M 2025 interim", "url": "https://doclib.ngxgroup.com/Financial_NewsDocs/45157_OKOMU_OIL_PALM_PLC.-CORPORATE_ACTIONS_CORPORATE_ACTIONS_OCTOBER_2025.pdf" },
+    { "title": "NGX notice – Presco 9M 2025 interim", "url": "https://doclib.ngxgroup.com/Financial_NewsDocs/45188_PRESCO_PLC-CORPORATE_ACTION_ANNOUNCEMENT_-__CORPORATE_ACTIONS_OCTOBER_2025.pdf" },
+    { "title": "NGX notice – NGX Group FY2025 dividend", "url": "https://doclib.ngxgroup.com/Financial_NewsDocs/NGX_Group_-_Dividend_Announcement.pdf" },
+    { "title": "Nairametrics – NGX Group ₦1.30 interim", "url": "http://nairametrics.com/2026/07/27/ngx-group-posts-n14-76-billion-h1-2026-pre-tax-profit-declares-n1-30-interim-dividend/" },
+    { "title": "NGX notice – UPDC REIT final distribution", "url": "https://doclib.ngxgroup.com/Financial_NewsDocs/46659__UPDC_REAL_ESTATE_INVESTMENT_TRUST-UDPC_REITS_DISTRIBUTION_PAYMENT_2025_-_FINAL_CORPORATE_ACTIONS_APRIL_2026.pdf" },
+    { "title": "StockAnalysis – UPDC REIT dividend history", "url": "https://stockanalysis.com/quote/ngx/UPDCREIT/dividend/" },
+    { "title": "Nairametrics – NIDF Q4 2025 distribution", "url": "https://nairametrics.com/2026/01/17/chapel-hill-announces-eligibility-and-date-for-nidf-distribution-worth-n5-59-billion/" },
+    { "title": "Nairametrics – NIDF Q2 2026 distribution", "url": "http://nairametrics.com/2026/07/07/nidf-declares-n4-40-per-unit-distribution-after-h1-2026-profit-drops-9-81/" },
+    { "title": "Nairametrics – Coronation Infrastructure Fund H1 2026 distribution", "url": "https://nairametrics.com/2026/07/17/coronation-infrastructure-fund-announces-date-to-distribute-n789-78-million-dividends-for-h12026/" },
+    { "title": "KoboTerminal – NGX dividend calendar (Jan–Mar 2026 entries)", "url": "https://koboterminal.com/ngx-dividend-calendar" },
+    { "title": "Nairametrics – NGX SWOOT dividend stocks (Jan 2026)", "url": "http://nairametrics.com/2026/01/14/ngx-swoot-dividend-stocks-to-invest-in-january-2026/" }
+  ]
+}
