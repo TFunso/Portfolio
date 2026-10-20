@@ -19,6 +19,8 @@ Buy / hold / avoid research on Nigerian (NGX) stocks, produced with a 15-step fr
 
 `dividend-calendar.html` maps ~30 viable NGX dividend payers across January–December, with qualification (cut-off) and payment dates, a next-cut-off list, a monthly income planner and a salary-replacement calculator. Data lives in `dividend-data.json`; update it as companies announce new dates.
 
+`us-dividend-calendar.html` does the same for 22 quality NYSE payers (monthly REITs/BDCs plus quarterly payers on each cycle), sorted by price tier from under $10 to blue chips, with ex-dividend dates, a Top 5 preset and a fractional-share income planner. Data lives in `us-dividend-data.json`.
+
 ## Viewing
 
 `index.html` is a static page that renders the Markdown reports. Open it through any static server (e.g. `npx serve stock-research`) or deploy the folder to Vercel with **Root Directory = `stock-research`** and **Framework Preset = Other**. No build step.

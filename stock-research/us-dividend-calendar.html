@@ -1,0 +1,415 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>NYSE Dividend Calendar</title>
+<meta name="description" content="A month-by-month calendar of quality NYSE dividend payers, from under $10 to blue chips, with ex-dividend dates, payment months and a planner for building monthly retirement income.">
+<style>
+  :root {
+    --bg: #fbfaf7; --surface: #ffffff; --text: #1d1f23; --muted: #5f6570;
+    --border: #e4e1da; --accent: #0f6b4f; --accent-soft: #e5f2ec;
+    --warn-soft: #fdf3e1; --warn: #8a5a00; --code: #f1efe9; --bar: #0f6b4f;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #121416; --surface: #1a1d20; --text: #e7e8ea; --muted: #a0a6ae;
+      --border: #2c3136; --accent: #4cc39a; --accent-soft: #173229;
+      --warn-soft: #33290f; --warn: #f0c060; --code: #23272b; --bar: #4cc39a;
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg: #121416; --surface: #1a1d20; --text: #e7e8ea; --muted: #a0a6ae;
+    --border: #2c3136; --accent: #4cc39a; --accent-soft: #173229;
+    --warn-soft: #33290f; --warn: #f0c060; --code: #23272b; --bar: #4cc39a;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--text);
+    font: 16px/1.55 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; }
+  a { color: var(--accent); }
+  header { border-bottom: 1px solid var(--border); background: var(--surface); }
+  .bar { max-width: 1100px; margin: 0 auto; padding: 12px 16px; display: flex; flex-wrap: wrap; gap: 8px 16px; align-items: center; }
+  .brand { font-weight: 700; margin-right: auto; }
+  .bar a { font-size: 14px; text-decoration: none; }
+  main { max-width: 1100px; margin: 0 auto; padding: 24px 16px 64px; }
+  h1 { font-size: 1.8rem; line-height: 1.25; margin: 0 0 6px; }
+  h2 { font-size: 1.3rem; margin: 40px 0 8px; padding-top: 16px; border-top: 1px solid var(--border); }
+  .lede { color: var(--muted); margin: 0 0 16px; max-width: 72ch; }
+  .notice { background: var(--warn-soft); color: var(--warn); border-radius: 8px; padding: 10px 14px; font-size: 14px; margin: 16px 0; }
+  .tiles { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 12px; margin: 16px 0; }
+  .tile { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 12px 14px; }
+  .tile .k { font-size: 13px; color: var(--muted); }
+  .tile .v { font-size: 1.5rem; font-weight: 700; }
+  .controls { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin: 12px 0; }
+  .seg { display: inline-flex; border: 1px solid var(--border); border-radius: 999px; overflow: hidden; }
+  .seg button { border: 0; background: var(--surface); color: var(--muted); padding: 7px 14px; font: inherit; font-size: 14px; cursor: pointer; }
+  .seg button[aria-pressed="true"] { background: var(--accent-soft); color: var(--accent); font-weight: 600; }
+  .chiprow { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; margin: 4px 0 8px; }
+  .chiprow .lbl { font-size: 13px; color: var(--muted); margin-right: 4px; }
+  .chip { border: 1px solid var(--border); background: var(--surface); color: var(--muted); border-radius: 999px; padding: 5px 11px; font: inherit; font-size: 13px; cursor: pointer; }
+  .chip[aria-pressed="true"] { background: var(--accent-soft); color: var(--accent); border-color: var(--accent); }
+  input[type="search"], input[type="number"] { font: inherit; font-size: 14px; padding: 7px 10px; border: 1px solid var(--border); border-radius: 8px; background: var(--surface); color: var(--text); }
+  input[type="search"] { min-width: 200px; flex: 1 1 200px; }
+  label.inline { font-size: 14px; color: var(--muted); display: inline-flex; gap: 6px; align-items: center; }
+  .monthly { background: var(--surface); border: 1px solid var(--accent); border-radius: 10px; padding: 12px; margin: 12px 0; }
+  .monthly h3 { margin: 0 0 6px; font-size: 1rem; }
+  .monthly .row { display: flex; flex-wrap: wrap; gap: 8px; }
+  .months { display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 12px; }
+  .month { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 12px; min-height: 110px; }
+  .month h3 { margin: 0 0 8px; font-size: 1rem; display: flex; justify-content: space-between; align-items: baseline; }
+  .month h3 .count { font-size: 12px; font-weight: 500; color: var(--muted); }
+  .month .plus { font-size: 12px; color: var(--accent); margin-top: 6px; }
+  .entry { display: block; width: 100%; text-align: left; border: 0; border-top: 1px solid var(--border); background: none; color: inherit; font: inherit; padding: 7px 2px; cursor: pointer; }
+  .entry:first-of-type { border-top: 0; }
+  .entry:hover, .entry:focus-visible { background: var(--accent-soft); outline: none; }
+  .entry .t { font-weight: 700; font-size: 14px; }
+  .entry .s { font-size: 12px; color: var(--muted); }
+  .entry .a { float: right; font-size: 14px; font-weight: 600; }
+  .pill { border: 1px solid var(--border); background: var(--bg); color: var(--text); border-radius: 8px; padding: 6px 10px; font: inherit; font-size: 13px; cursor: pointer; text-align: left; }
+  .pill:hover { background: var(--accent-soft); }
+  .pill strong { display: block; }
+  .badge { display: inline-block; font-size: 11px; border: 1px solid var(--border); color: var(--muted); border-radius: 4px; padding: 0 5px; margin-left: 4px; vertical-align: 1px; }
+  .badge.warn { border-color: var(--warn); color: var(--warn); }
+  table { border-collapse: collapse; width: 100%; font-size: 14px; background: var(--surface); }
+  th, td { padding: 8px 10px; border-bottom: 1px solid var(--border); text-align: left; vertical-align: top; }
+  th { background: var(--code); font-weight: 600; white-space: nowrap; }
+  td.num, th.num { text-align: right; white-space: nowrap; }
+  .table-wrap { overflow-x: auto; border: 1px solid var(--border); border-radius: 10px; }
+  .planner-table input[type="number"] { width: 110px; }
+  .presets { display: flex; flex-wrap: wrap; gap: 8px; margin: 8px 0 12px; align-items: center; }
+  .btn { border: 1px solid var(--accent); background: var(--accent-soft); color: var(--accent); border-radius: 8px; padding: 7px 14px; font: inherit; font-size: 14px; cursor: pointer; font-weight: 600; }
+  .btn.ghost { background: var(--surface); color: var(--muted); border-color: var(--border); font-weight: 500; }
+  .strip { display: grid; grid-template-columns: repeat(12, 1fr); gap: 4px; margin: 12px 0; }
+  .strip div { text-align: center; font-size: 12px; border-radius: 6px; padding: 6px 0; border: 1px solid var(--border); background: var(--surface); color: var(--muted); }
+  .strip div.on { background: var(--accent-soft); color: var(--accent); border-color: var(--accent); font-weight: 600; }
+  .strip div.off { border-style: dashed; color: var(--warn); }
+  .chart { position: relative; display: grid; grid-template-columns: repeat(12, 1fr); gap: 6px; align-items: end; height: 220px; padding-top: 8px; border-bottom: 1px solid var(--border); margin-top: 12px; }
+  .chart .col { height: 100%; display: flex; flex-direction: column; justify-content: flex-end; }
+  .chart .b { background: var(--bar); border-radius: 4px 4px 0 0; transition: height .2s; }
+  .chart .col:hover .b { opacity: .8; }
+  .axis { display: grid; grid-template-columns: repeat(12, 1fr); gap: 6px; font-size: 12px; color: var(--muted); text-align: center; margin-top: 4px; }
+  .tip { position: absolute; pointer-events: none; background: var(--text); color: var(--bg); font-size: 12px; padding: 6px 8px; border-radius: 6px; white-space: nowrap; transform: translate(-50%, -110%); display: none; z-index: 5; }
+  .summary { font-size: 15px; margin: 12px 0; }
+  .summary strong { font-size: 1.1rem; }
+  .top5 { display: grid; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); gap: 10px; margin: 12px 0; }
+  .top5 .card { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 12px; }
+  .top5 .card .t { font-weight: 700; }
+  .top5 .card .y { color: var(--accent); font-weight: 600; font-size: 14px; }
+  .calc { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px; align-items: end; }
+  .calc label { display: flex; flex-direction: column; font-size: 14px; color: var(--muted); gap: 4px; }
+  .calc output { font-size: 1.4rem; font-weight: 700; color: var(--text); }
+  dialog { border: 1px solid var(--border); border-radius: 12px; background: var(--surface); color: var(--text); max-width: 560px; width: calc(100% - 32px); padding: 18px; }
+  dialog::backdrop { background: rgba(0,0,0,.4); }
+  dialog h3 { margin: 0 0 4px; }
+  .muted { color: var(--muted); font-size: 14px; }
+  ol.steps li { margin-bottom: 6px; }
+  footer { max-width: 1100px; margin: 0 auto; padding: 0 16px 32px; color: var(--muted); font-size: 13px; }
+  @media (max-width: 560px) {
+    .strip div, .axis { font-size: 10px; }
+    .chart { height: 180px; gap: 3px; } .axis { gap: 3px; }
+  }
+</style>
+</head>
+<body>
+<header>
+  <div class="bar">
+    <div class="brand">NYSE Dividend Calendar</div>
+    <a href="dividend-calendar.html">NGX calendar</a>
+    <a href="./">Stock research notes</a>
+  </div>
+</header>
+<main>
+  <h1>Get paid every month from US stocks</h1>
+  <p class="lede">Quality NYSE dividend payers sorted by price, from under $10 to blue chips, mapped across January to December. US companies pay monthly or quarterly on fixed cycles, so a dozen well-chosen stocks can pay you every single month.</p>
+
+  <div class="notice" id="asof">Loading data…</div>
+  <div class="notice"><strong>On penny stocks:</strong> true penny stocks (under $5) almost never pay dependable dividends, and the ones that advertise huge yields often cut them. The cheapest payers here start around $6–$30. You don't need cheap shares to start small: most US brokers sell <strong>fractional shares</strong>, so $50 buys part of a $270 stock.</div>
+
+  <div class="tiles" id="tiles"></div>
+
+  <h2 id="top5">Top 5 picks</h2>
+  <p class="muted">Two monthly payers for steady cash, plus three quarterly payers for dividend growth. Together they pay every month. Load them into the planner below to see the income.</p>
+  <div class="top5" id="top5cards"></div>
+
+  <h2 id="calendar">Calendar</h2>
+  <div class="controls">
+    <div class="seg" role="group" aria-label="Group by">
+      <button type="button" data-view="pay" aria-pressed="true">By payment month</button>
+      <button type="button" data-view="ex" aria-pressed="false">By ex-dividend month</button>
+    </div>
+    <input type="search" id="q" placeholder="Search a stock or ticker" aria-label="Search stocks">
+    <label class="inline"><input type="checkbox" id="hideRisky"> Hide high-risk</label>
+  </div>
+  <div class="chiprow" id="tiers"><span class="lbl">Price:</span></div>
+  <div class="chiprow" id="sectors"><span class="lbl">Sector:</span></div>
+  <div class="monthly" id="monthlyBand"></div>
+  <div class="months" id="months"></div>
+
+  <h2 id="upcoming">Next ex-dividend dates</h2>
+  <p class="muted"><strong>The ex-dividend date is the US cut-off.</strong> You must own the shares <em>before</em> it: buy by the close of the trading day before the ex-date. Because US trades settle in one business day, the ex-date and record date are the same day. "Expected" rows repeat the company's normal cycle and move once it announces.</p>
+  <div class="table-wrap"><table id="upcomingTable"><thead><tr><th>Ex-dividend date</th><th>Stock</th><th class="num">Amount ($)</th><th>Pays</th><th>Status</th></tr></thead><tbody></tbody></table></div>
+
+  <h2 id="planner">Monthly income planner</h2>
+  <p class="muted">Enter how many dollars you'd put in each stock (fractional shares assumed). The planner uses regular dividends only (no specials) at the latest declared rate, so it shows roughly what a year would look like, not a promise.</p>
+  <div class="presets">
+    <button class="btn" type="button" id="presetTop5">Load Top 5 ($2,000 each)</button>
+    <button class="btn ghost" type="button" id="presetLadder">Load 12-month ladder ($1,000 each)</button>
+    <button class="btn ghost" type="button" id="presetClear">Clear</button>
+    <label class="inline">Tax withheld <input type="number" id="wht" value="0" min="0" max="50" step="1" style="width:70px">%</label>
+  </div>
+  <p class="muted" style="margin-top:-4px">Tax: US residents usually pay income tax on dividends instead of having it withheld (leave at 0%). Non-US investors usually have tax withheld at source: commonly 30%, lower in countries with a US tax treaty. Nigeria has no such treaty, so 30% is typical.</p>
+  <div class="strip" id="strip" aria-label="Months covered by your selection"></div>
+  <div class="summary" id="summary"></div>
+  <div class="chart" id="chart" role="img" aria-label="Estimated dividend income by month"><div class="tip" id="tip"></div></div>
+  <div class="axis" id="axis"></div>
+  <details style="margin-top:10px"><summary class="muted">Show monthly income as a table</summary>
+    <div class="table-wrap" style="margin-top:8px"><table id="incomeTable"><thead><tr><th>Month</th><th class="num">Income ($, after tax)</th><th>From</th></tr></thead><tbody></tbody></table></div>
+  </details>
+  <div id="gaps" class="muted" style="margin-top:12px"></div>
+  <div class="table-wrap" style="margin-top:16px"><table class="planner-table" id="plannerTable"><thead><tr><th>Stock</th><th>Sector</th><th>Pays</th><th class="num">Price ($)</th><th class="num">Yield</th><th class="num">Invest ($)</th></tr></thead><tbody></tbody></table></div>
+
+  <h2 id="retire">How much do I need to replace my salary?</h2>
+  <div class="calc">
+    <label>Target monthly income ($)<input type="number" id="target" value="3000" min="0" step="100"></label>
+    <label>Average portfolio dividend yield (%)<input type="number" id="yield" value="4" min="0.5" max="20" step="0.25"></label>
+    <label>Capital needed<output id="capital">–</output></label>
+  </div>
+  <p class="muted">Formula: target × 12 ÷ (yield × (1 − tax withheld)). A 4% yield from dividends that grow every year is usually safer than a 10%+ yield that may be cut.</p>
+
+  <h2 id="how">How to build it</h2>
+  <ol class="steps">
+    <li><strong>Start with two monthly payers</strong> (for example Realty Income and Main Street Capital). That alone puts money in your account every month.</li>
+    <li><strong>Add one quarterly payer from each cycle</strong>: Jan/Apr/Jul/Oct, Feb/May/Aug/Nov, and Mar/Jun/Sep/Dec. The planner's "12-month ladder" preset shows this.</li>
+    <li><strong>Favour growing dividends over high yields.</strong> Very high yields (PFLT ~15%, some telecoms ~6%) often mean the market expects a cut.</li>
+    <li><strong>Mind the ex-dividend date.</strong> Buy before it to receive the next payment.</li>
+    <li><strong>Reinvest until you retire</strong> (most brokers offer automatic dividend reinvestment, or DRIP), then switch to taking the cash.</li>
+    <li><strong>Spread across sectors.</strong> REITs and BDCs pay the most but are sensitive to interest rates and credit. Balance them with healthcare, consumer staples and energy.</li>
+  </ol>
+
+  <h2 id="sources">Sources</h2>
+  <ul id="sourceList" class="muted"></ul>
+</main>
+<footer>Personal research, not financial advice. Dividends and dates come from company releases and market-data sites, with "expected" dates projected from each company's normal cycle. Prices marked "approx." are implied from a quoted yield. Check a live quote and the company's announcement before trading.</footer>
+
+<dialog id="detail">
+  <h3 id="dTitle"></h3>
+  <div class="muted" id="dSub"></div>
+  <div class="table-wrap" style="margin:12px 0"><table><thead><tr><th>Ex-dividend</th><th>Paid</th><th class="num">$/share</th></tr></thead><tbody id="dRows"></tbody></table></div>
+  <p class="muted" id="dNote"></p>
+  <p id="dLink"></p>
+  <form method="dialog"><button class="btn ghost" type="submit">Close</button></form>
+</dialog>
+
+<script>
+(async function () {
+  const MONTHS = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+  const MONTHS_LONG = ["January","February","March","April","May","June","July","August","September","October","November","December"];
+  const TIERS = [["u10", "Under $10", 0, 10], ["10-40", "$10–$40", 10, 40], ["40-100", "$40–$100", 40, 100], ["100+", "Over $100", 100, Infinity]];
+  const LADDER = ["o", "main", "mdt", "mo", "pg", "abbv", "jnj", "cvx", "ko", "pfe", "vz", "pm"];
+
+  let data;
+  try { data = await (await fetch("us-dividend-data.json")).json(); }
+  catch (e) { document.getElementById("asof").textContent = "Could not load the dividend data."; return; }
+
+  const stocks = data.stocks;
+  const byId = Object.fromEntries(stocks.map(s => [s.id, s]));
+  const today = new Date(); today.setHours(0, 0, 0, 0);
+  const parse = d => new Date(d + "T00:00:00");
+  const fmt = d => (typeof d === "string" ? parse(d) : d).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" });
+  const usd = (n, dp = 0) => "$" + n.toLocaleString("en-US", { minimumFractionDigits: dp, maximumFractionDigits: dp });
+  const amt = a => "$" + a.toLocaleString("en-US", { maximumFractionDigits: 4 });
+  const esc = s => String(s).replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+  const tierOf = s => TIERS.find(t => s.price >= t[2] && s.price < t[3])[0];
+  const yieldOf = s => s.annual / s.price * 100;
+  const priceText = s => usd(s.price, 2) + (s.priceImplied ? " (approx.)" : "");
+  // Months between the latest ex-date and its payment, used to place ex-dates in the calendar.
+  const exOffset = s => { const l = s.latest[0]; return (parse(l.pay).getMonth() - parse(l.ex).getMonth() + 12) % 12; };
+  const exMonths = s => s.payMonths.map(m => ((m - 1 - exOffset(s)) + 12) % 12);
+  const payMonths0 = s => s.payMonths.map(m => m - 1);
+
+  document.getElementById("asof").textContent = `Data as of ${fmt(data.asOf)}. ${data.note}`;
+
+  const monthlyCount = stocks.filter(s => s.freq === "monthly").length;
+  document.getElementById("tiles").innerHTML = [
+    ["Stocks", stocks.length], ["Monthly payers", monthlyCount],
+    ["Months covered", "12 of 12"], ["Cheapest share", usd(Math.min(...stocks.map(s => s.price)), 2)]
+  ].map(([k, v]) => `<div class="tile"><div class="k">${k}</div><div class="v">${v}</div></div>`).join("");
+
+  // Top 5 cards
+  document.getElementById("top5cards").innerHTML = data.top5.ids.map((id, i) => {
+    const s = byId[id];
+    return `<div class="card"><div class="t">${i + 1}. ${esc(s.ticker)} · ${esc(s.name)}</div>
+      <div class="y">${yieldOf(s).toFixed(1)}% yield · ${s.freq === "monthly" ? "monthly" : s.payMonths.map(m => MONTHS[m - 1]).join("/")}</div>
+      <div class="muted">${esc(data.top5.why[id])}</div></div>`;
+  }).join("");
+
+  // ---------- Calendar ----------
+  let view = "pay", tiersOn = new Set(), sectorsOn = new Set(), query = "", hideRisky = false;
+  const sectors = [...new Set(stocks.map(s => s.sector))];
+  const mkChips = (el, items, set) => {
+    el.insertAdjacentHTML("beforeend", [["all", "All"], ...items].map(([v, l]) =>
+      `<button type="button" class="chip" data-v="${esc(v)}" aria-pressed="${v === "all"}">${esc(l)}</button>`).join(""));
+    el.addEventListener("click", e => {
+      const b = e.target.closest(".chip"); if (!b) return;
+      const v = b.dataset.v;
+      if (v === "all") set.clear(); else set.has(v) ? set.delete(v) : set.add(v);
+      el.querySelectorAll(".chip").forEach(c => c.setAttribute("aria-pressed", c.dataset.v === "all" ? String(!set.size) : String(set.has(c.dataset.v))));
+      renderCalendar();
+    });
+  };
+  mkChips(document.getElementById("tiers"), TIERS.map(t => [t[0], t[1]]), tiersOn);
+  mkChips(document.getElementById("sectors"), sectors.map(s => [s, s]), sectorsOn);
+  document.querySelectorAll(".seg button").forEach(b => b.addEventListener("click", () => {
+    view = b.dataset.view;
+    document.querySelectorAll(".seg button").forEach(x => x.setAttribute("aria-pressed", String(x === b)));
+    renderCalendar();
+  }));
+  document.getElementById("q").addEventListener("input", e => { query = e.target.value.trim().toLowerCase(); renderCalendar(); });
+  document.getElementById("hideRisky").addEventListener("change", e => { hideRisky = e.target.checked; renderCalendar(); });
+
+  const visible = s => !(hideRisky && s.risky) && (!tiersOn.size || tiersOn.has(tierOf(s))) &&
+    (!sectorsOn.size || sectorsOn.has(s.sector)) && (!query || (s.ticker + " " + s.name + " " + s.sector).toLowerCase().includes(query));
+
+  function renderCalendar() {
+    const vis = stocks.filter(visible);
+    const monthly = vis.filter(s => s.freq === "monthly"), quarterly = vis.filter(s => s.freq !== "monthly");
+    document.getElementById("monthlyBand").innerHTML = monthly.length
+      ? `<h3>Pays every month (${monthly.length})</h3><div class="row">${monthly.map(s =>
+          `<button type="button" class="pill" data-id="${s.id}"><strong>${esc(s.ticker)}${s.risky ? ' <span class="badge warn">high risk</span>' : ""}</strong>${amt(s.amount)}/mo · ${yieldOf(s).toFixed(1)}% · ${priceText(s)}</button>`).join("")}</div>`
+      : `<h3>Pays every month</h3><div class="muted">No monthly payers match the current filter.</div>`;
+    document.getElementById("monthlyBand").style.display = "";
+    const buckets = Array.from({ length: 12 }, () => []);
+    quarterly.forEach(s => (view === "pay" ? payMonths0(s) : exMonths(s)).forEach(m => buckets[m].push(s)));
+    document.getElementById("months").innerHTML = buckets.map((items, m) => `
+      <section class="month" aria-label="${MONTHS_LONG[m]}">
+        <h3>${MONTHS_LONG[m]}<span class="count">${items.length} quarterly${monthly.length ? " + " + monthly.length + " monthly" : ""}</span></h3>
+        ${items.length ? items.map(s => `<button type="button" class="entry" data-id="${s.id}">
+          <span class="a">${amt(s.amount)}</span><span class="t">${esc(s.ticker)}</span>${s.view ? `<span class="badge">our view: ${esc(s.view)}</span>` : ""}
+          <div class="s">${esc(s.name)} · ${yieldOf(s).toFixed(1)}% · ${priceText(s)}</div></button>`).join("")
+          : `<div class="muted">No quarterly payers for this filter.</div>`}
+        ${monthly.length ? `<div class="plus">+ ${monthly.map(s => s.ticker).join(", ")} (monthly)</div>` : ""}
+      </section>`).join("");
+  }
+  document.querySelector("main").addEventListener("click", e => {
+    const b = e.target.closest(".entry, .pill"); if (b && b.dataset.id) openDetail(b.dataset.id);
+  });
+
+  // ---------- Detail ----------
+  const dlg = document.getElementById("detail");
+  function openDetail(id) {
+    const s = byId[id];
+    document.getElementById("dTitle").textContent = `${s.name} (${s.ticker})`;
+    document.getElementById("dSub").textContent = `${s.sector} · ${s.freq === "monthly" ? "Pays monthly" : "Pays quarterly: " + s.payMonths.map(m => MONTHS[m - 1]).join(", ")} · ${amt(s.annual)}/yr · ${yieldOf(s).toFixed(1)}% yield at ${priceText(s)}${s.view ? " · Our view: " + s.view : ""}`;
+    document.getElementById("dRows").innerHTML = s.latest.map(l =>
+      `<tr><td>${fmt(l.ex)}</td><td>${fmt(l.pay)}</td><td class="num">${amt(l.amount)}</td></tr>`).join("");
+    document.getElementById("dNote").textContent = `${s.note || ""} Price: ${s.priceNote}.`;
+    document.getElementById("dLink").innerHTML = s.report ? `<a href="./#${s.report}">Read the full analysis →</a>` : "";
+    dlg.showModal();
+  }
+
+  // ---------- Upcoming ex-dates ----------
+  function renderUpcoming() {
+    const horizon = new Date(today); horizon.setDate(horizon.getDate() + 75);
+    const rows = [];
+    stocks.forEach(s => {
+      const step = s.freq === "monthly" ? 1 : 3;
+      const announced = s.latest.filter(l => parse(l.ex) >= today);
+      announced.forEach(l => rows.push({ s, ex: parse(l.ex), pay: parse(l.pay), amount: l.amount, expected: false }));
+      const last = s.latest[s.latest.length - 1];
+      let ex = parse(last.ex), pay = parse(last.pay);
+      for (let i = 0; i < 24; i++) {
+        ex = new Date(ex); ex.setMonth(ex.getMonth() + step);
+        pay = new Date(pay); pay.setMonth(pay.getMonth() + step);
+        if (ex > horizon) break;
+        if (ex >= today) rows.push({ s, ex, pay, amount: s.amount, expected: true });
+      }
+    });
+    rows.sort((a, b) => a.ex - b.ex);
+    document.querySelector("#upcomingTable tbody").innerHTML = rows.map(r => `<tr>
+      <td>${fmt(r.ex)}</td><td><strong>${esc(r.s.ticker)}</strong><div class="muted">${esc(r.s.name)}</div></td>
+      <td class="num">${amt(r.amount)}</td><td>${r.expected ? "~" : ""}${fmt(r.pay)}</td>
+      <td>${r.expected ? `<span class="badge warn">expected</span>` : `<span class="badge">announced</span>`}</td></tr>`).join("");
+  }
+
+  // ---------- Planner ----------
+  const sel = {};
+  const tbody = document.querySelector("#plannerTable tbody");
+  tbody.innerHTML = stocks.map(s => `<tr>
+    <td><strong>${esc(s.ticker)}</strong>${s.risky ? '<span class="badge warn">high risk</span>' : ""}<div class="muted">${esc(s.name)}</div></td>
+    <td>${esc(s.sector)}</td><td>${s.freq === "monthly" ? "Monthly" : s.payMonths.map(m => MONTHS[m - 1]).join(", ")}</td>
+    <td class="num">${s.price.toFixed(2)}${s.priceImplied ? "*" : ""}</td><td class="num">${yieldOf(s).toFixed(1)}%</td>
+    <td class="num"><input type="number" min="0" step="50" data-id="${s.id}" placeholder="0" aria-label="Dollars in ${esc(s.ticker)}"></td></tr>`).join("") +
+    `<tr><td colspan="6" class="muted">* Approximate price implied from a quoted yield. Check a live quote.</td></tr>`;
+  tbody.addEventListener("input", e => {
+    const id = e.target.dataset.id; if (!id) return;
+    const v = +e.target.value; if (v > 0) sel[id] = v; else delete sel[id];
+    renderPlanner();
+  });
+  function setSelection(map) {
+    Object.keys(sel).forEach(k => delete sel[k]);
+    tbody.querySelectorAll("input[data-id]").forEach(i => { const v = map[i.dataset.id]; i.value = v || ""; if (v) sel[i.dataset.id] = v; });
+    renderPlanner();
+  }
+  document.getElementById("presetTop5").addEventListener("click", () => setSelection(Object.fromEntries(data.top5.ids.map(id => [id, 2000]))));
+  document.getElementById("presetLadder").addEventListener("click", () => setSelection(Object.fromEntries(LADDER.map(id => [id, 1000]))));
+  document.getElementById("presetClear").addEventListener("click", () => setSelection({}));
+  document.getElementById("wht").addEventListener("input", () => { renderPlanner(); renderCalc(); });
+
+  const chart = document.getElementById("chart"), tip = document.getElementById("tip");
+  document.getElementById("axis").innerHTML = MONTHS.map(m => `<div>${m}</div>`).join("");
+
+  function renderPlanner() {
+    const wht = Math.min(Math.max(+document.getElementById("wht").value || 0, 0), 50) / 100;
+    const income = Array(12).fill(0), payers = Array.from({ length: 12 }, () => []);
+    let invested = 0;
+    Object.entries(sel).forEach(([id, dollars]) => {
+      const s = byId[id]; invested += dollars;
+      const shares = dollars / s.price;
+      payMonths0(s).forEach(m => { income[m] += shares * s.amount * (1 - wht); payers[m].push(s.ticker); });
+    });
+    document.getElementById("strip").innerHTML = MONTHS.map((m, i) =>
+      `<div class="${payers[i].length ? "on" : (Object.keys(sel).length ? "off" : "")}" title="${payers[i].join(", ") || "No payments"}">${m}<br>${payers[i].length || "–"}</div>`).join("");
+    const total = income.reduce((a, b) => a + b, 0), n = Object.keys(sel).length;
+    const covered = payers.filter(p => p.length).length;
+    document.getElementById("summary").innerHTML = n
+      ? `<strong>${covered} of 12 months</strong> covered by ${n} ${n === 1 ? "stock" : "stocks"}. ${usd(invested)} invested pays about <strong>${usd(total)}</strong> a year after tax (${(total / invested * 100).toFixed(1)}% yield), or about <strong>${usd(total / 12)}</strong> a month on average. The lightest month pays ${usd(Math.min(...income))} and the heaviest ${usd(Math.max(...income))}.`
+      : "Load a preset or enter dollar amounts below to see your monthly income.";
+    const max = Math.max(...income, 1);
+    chart.querySelectorAll(".col").forEach(c => c.remove());
+    income.forEach((v, i) => {
+      const col = document.createElement("div");
+      col.className = "col";
+      col.innerHTML = `<div class="b" style="height:${(v / max * 100).toFixed(1)}%"></div>`;
+      col.addEventListener("mousemove", e => {
+        const r = chart.getBoundingClientRect();
+        tip.style.left = (e.clientX - r.left) + "px"; tip.style.top = (e.clientY - r.top) + "px";
+        tip.textContent = `${MONTHS_LONG[i]}: ${v ? usd(v, 2) : "no income"}${payers[i].length ? " · " + payers[i].join(", ") : ""}`;
+        tip.style.display = "block";
+      });
+      col.addEventListener("mouseleave", () => tip.style.display = "none");
+      chart.appendChild(col);
+    });
+    document.querySelector("#incomeTable tbody").innerHTML = income.map((v, i) =>
+      `<tr><td>${MONTHS_LONG[i]}</td><td class="num">${v ? usd(v, 2) : "–"}</td><td>${payers[i].join(", ") || "–"}</td></tr>`).join("");
+    const empty = payers.map((p, i) => p.length ? null : i).filter(i => i != null);
+    document.getElementById("gaps").innerHTML = n && empty.length
+      ? `Months with no income: ${empty.map(m => {
+          const fill = stocks.filter(s => !(s.id in sel) && payMonths0(s).includes(m) && s.freq !== "monthly").slice(0, 3).map(s => s.ticker);
+          return `<strong>${MONTHS[m]}</strong> (add ${fill.join(", ") || "a monthly payer"})`;
+        }).join(", ")}, or add a monthly payer to cover every month.` : "";
+  }
+
+  // ---------- Calculator ----------
+  function renderCalc() {
+    const t = +document.getElementById("target").value || 0, y = (+document.getElementById("yield").value || 0) / 100;
+    const wht = (+document.getElementById("wht").value || 0) / 100;
+    document.getElementById("capital").textContent = y > 0 ? usd(t * 12 / (y * (1 - wht))) : "–";
+  }
+  ["target", "yield"].forEach(id => document.getElementById(id).addEventListener("input", renderCalc));
+
+  document.getElementById("sourceList").innerHTML = data.sources.map(s => `<li><a href="${esc(s.url)}" target="_blank" rel="noopener">${esc(s.title)}</a></li>`).join("");
+  renderCalendar(); renderUpcoming(); renderPlanner(); renderCalc();
+})();
+</script>
+</body>
+</html>
