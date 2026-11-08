@@ -17,6 +17,8 @@ Buy / hold / avoid research on Nigerian (NGX) stocks, produced with a 15-step fr
 
 ## Dividend calendar
 
+`plan.html` is the personal dashboard (start here): it says what to buy this week or month from your budget, lists the next 30 days of buy-by and payment dates with Google Calendar and .ics phone reminders, tracks your holdings and monthly income coverage, and runs a "when can dividends replace my salary" calculator. Everything is saved in your browser; use Export to back it up.
+
 `dividend-calendar.html` maps ~30 viable NGX dividend payers across January–December, with qualification (cut-off) and payment dates, a next-cut-off list, a monthly income planner and a salary-replacement calculator. Data lives in `dividend-data.json`; update it as companies announce new dates.
 
 `us-dividend-calendar.html` does the same for 22 quality NYSE payers (monthly REITs/BDCs plus quarterly payers on each cycle), sorted by price tier from under $10 to blue chips, with ex-dividend dates, a Top 5 preset and a fractional-share income planner. Data lives in `us-dividend-data.json`.
