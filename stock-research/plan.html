@@ -83,6 +83,13 @@
   .chartHead { display: flex; flex-wrap: wrap; gap: 6px 16px; align-items: center; margin: 14px 0 2px; font-size: 14px; }
   .key { display: inline-flex; align-items: center; gap: 6px; }
   .key i { display: inline-block; width: 18px; height: 0; border-top: 3px solid var(--bar); }
+  .grow { display: grid; grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); gap: 10px; margin: 10px 0; }
+  .grow .yr { border: 1px solid var(--border); border-radius: 12px; padding: 10px 12px; font-size: 14px; }
+  .grow .yr.ready { border-color: var(--bar); }
+  .grow .yr h3 { margin: 0 0 6px; font-size: 15px; display: flex; justify-content: space-between; gap: 8px; align-items: center; }
+  .grow .yr .big { font-size: 1.15rem; font-weight: 700; }
+  .grow .yr .line { display: flex; justify-content: space-between; gap: 8px; }
+  .grow .yr .verdict { margin-top: 6px; font-size: 13px; }
   .key i.dash { border-top: 2px dashed var(--warn); }
   .picks { columns: 2 220px; column-gap: 16px; font-size: 14px; }
   .picks label { display: flex; gap: 6px; align-items: baseline; break-inside: avoid; padding: 3px 0; }
@@ -183,6 +190,23 @@
     <p class="muted" style="margin:0 0 4px;font-size:13px">The green line is what your dividends would pay you each month. Where it crosses the dashed line is when they replace your salary. Hover or tap a dot for the exact numbers.</p>
     <svg id="goalChart" viewBox="0 0 640 230" width="100%" role="img" aria-label="Projected monthly dividend income by year"></svg>
     <details><summary class="muted">Show as a table</summary><div class="table-wrap" style="margin-top:8px"><table id="goalTable"><thead><tr><th>Year</th><th class="num">Portfolio value</th><th class="num">Monthly income</th></tr></thead><tbody></tbody></table></div></details>
+  </section>
+
+  <!-- 5b. Projection by duration -->
+  <section class="card" id="growCard">
+    <h2>What will my money grow to?</h2>
+    <p class="muted" style="margin-top:0">Pick an amount and how often you put it in. You'll see what it could be worth after each number of years, how much it would pay you every month, and whether that is enough to retire on. It uses the yield, growth, reinvest and tax settings above.</p>
+    <div class="grid">
+      <label class="f">I put in <input type="number" id="pAmt" min="0" step="100"></label>
+      <label class="f">every <select id="pFreq">
+        <option value="day">day</option><option value="week">week</option><option value="month">month</option>
+        <option value="quarter">quarter (3 months)</option><option value="year">year</option></select></label>
+      <label class="f">Also show after (years) <input type="number" id="pYears" min="1" max="40" step="1" placeholder="e.g. 12"></label>
+      <label class="f">Monthly income I need to retire <input type="number" id="pTarget" min="0" step="1000"></label>
+    </div>
+    <div id="growSummary" style="margin-top:10px"></div>
+    <div id="growList" class="grow"></div>
+    <p class="muted" style="font-size:13px">"Retirement-ready" means the dividends alone pay your monthly income target after tax, without selling any shares. Daily and weekly amounts are added up month by month; in practice brokers charge a fee per trade, so most people save daily and buy weekly or monthly. Estimates, not promises: real yields, prices and payouts change.</p>
   </section>
 
   <!-- 6. Plan stocks -->
@@ -559,8 +583,71 @@
   // ---------- Goal calculator ----------
   const gIds = ["gStart", "gYield", "gGrowth", "gReinvest"];
   gIds.forEach(id => document.getElementById(id).addEventListener("input", e => {
-    P()[id] = +e.target.value; if (id === "gStart") P().gStartSet = true; save(); renderGoal();
+    P()[id] = +e.target.value; if (id === "gStart") P().gStartSet = true; save(); renderGoal(); renderGrow();
   }));
+  // ---------- Projection by duration ----------
+  const FREQ = { day: 365 / 12, week: 52 / 12, month: 1, quarter: 1 / 3, year: 1 / 12 };
+  const FREQ_WORD = { day: "day", week: "week", month: "month", quarter: "quarter", year: "year" };
+  function simulate(start, perMonth, months, reinvest) {
+    const p = P(), y = (+p.gYield || 0) / 100, g = (+p.gGrowth || 0) / 100, tax = (+p.tax || 0) / 100;
+    let v = start, cash = 0;
+    for (let m = 1; m <= months; m++) {
+      const div = v * y / 12 * (1 - tax);
+      v = v * (1 + g) ** (1 / 12) + perMonth + (reinvest ? div : 0);
+      if (!reinvest) cash += div;
+    }
+    return { v, cash, inc: v * y * (1 - tax) / 12 };
+  }
+  ["pAmt", "pFreq", "pYears", "pTarget"].forEach(id => document.getElementById(id).addEventListener("input", e => {
+    P()[id] = e.target.type === "number" ? (e.target.value === "" ? "" : +e.target.value) : e.target.value; save(); renderGrow();
+  }));
+  function renderGrow() {
+    const p = P();
+    if (p.pAmt == null) p.pAmt = +p.contrib || 0;
+    if (!p.pFreq) p.pFreq = p.cadence === "week" ? "week" : "month";
+    if (p.pTarget == null) p.pTarget = +p.target || 0;
+    ["pAmt", "pFreq", "pYears", "pTarget"].forEach(id => { document.getElementById(id).value = p[id] ?? ""; });
+    const amt = +p.pAmt || 0, perMonth = amt * FREQ[p.pFreq], target = +p.pTarget || 0;
+    const start = +p.gStart || 0, reinvest = (p.gReinvest ?? 1) == 1, word = FREQ_WORD[p.pFreq];
+    const years = [1, 2, 3, 4, 5, 10, 15, 20, 25, 30];
+    if (+p.pYears >= 1 && !years.includes(+p.pYears)) years.push(Math.min(40, Math.round(+p.pYears)));
+    years.sort((a, b) => a - b);
+    const sum = document.getElementById("growSummary"), list = document.getElementById("growList");
+    if (!amt && !start) { sum.innerHTML = `<p>Type an amount above to see your projection.</p>`; list.innerHTML = ""; return; }
+    let firstReady = null;
+    list.innerHTML = years.map(n => {
+      const r = simulate(start, perMonth, n * 12, reinvest), put = start + perMonth * n * 12;
+      const pct = target ? r.inc / target * 100 : 0, ready = target && r.inc >= target;
+      if (ready && firstReady == null) firstReady = n;
+      let verdict;
+      if (!target) verdict = `<span class="muted">Set a monthly income target to see if this is enough.</span>`;
+      else if (ready) verdict = `✅ <strong>Retirement-ready.</strong> Dividends cover your ${money(target)}/month.`;
+      else {
+        // Value is linear in the contribution, so solve for the amount that hits the target in n years.
+        const need = target * 12 / ((+p.gYield || 0) / 100 * (1 - (+p.tax || 0) / 100));
+        const base = simulate(start, 0, n * 12, reinvest).v, unit = simulate(0, 1, n * 12, reinvest).v;
+        const perMonthNeeded = unit > 0 ? Math.max(0, (need - base) / unit) : Infinity;
+        const perFreq = perMonthNeeded / FREQ[p.pFreq];
+        verdict = `⏳ <strong>Not mature yet</strong>: ${pct < 1 ? pct.toFixed(1) : Math.floor(pct)}% of your target.` +
+          (isFinite(perFreq) ? ` To be retirement-ready in ${n} year${n > 1 ? "s" : ""}, invest about <strong>${money(perFreq)}</strong> every ${word}.` : "");
+      }
+      return `<div class="yr${ready ? " ready" : ""}"><h3>After ${n} year${n > 1 ? "s" : ""}<span class="badge ${ready ? "ok" : "warn"}">${ready ? "ready" : target ? (pct < 1 ? "<1" : Math.min(99, Math.floor(pct))) + "%" : "—"}</span></h3>
+        <div class="line"><span class="muted">Your money put in</span><span>${money(put)}</span></div>
+        <div class="line"><span class="muted">Could be worth</span><span class="big">${money(r.v)}</span></div>
+        <div class="line"><span class="muted">Pays you each month</span><span><strong>${money(r.inc)}</strong></span></div>
+        ${!reinvest && r.cash ? `<div class="line"><span class="muted">Dividends already received</span><span>${money(r.cash)}</span></div>` : ""}
+        <div class="verdict">${verdict}</div></div>`;
+    }).join("");
+    let hitM = null;
+    if (target) { for (let m = 1; m <= 480; m++) if (simulate(start, perMonth, m, reinvest).inc >= target) { hitM = m; break; } }
+    const hitTxt = hitM == null ? "" : hitM < 12 ? `${hitM} months` : `${(hitM / 12).toFixed(1)} years`;
+    sum.innerHTML = !target ? "" : hitM != null
+      ? `<p style="margin:0">Putting in <strong>${money(amt)}</strong> every ${word} (≈ ${money(perMonth)} a month), you become <strong>retirement-ready in about ${hitTxt}</strong> on these settings.</p>`
+      : firstReady != null
+      ? `<p style="margin:0">Putting in <strong>${money(amt)}</strong> every ${word} (≈ ${money(perMonth)} a month), you become <strong>retirement-ready in about ${firstReady} years</strong> on these settings.</p>`
+      : `<p style="margin:0">Putting in <strong>${money(amt)}</strong> every ${word} (≈ ${money(perMonth)} a month) is <strong>not enough to retire within ${years[years.length - 1]} years</strong> on these settings. Each card shows how much more to invest for that timeline.</p>`;
+  }
+
   function renderGoal() {
     const p = P(), st = holdingsStats();
     if (!p.gStartSet) p.gStart = Math.round(st.value);
@@ -645,7 +732,7 @@
   function renderAll(full) {
     document.querySelectorAll(".seg button").forEach(b => b.setAttribute("aria-pressed", String(b.dataset.market === M())));
     if (full !== false) bindInputs();
-    renderPortfolio(); renderActions(); renderEvents(); renderGoal(); renderPicks();
+    renderPortfolio(); renderActions(); renderEvents(); renderGoal(); renderGrow(); renderPicks();
   }
   renderAll(true);
 })();
