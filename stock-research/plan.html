@@ -77,6 +77,13 @@
   .events li:first-child { border-top: 0; }
   .events .when { font-weight: 700; min-width: 92px; }
   .events .txt { flex: 1 1 220px; font-size: 14px; }
+  .events .txt a { font-weight: 600; }
+  .help { margin: 8px 0; padding: 10px 12px; border: 1px solid var(--border); border-radius: 10px; font-size: 14px; }
+  .help ol { margin: 6px 0; padding-left: 20px; }
+  .chartHead { display: flex; flex-wrap: wrap; gap: 6px 16px; align-items: center; margin: 14px 0 2px; font-size: 14px; }
+  .key { display: inline-flex; align-items: center; gap: 6px; }
+  .key i { display: inline-block; width: 18px; height: 0; border-top: 3px solid var(--bar); }
+  .key i.dash { border-top: 2px dashed var(--warn); }
   .picks { columns: 2 220px; column-gap: 16px; font-size: 14px; }
   .picks label { display: flex; gap: 6px; align-items: baseline; break-inside: avoid; padding: 3px 0; }
   details > summary { cursor: pointer; font-weight: 600; }
@@ -116,9 +123,20 @@
   <section class="card">
     <div class="row" style="justify-content:space-between">
       <h2 style="margin:0">Next 30 days</h2>
-      <button class="btn soft sm" type="button" id="ics">📅 Add all reminders to my calendar</button>
+      <div class="row" style="gap:8px">
+        <button class="btn soft sm" type="button" id="gcalAll">Add all to Google Calendar</button>
+        <button class="btn ghost sm" type="button" id="ics">iPhone / Outlook (.ics)</button>
+      </div>
     </div>
-    <p class="muted" style="margin:6px 0 8px">"Buy by" dates give your trade time to settle before the cut-off. The calendar file adds phone alerts for every buy-by date, every payment you're due, and your regular "invest now" day. Re-download it after you change your plan.</p>
+    <div id="gcalHelp" class="help" hidden>
+      <strong>Two quick steps for Google Calendar:</strong>
+      <ol>
+        <li>The file <code>dividend-plan.ics</code> has just downloaded.</li>
+        <li>In the Google Calendar tab that opened, click <em>Select file from your computer</em>, pick that file and press <em>Import</em>.</li>
+      </ol>
+      <span class="muted">Google only lets you import on a computer. On an Android phone, tap the downloaded file and choose Google Calendar, or use the <strong>+ Google</strong> button on each row below; it adds one reminder at a time and works on any phone.</span>
+    </div>
+    <p class="muted" style="margin:6px 0 8px">Tap <strong>+ Google</strong> on any row to add that single reminder to Google Calendar. "Buy by" dates give your trade time to settle before the cut-off. The calendar file adds phone alerts for every buy-by date, every payment you're due, and your regular "invest now" day. Re-download it after you change your plan.</p>
     <ul class="events" id="events"></ul>
   </section>
 
@@ -160,6 +178,9 @@
       <label class="f">Reinvest dividends? <select id="gReinvest"><option value="1">Yes, until I reach the goal</option><option value="0">No</option></select></label>
     </div>
     <div id="goalOut" style="margin-top:12px"></div>
+    <div class="chartHead"><strong>Your monthly dividend income, year by year</strong>
+      <span class="key"><i></i>projected income</span><span class="key"><i class="dash"></i>your target</span></div>
+    <p class="muted" style="margin:0 0 4px;font-size:13px">The green line is what your dividends would pay you each month. Where it crosses the dashed line is when they replace your salary. Hover or tap a dot for the exact numbers.</p>
     <svg id="goalChart" viewBox="0 0 640 230" width="100%" role="img" aria-label="Projected monthly dividend income by year"></svg>
     <details><summary class="muted">Show as a table</summary><div class="table-wrap" style="margin-top:8px"><table id="goalTable"><thead><tr><th>Year</th><th class="num">Portfolio value</th><th class="num">Monthly income</th></tr></thead><tbody></tbody></table></div></details>
   </section>
@@ -482,12 +503,13 @@
   const evText = e => e.kind === "buy"
     ? `Last day to buy ${e.s.ticker}${e.owned ? " (top up)" : ""} for the ${e.amount ? money(e.amount, 2) + "/share " : ""}dividend · ${C().cutoffWord} ${fmtDate(e.cut)}`
     : e.kind === "pay" ? `${e.s.ticker} pays you ${e.total ? "≈ " + money(e.total) : "a dividend"}`
-    : `Invest your ${money(+P().contrib || 0)} (open this page for what to buy)`;
+    : `Invest your ${money(+P().contrib || 0)}: open My Plan and follow "${P().cadence === "week" ? "This week's" : "This month's"} move"`;
+  const planUrl = () => location.origin + location.pathname;
 
   function gcalLink(e) {
     const ymd = d => d.toISOString().slice(0, 10).replace(/-/g, "");
     const d = new Date(e.date.getTime() - e.date.getTimezoneOffset() * 60000), end = new Date(d.getTime() + DAY);
-    const q = new URLSearchParams({ action: "TEMPLATE", text: evText(e), dates: ymd(d) + "/" + ymd(end), details: "From My Dividend Plan. Check the company notice before trading.\n" + location.href });
+    const q = new URLSearchParams({ action: "TEMPLATE", text: evText(e), dates: ymd(d) + "/" + ymd(end), details: (e.kind === "invest" ? "See exactly what to buy: " : "From My Dividend Plan. Check the company notice before trading. ") + planUrl() });
     return "https://calendar.google.com/calendar/render?" + q.toString();
   }
 
@@ -497,8 +519,11 @@
       const d = daysUntil(e.date);
       const when = d === 0 ? "Today" : d === 1 ? "Tomorrow" : fmtDate(e.date);
       const icon = e.kind === "buy" ? "🛒" : e.kind === "pay" ? "💰" : "📌";
-      return `<li><span class="when">${icon} ${when}</span><span class="txt">${esc(evText(e))}${e.expected ? ' <span class="badge warn">expected</span>' : ""}</span>
-        <a class="btn ghost sm" href="${gcalLink(e)}" target="_blank" rel="noopener">Remind me</a></li>`;
+      const txt = e.kind === "invest"
+        ? `Invest your ${esc(money(+P().contrib || 0))}. <a href="#actionCard">See what to buy ↑</a>`
+        : esc(evText(e));
+      return `<li><span class="when">${icon} ${when}</span><span class="txt">${txt}${e.expected ? ' <span class="badge warn">expected</span>' : ""}</span>
+        <a class="btn ghost sm" href="${gcalLink(e)}" target="_blank" rel="noopener" title="Add this reminder to Google Calendar">+ Google</a></li>`;
     }).join("") : `<li class="muted">Nothing in the next 30 days.</li>`;
   }
 
@@ -512,7 +537,7 @@
       const end = new Date(e.date.getTime() + DAY);
       lines.push("BEGIN:VEVENT", `UID:${M()}-${e.kind}-${e.s ? e.s.id : "inv"}-${ymd(e.date)}-${i}@divplan`, "DTSTAMP:" + stamp,
         "DTSTART;VALUE=DATE:" + ymd(e.date), "DTEND;VALUE=DATE:" + ymd(end), "SUMMARY:" + icsEsc((e.kind === "buy" ? "🛒 " : e.kind === "pay" ? "💰 " : "📌 ") + evText(e) + (e.expected ? " (expected)" : "")),
-        "DESCRIPTION:" + icsEsc("From My Dividend Plan. Dates marked expected repeat last year's pattern; check the company notice before trading."));
+        "DESCRIPTION:" + icsEsc((e.kind === "invest" ? "See exactly what to buy: " : "Dates marked expected repeat last year's pattern; check the company notice before trading. ") + planUrl()));
       if (e.kind !== "pay") {
         lines.push("BEGIN:VALARM", "ACTION:DISPLAY", "DESCRIPTION:" + icsEsc(evText(e)), "TRIGGER:PT9H", "END:VALARM");
         if (e.kind === "buy") lines.push("BEGIN:VALARM", "ACTION:DISPLAY", "DESCRIPTION:" + icsEsc("In 2 days: " + evText(e)), "TRIGGER:-P2DT-9H", "END:VALARM");
@@ -525,6 +550,11 @@
     document.body.appendChild(a); a.click(); a.remove();
   }
   document.getElementById("ics").addEventListener("click", downloadIcs);
+  document.getElementById("gcalAll").addEventListener("click", () => {
+    downloadIcs();
+    document.getElementById("gcalHelp").hidden = false;
+    window.open("https://calendar.google.com/calendar/r/settings/export", "_blank", "noopener");
+  });
 
   // ---------- Goal calculator ----------
   const gIds = ["gStart", "gYield", "gGrowth", "gReinvest"];
@@ -559,17 +589,21 @@
       .map(r => `<tr><td>${r.yr === 0 ? "Now" : "Year " + r.yr}</td><td class="num">${money(r.v)}</td><td class="num">${money(r.inc)}</td></tr>`).join("");
     // Chart: one series (monthly income) plus a dashed target line.
     const W = 640, H = 230, L = 56, R = 12, T = 12, B = 28;
-    const maxY = Math.max(p.target || 0, ...show.map(r => r.inc)) * 1.1 || 1, maxX = show[show.length - 1].yr || 1;
+    const rawMax = Math.max(p.target || 0, ...show.map(r => r.inc)) * 1.05 || 1, maxX = show[show.length - 1].yr || 1;
+    const mag = 10 ** Math.floor(Math.log10(rawMax / 4)), step = [1, 2, 2.5, 5, 10].map(m => m * mag).find(st => rawMax / st <= 4);
+    const maxY = Math.ceil(rawMax / step) * step;
+    const short = n => C().cur + (n >= 1e9 ? +(n / 1e9).toFixed(1) + "bn" : n >= 1e6 ? +(n / 1e6).toFixed(1) + "m" : n >= 1e3 ? +(n / 1e3).toFixed(1) + "k" : Math.round(n));
     const x = yr => L + (W - L - R) * yr / maxX, yv = v => T + (H - T - B) * (1 - v / maxY);
     const path = show.map((r, i) => `${i ? "L" : "M"}${x(r.yr).toFixed(1)},${yv(r.inc).toFixed(1)}`).join("");
-    const ticks = [0, 0.5, 1].map(f => maxY * f);
+    const ticks = []; for (let t = 0; t <= maxY + 1e-9; t += step) ticks.push(t);
     const xt = []; for (let yr = 0; yr <= maxX; yr += Math.max(1, Math.ceil(maxX / 8))) xt.push(yr);
     document.getElementById("goalChart").innerHTML =
-      ticks.map(t => `<line x1="${L}" x2="${W - R}" y1="${yv(t)}" y2="${yv(t)}" stroke="var(--border)"/><text x="${L - 6}" y="${yv(t) + 4}" text-anchor="end">${money(t)}</text>`).join("") +
+      ticks.map(t => `<line x1="${L}" x2="${W - R}" y1="${yv(t)}" y2="${yv(t)}" stroke="var(--border)"/><text x="${L - 6}" y="${yv(t) + 4}" text-anchor="end">${short(t)}</text>`).join("") +
       xt.map(yr => `<text x="${x(yr)}" y="${H - 8}" text-anchor="middle">${yr === 0 ? "now" : "yr " + yr}</text>`).join("") +
-      (p.target ? `<line x1="${L}" x2="${W - R}" y1="${yv(p.target)}" y2="${yv(p.target)}" stroke="var(--warn)" stroke-width="1.5" stroke-dasharray="5 4"/><text x="${W - R}" y="${yv(p.target) - 6}" text-anchor="end" style="fill:var(--warn)">target ${money(p.target)}/mo</text>` : "") +
+      (p.target ? `<line x1="${L}" x2="${W - R}" y1="${yv(p.target)}" y2="${yv(p.target)}" stroke="var(--warn)" stroke-width="1.5" stroke-dasharray="5 4"/><text x="${L + 6}" y="${yv(p.target) - 6}" style="fill:var(--warn)">target ${short(p.target)}/month</text>` : "") +
+      (hit ? `<line x1="${x(hit / 12)}" x2="${x(hit / 12)}" y1="${T}" y2="${H - B}" stroke="var(--warn)" stroke-dasharray="2 3"/><text x="${x(hit / 12) - 6}" y="${T + 12}" text-anchor="end" style="fill:var(--warn)">goal reached ≈ yr ${(hit / 12).toFixed(0)}</text>` : "") +
       `<path d="${path}" fill="none" stroke="var(--bar)" stroke-width="2.5" stroke-linejoin="round"/>` +
-      show.map(r => `<circle cx="${x(r.yr)}" cy="${yv(r.inc)}" r="5" fill="var(--bar)" stroke="var(--surface)" stroke-width="2"><title>${r.yr === 0 ? "Now" : "Year " + r.yr}: ${money(r.inc)}/month (portfolio ${money(r.v)})</title></circle>`).join("");
+      show.map(r => `<circle cx="${x(r.yr)}" cy="${yv(r.inc)}" r="${show.length > 15 ? 3.5 : 5}" fill="var(--bar)" stroke="var(--surface)" stroke-width="2"><title>${r.yr === 0 ? "Now" : "Year " + r.yr}: ${money(r.inc)}/month (portfolio ${money(r.v)})</title></circle>`).join("");
   }
 
   // ---------- Plan stock picker ----------
