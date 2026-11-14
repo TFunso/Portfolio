@@ -1,0 +1,230 @@
+<!doctype html><html><head><meta charset="utf-8">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,600;0,700;1,500;1,600&family=Nunito+Sans:wght@400;600;700;800;900&display=swap">
+<style>
+:root{--vine:#2f4a3a;--vine2:#46654f;--sage:#a9bba3;--bg:#eef2ec;--bg2:#e3eae0;--gold:#b8925a;--ink:#1f2a24;--muted:#5f6d64;
+--serif:"Cormorant Garamond",Georgia,serif;--sans:"Nunito Sans",Arial,sans-serif}
+*{box-sizing:border-box}body{margin:0;background:#999;font-family:var(--sans);color:var(--ink)}
+.scene{position:relative;overflow:hidden;background:var(--bg);margin:0 0 20px}
+.etsy{width:1500px;height:1125px}
+.sq{width:540px;height:540px}.p45{width:540px;height:675px}.story{width:540px;height:960px}.pin{width:500px;height:750px}
+.pg{position:absolute;background:#fff;box-shadow:0 18px 40px rgba(31,42,36,.22),0 2px 6px rgba(31,42,36,.12);border-radius:2px}
+.pg img{display:block;width:100%;height:auto}
+.dark{background:var(--vine);color:#f3f1ea}
+.kick{font-size:15px;letter-spacing:.26em;text-transform:uppercase;font-weight:900;color:var(--gold)}
+.h{font-family:var(--serif);font-weight:700;color:var(--vine);line-height:.98;margin:0}
+.dark .h{color:#fff}
+.p{font-size:22px;line-height:1.45;color:var(--muted);margin:0}
+.dark .p{color:#dfe6dc}
+.pill{display:inline-block;background:var(--vine);color:#fff;border-radius:99px;padding:9px 20px;font-weight:800;font-size:17px;letter-spacing:.04em}
+.pill.gold{background:var(--gold)}
+.brand{position:absolute;font-size:13px;letter-spacing:.3em;text-transform:uppercase;font-weight:800;color:var(--vine2)}
+.dark .brand{color:var(--sage)}
+.badges{display:flex;gap:10px;flex-wrap:wrap}
+.lab{position:absolute;background:#fff;border-radius:8px;padding:10px 16px;font-weight:800;font-size:19px;color:var(--vine);box-shadow:0 6px 18px rgba(31,42,36,.15);display:flex;align-items:center;gap:10px}
+.lab::before{content:"";width:12px;height:12px;border-radius:50%;background:var(--gold);flex:none}
+.cap{position:absolute;font-size:15px;font-weight:800;letter-spacing:.14em;text-transform:uppercase;color:var(--vine2);text-align:center}
+.check{list-style:none;padding:0;margin:0;display:flex;flex-direction:column;gap:12px}
+.check li{font-size:22px;padding-left:36px;position:relative;font-weight:600}
+.check li::before{content:"";position:absolute;left:0;top:5px;width:22px;height:22px;border-radius:50%;background:var(--vine)}
+.check li::after{content:"";position:absolute;left:7px;top:10px;width:8px;height:12px;border:solid #fff;border-width:0 3px 3px 0;transform:rotate(45deg)}
+.tablet{position:absolute;background:#1c1f1e;border-radius:38px;padding:26px;box-shadow:0 30px 60px rgba(31,42,36,.3)}
+.tablet img{display:block;width:100%;border-radius:6px}
+.pencil{position:absolute;width:16px;height:420px;background:linear-gradient(90deg,#f4f4f2,#dcdcd8);border-radius:8px;transform:rotate(28deg);box-shadow:0 10px 20px rgba(0,0,0,.2)}
+.pencil::after{content:"";position:absolute;bottom:-26px;left:0;border-left:8px solid transparent;border-right:8px solid transparent;border-top:28px solid #d9d4c8}
+.file{display:flex;gap:18px;align-items:center;background:#fff;border-radius:12px;padding:18px 22px;box-shadow:0 6px 18px rgba(31,42,36,.1)}
+.file .ic{width:58px;height:70px;border-radius:6px;display:flex;align-items:flex-end;justify-content:center;padding-bottom:8px;color:#fff;font-weight:900;font-size:14px;flex:none}
+.file b{display:block;font-size:22px;color:var(--vine)}.file span{font-size:17px;color:var(--muted)}
+.grid8{position:absolute;display:grid;grid-template-columns:repeat(4,1fr);gap:26px 30px}
+.grid8 figure{margin:0;display:flex;flex-direction:column;gap:10px;align-items:center}
+.grid8 figure div{background:#fff;box-shadow:0 10px 24px rgba(31,42,36,.18)}
+.grid8 img{display:block;width:100%}
+.grid8 figcaption{font-weight:800;font-size:16px;color:var(--vine);letter-spacing:.02em}
+.leafline{position:absolute;height:2px;background:var(--gold)}
+</style></head><body>
+
+<!-- ============ ETSY 1: hero ============ -->
+<div class="scene etsy" id="etsy-01-hero">
+  <div class="pg" style="left:960px;top:160px;width:450px;transform:rotate(7deg)"><img src="../build/pages/page-15.png"></div>
+  <div class="pg" style="left:860px;top:125px;width:450px;transform:rotate(2deg)"><img src="../build/pages/page-07.png"></div>
+  <div class="pg" style="left:690px;top:95px;width:490px;transform:rotate(-4deg)"><img src="../build/pages/page-01.png"></div>
+  <div style="position:absolute;left:80px;top:130px;width:540px;display:flex;flex-direction:column;gap:22px">
+    <div class="kick">Printable + GoodNotes PDF</div>
+    <h1 class="h" style="font-size:90px">30-Day Stewardship Reset</h1>
+    <p class="p" style="font-size:26px">A faith-filled money workbook. Lower your bills, face your debt, and find peace with money in 15 minutes a day.</p>
+    <div class="badges"><span class="pill">50 pages</span><span class="pill">KJV scripture</span><span class="pill gold">+ Bonus spreadsheet</span></div>
+  </div>
+  <div class="brand" style="left:80px;bottom:60px">TheAbidingYear</div>
+</div>
+
+<!-- ============ ETSY 2: what's inside ============ -->
+<div class="scene etsy" id="etsy-02-inside">
+  <div style="position:absolute;left:0;right:0;top:56px;text-align:center"><div class="kick">What's inside</div>
+  <h2 class="h" style="font-size:66px;margin-top:8px">50 pages of guided, faithful steps</h2></div>
+  <div class="grid8" style="left:110px;right:110px;top:220px">
+    <figure><div><img src="../build/pages/page-07.png"></div><figcaption>30 daily devotionals</figcaption></figure>
+    <figure><div><img src="../build/pages/page-40.png"></div><figcaption>6 negotiation scripts</figcaption></figure>
+    <figure><div><img src="../build/pages/page-43.png"></div><figcaption>Debt freedom tracker</figcaption></figure>
+    <figure><div><img src="../build/pages/page-44.png"></div><figcaption>$1,000 emergency fund</figcaption></figure>
+    <figure><div><img src="../build/pages/page-45.png"></div><figcaption>Zero-based budget</figcaption></figure>
+    <figure><div><img src="../build/pages/page-05.png"></div><figcaption>Money found tracker</figcaption></figure>
+    <figure><div><img src="../build/pages/page-24.png"></div><figcaption>Snowball vs. avalanche</figcaption></figure>
+    <figure><div><img src="../build/pages/page-48.png"></div><figcaption>Prayer &amp; provision journal</figcaption></figure>
+  </div>
+</div>
+
+<!-- ============ ETSY 3: anatomy of a day ============ -->
+<div class="scene etsy" id="etsy-03-daily">
+  <div class="pg" style="left:430px;top:60px;width:640px"><img src="../build/pages/page-07.png"></div>
+  <div style="position:absolute;left:70px;top:90px;width:330px;display:flex;flex-direction:column;gap:16px">
+    <div class="kick">Every day</div>
+    <h2 class="h" style="font-size:64px">15 minutes. One faithful step.</h2>
+  </div>
+  <div class="lab" style="left:1000px;top:200px">KJV verse for the day</div>
+  <div class="lab" style="left:1000px;top:330px">Short, honest devotional</div>
+  <div class="lab" style="left:1000px;top:420px">One practical task</div>
+  <div class="lab" style="left:1000px;top:600px">Space to write &amp; plan</div>
+  <div class="lab" style="left:1000px;top:870px">Track money you free up</div>
+</div>
+
+<!-- ============ ETSY 4: scripts ============ -->
+<div class="scene etsy dark" id="etsy-04-scripts">
+  <div class="pg" style="left:820px;top:110px;width:560px;transform:rotate(4deg)"><img src="../build/pages/page-41.png"></div>
+  <div class="pg" style="left:720px;top:70px;width:560px;transform:rotate(-3deg)"><img src="../build/pages/page-40.png"></div>
+  <div style="position:absolute;left:80px;top:100px;width:580px;display:flex;flex-direction:column;gap:24px">
+    <div class="kick">Week 2 · Cut &amp; Negotiate</div>
+    <h2 class="h" style="font-size:74px">Know exactly what to say on every call</h2>
+    <p class="p">Word-for-word scripts with fill-in blanks. Pray, dial, and ask for the price you came for.</p>
+    <ul class="check" style="color:#fff">
+      <li>Internet &amp; cable</li><li>Mobile phone</li><li>Insurance</li><li>Credit card interest rate</li><li>Medical bills</li><li>Cancelling subscriptions</li>
+    </ul>
+  </div>
+</div>
+
+<!-- ============ ETSY 5: debt + fund ============ -->
+<div class="scene etsy" id="etsy-05-debt">
+  <div style="position:absolute;left:0;right:0;top:56px;text-align:center"><div class="kick">Week 3 &amp; 4</div>
+  <h2 class="h" style="font-size:66px;margin-top:8px">Color in every step toward freedom</h2></div>
+  <div class="pg" style="left:140px;top:220px;width:390px;transform:rotate(-3deg)"><img src="../build/pages/page-23.png"></div>
+  <div class="pg" style="left:555px;top:200px;width:390px"><img src="../build/pages/page-43.png"></div>
+  <div class="pg" style="left:970px;top:220px;width:390px;transform:rotate(3deg)"><img src="../build/pages/page-44.png"></div>
+  <div class="cap" style="left:140px;width:390px;top:745px">List every debt</div>
+  <div class="cap" style="left:555px;width:390px;top:735px">Debt freedom tracker</div>
+  <div class="cap" style="left:970px;width:390px;top:745px">100 circles to $1,000</div>
+</div>
+
+<!-- ============ ETSY 6: budget tools ============ -->
+<div class="scene etsy" id="etsy-06-budget" style="background:var(--bg2)">
+  <div class="pg" style="left:620px;top:130px;width:400px;transform:rotate(-2deg)"><img src="../build/pages/page-45.png"></div>
+  <div class="pg" style="left:1010px;top:170px;width:400px;transform:rotate(3deg)"><img src="../build/pages/page-46.png"></div>
+  <div style="position:absolute;left:80px;top:130px;width:480px;display:flex;flex-direction:column;gap:22px">
+    <div class="kick">Tools you'll keep using</div>
+    <h2 class="h" style="font-size:70px">Give every dollar a job</h2>
+    <p class="p">Reusable pages to print again every month.</p>
+    <ul class="check"><li>Monthly zero-based budget</li><li>Sinking funds tracker</li><li>Spending log</li><li>Call &amp; savings log</li><li>Prayer &amp; provision journal</li></ul>
+  </div>
+</div>
+
+<!-- ============ ETSY 7: 4 weeks ============ -->
+<div class="scene etsy" id="etsy-07-weeks">
+  <div style="position:absolute;left:0;right:0;top:56px;text-align:center"><div class="kick">Your 30-day path</div>
+  <h2 class="h" style="font-size:66px;margin-top:8px">Four weeks. One faithful step at a time.</h2></div>
+  <div class="pg" style="left:80px;top:240px;width:310px"><img src="../build/pages/page-06.png"></div>
+  <div class="pg" style="left:430px;top:240px;width:310px"><img src="../build/pages/page-14.png"></div>
+  <div class="pg" style="left:780px;top:240px;width:310px"><img src="../build/pages/page-22.png"></div>
+  <div class="pg" style="left:1130px;top:240px;width:310px"><img src="../build/pages/page-30.png"></div>
+  <div class="cap" style="left:80px;width:310px;top:670px">1 · See clearly</div>
+  <div class="cap" style="left:430px;width:310px;top:670px">2 · Cut &amp; negotiate</div>
+  <div class="cap" style="left:780px;width:310px;top:670px">3 · Face the debt</div>
+  <div class="cap" style="left:1130px;width:310px;top:670px">4 · Build &amp; give</div>
+  <p class="p" style="position:absolute;left:0;right:0;top:740px;text-align:center">Each week ends with a review day to rest, give thanks, and count your progress.</p>
+</div>
+
+<!-- ============ ETSY 8: tablet + print ============ -->
+<div class="scene etsy" id="etsy-08-tablet">
+  <div class="tablet" style="left:560px;top:90px;width:690px"><img src="../build/pages/page-04.png"></div>
+  <div class="pencil" style="left:1290px;top:330px"></div>
+  <div style="position:absolute;left:80px;top:150px;width:440px;display:flex;flex-direction:column;gap:22px">
+    <div class="kick">Your way</div>
+    <h2 class="h" style="font-size:70px">Print it or use it on your tablet</h2>
+    <ul class="check"><li>Hyperlinked contents for GoodNotes &amp; Notability</li><li>Prints on US Letter or A4</li><li>Instant download, no shipping</li></ul>
+  </div>
+</div>
+
+<!-- ============ ETSY 9: what you receive ============ -->
+<div class="scene etsy" id="etsy-09-files">
+  <div class="pg" style="left:930px;top:110px;width:470px;transform:rotate(3deg)"><img src="../build/pages/page-49.png"></div>
+  <div style="position:absolute;left:80px;top:90px;width:760px;display:flex;flex-direction:column;gap:22px">
+    <div class="kick">What you'll receive</div>
+    <h2 class="h" style="font-size:66px">Instant download</h2>
+    <div class="file"><div class="ic" style="background:#b4481f">PDF</div><div><b>30-Day Stewardship Reset workbook</b><span>50 pages · printable &amp; GoodNotes ready</span></div></div>
+    <div class="file"><div class="ic" style="background:#1f7a46">XLSX</div><div><b>Bonus trackers spreadsheet</b><span>Budget, debt payoff, emergency fund, money found · Excel &amp; Google Sheets</span></div></div>
+    <p class="p" style="font-size:19px">Digital product. No physical item will be shipped. For personal use. Educational only, not financial advice.</p>
+  </div>
+</div>
+
+<!-- ============ ETSY 10: who it's for ============ -->
+<div class="scene etsy dark" id="etsy-10-forwho">
+  <div class="pg" style="left:900px;top:90px;width:480px;transform:rotate(-3deg)"><img src="../build/pages/page-19.png"></div>
+  <div style="position:absolute;left:80px;top:110px;width:720px;display:flex;flex-direction:column;gap:24px">
+    <div class="kick">This is for you if</div>
+    <ul class="check" style="color:#fff;gap:18px">
+      <li style="font-size:26px">Prices keep rising faster than your paycheck</li>
+      <li style="font-size:26px">Card debt feels heavy and you avoid looking</li>
+      <li style="font-size:26px">You want to honor God with your money</li>
+      <li style="font-size:26px">Budget apps never stuck for you</li>
+      <li style="font-size:26px">You need small steps, not a lecture</li>
+    </ul>
+    <p class="h" style="font-size:40px;font-style:italic;font-weight:600;color:var(--sage);margin-top:10px">&ldquo;The LORD is my shepherd; I shall not want.&rdquo;</p>
+  </div>
+</div>
+
+<!-- ============ AD 1: square ============ -->
+<div class="scene sq" id="ad-01-square-1080">
+  <div class="pg" style="left:250px;top:150px;width:250px;transform:rotate(8deg)"><img src="../build/pages/page-40.png"></div>
+  <div class="pg" style="left:200px;top:130px;width:250px;transform:rotate(1deg)"><img src="../build/pages/page-07.png"></div>
+  <div class="pg" style="left:140px;top:120px;width:260px;transform:rotate(-6deg)"><img src="../build/pages/page-01.png"></div>
+  <div style="position:absolute;left:30px;right:30px;top:28px;text-align:center"><h2 class="h" style="font-size:42px">Money stress?<br>Start here.</h2></div>
+  <div style="position:absolute;left:0;right:0;bottom:24px;text-align:center"><span class="pill" style="font-size:15px">15 minutes a day · 30 days · Faith-filled</span></div>
+</div>
+
+<!-- ============ AD 2: 4:5 scripts hook ============ -->
+<div class="scene p45 dark" id="ad-02-feed-1080x1350">
+  <div style="position:absolute;left:34px;right:34px;top:34px;display:flex;flex-direction:column;gap:10px">
+    <div class="kick" style="font-size:12px">Say this to your internet provider</div>
+    <h2 class="h" style="font-size:44px">The exact words that can lower your bill</h2>
+  </div>
+  <div class="pg" style="left:70px;top:200px;width:400px;transform:rotate(-2deg)"><img src="../build/pages/page-40.png"></div>
+  <div style="position:absolute;left:0;right:0;bottom:22px;text-align:center"><span class="pill gold" style="font-size:15px">6 scripts inside the 30-Day Stewardship Reset</span></div>
+</div>
+
+<!-- ============ AD 3: story 9:16 ============ -->
+<div class="scene story" id="ad-03-story-1080x1920">
+  <div style="position:absolute;left:36px;right:36px;top:70px;text-align:center;display:flex;flex-direction:column;gap:12px">
+    <div class="kick" style="font-size:12px">A faith-filled money reset</div>
+    <h2 class="h" style="font-size:52px">Lower your bills. Face your debt. Find peace.</h2>
+  </div>
+  <div class="pg" style="left:250px;top:330px;width:250px;transform:rotate(7deg)"><img src="../build/pages/page-43.png"></div>
+  <div class="pg" style="left:40px;top:320px;width:250px;transform:rotate(-6deg)"><img src="../build/pages/page-40.png"></div>
+  <div class="pg" style="left:130px;top:290px;width:280px"><img src="../build/pages/page-07.png"></div>
+  <div style="position:absolute;left:36px;right:36px;top:700px;display:flex;flex-direction:column;gap:12px;align-items:center">
+    <ul class="check" style="gap:8px"><li style="font-size:18px">30 daily KJV devotionals</li><li style="font-size:18px">Bill negotiation scripts</li><li style="font-size:18px">Debt &amp; budget trackers</li></ul>
+    <span class="pill" style="font-size:15px;margin-top:6px">Instant download</span>
+  </div>
+</div>
+
+<!-- ============ AD 4: pinterest 2:3 ============ -->
+<div class="scene pin" id="ad-04-pinterest-1000x1500">
+  <div style="position:absolute;left:30px;right:30px;top:36px;text-align:center;display:flex;flex-direction:column;gap:10px">
+    <div class="kick" style="font-size:12px">Printable Christian budget workbook</div>
+    <h2 class="h" style="font-size:50px">30-Day Stewardship Reset</h2>
+  </div>
+  <div class="pg" style="left:255px;top:230px;width:210px;transform:rotate(6deg)"><img src="../build/pages/page-45.png"></div>
+  <div class="pg" style="left:35px;top:230px;width:210px;transform:rotate(-6deg)"><img src="../build/pages/page-44.png"></div>
+  <div class="pg" style="left:135px;top:200px;width:230px"><img src="../build/pages/page-07.png"></div>
+  <div style="position:absolute;left:30px;right:30px;bottom:40px;text-align:center;display:flex;flex-direction:column;gap:12px;align-items:center">
+    <p class="p" style="font-size:18px;color:var(--vine)">Budget · Debt payoff · Bill scripts · KJV devotionals</p>
+    <span class="pill" style="font-size:14px">50 pages · GoodNotes + printable</span>
+  </div>
+</div>
+
+</body></html>

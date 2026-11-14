@@ -1,0 +1,739 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><title>30-Day Stewardship Reset</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;0,700;1,500;1,600&family=Nunito+Sans:wght@400;600;700;800&display=swap">
+<style>/* 30-Day Stewardship Reset — print styles (US Letter) */
+:root{
+  --vine:#2f4a3a; --vine2:#46654f; --sage:#a9bba3; --sage-bg:#eef2ec; --sage-bg2:#f6f8f5;
+  --gold:#b8925a; --ink:#1f2a24; --muted:#5f6d64; --line:#c9d3c6; --paper:#ffffff;
+  --serif:"Cormorant Garamond", Georgia, serif; --sans:"Nunito Sans", "Helvetica Neue", Arial, sans-serif;
+}
+@page{size:Letter;margin:0}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0;background:#e9ece7}
+body{font-family:var(--sans);color:var(--ink);font-size:10.5pt;line-height:1.45;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+a{color:inherit;text-decoration:none}
+.page{width:8.5in;height:11in;padding:.55in .62in .5in;background:var(--paper);position:relative;overflow:hidden;
+  display:flex;flex-direction:column;page-break-after:always;break-after:page;margin:0 auto}
+@media screen{.page{margin:0 auto 24px;box-shadow:0 2px 12px rgba(0,0,0,.12)}}
+
+.pfoot{position:absolute;left:.62in;right:.62in;bottom:.26in;display:flex;justify-content:space-between;
+  font-size:7.5pt;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.pfoot a{color:var(--vine2);font-weight:700}
+.pn{font-family:var(--serif);font-size:11pt;letter-spacing:0;color:var(--vine)}
+
+.eyebrow{font-size:8pt;letter-spacing:.22em;text-transform:uppercase;color:var(--gold);font-weight:800}
+.ptitle{font-family:var(--serif);font-weight:700;font-size:30pt;line-height:1.05;margin:4px 0 14px;color:var(--vine)}
+.lead{color:var(--muted);margin:0 0 14px;max-width:6.2in}
+.lead.small{font-size:9pt;margin-top:12px}
+.sub{font-size:8pt;letter-spacing:.14em;text-transform:uppercase;font-weight:800;color:var(--vine2);margin-bottom:6px}
+
+/* ---- day pages */
+.ph{display:flex;justify-content:space-between;align-items:flex-end;border-bottom:1.5px solid var(--vine);padding-bottom:6px}
+.wk{font-size:8pt;letter-spacing:.2em;text-transform:uppercase;color:var(--vine2);font-weight:800;display:flex;gap:10px;align-items:center}
+.rv{background:var(--gold);color:#fff;border-radius:20px;padding:1px 8px;letter-spacing:.1em;font-size:7pt}
+.dn{font-family:var(--serif);font-size:34pt;line-height:.85;color:var(--gold);font-weight:700}
+.dn span{font-size:11pt;color:var(--vine2);margin-right:6px;letter-spacing:.1em;text-transform:uppercase;font-family:var(--sans);font-weight:800}
+.ttl{font-family:var(--serif);font-size:25pt;font-weight:700;color:var(--vine);margin:10px 0 8px;line-height:1.05}
+.verse{margin:0 0 10px;background:var(--sage-bg);border-radius:6px;padding:10px 16px 10px 40px;position:relative}
+.verse::before{content:"\201C";position:absolute;left:12px;top:-6px;font-family:var(--serif);font-size:44pt;color:var(--gold);line-height:1}
+.verse p{margin:0;font-family:var(--serif);font-style:italic;font-size:13pt;line-height:1.3;color:var(--ink)}
+.verse cite{display:block;margin-top:3px;font-style:normal;font-size:7.5pt;letter-spacing:.14em;text-transform:uppercase;color:var(--vine2);font-weight:800}
+.verse.big p{font-size:15pt}
+.devo{margin:0 0 10px;color:#33403a}
+.steps{border:1px solid var(--line);border-radius:6px;padding:8px 14px 6px;margin-bottom:12px}
+.sh{font-size:8pt;letter-spacing:.14em;text-transform:uppercase;font-weight:800;color:var(--gold)}
+.steps ol{margin:4px 0 2px;padding-left:18px}
+.steps li{margin-bottom:1px}
+.work{flex:1;min-height:0;display:flex;flex-direction:column}
+.fill{flex:1;min-height:0;margin-top:8px;background:repeating-linear-gradient(to bottom,transparent 0 25px,var(--line) 25px 26px)}
+.dayfoot{display:grid;grid-template-columns:1.2fr 2fr .55fr;gap:10px;margin-top:10px;margin-bottom:.12in}
+.df{border:1px solid var(--line);border-radius:6px;padding:6px 10px;display:flex;flex-direction:column;justify-content:space-between;min-height:.6in}
+.df span{font-size:7pt;letter-spacing:.12em;text-transform:uppercase;font-weight:800;color:var(--vine2)}
+.df b{font-family:var(--serif);font-size:18pt;color:var(--vine)}
+.df i{border-bottom:1px solid var(--line);height:18px}
+.df.money{background:var(--sage-bg2)}
+.df.done{align-items:center}
+.df em{width:22px;height:22px;border:1.5px solid var(--vine);border-radius:4px;margin-bottom:2px}
+
+/* ---- writing + forms */
+.ln{height:26px;border-bottom:1px solid var(--line)}
+.ln.chk{position:relative;padding-left:20px}
+.ln.chk::before{content:"";position:absolute;left:0;bottom:6px;width:11px;height:11px;border:1px solid var(--sage);border-radius:2px}
+.ln.num{position:relative}
+.ln.num span{position:absolute;left:0;bottom:4px;font-family:var(--serif);font-weight:700;color:var(--gold);font-size:12pt}
+.prompts{display:flex;flex-direction:column;gap:10px}
+.prompt .pl{font-size:9pt;font-weight:700;color:var(--vine)}
+.twocol{display:grid;grid-template-columns:1fr 1fr;gap:18px}
+.twocol.tight{gap:14px}
+.colh{font-family:var(--serif);font-size:15pt;font-weight:700;color:var(--vine);border-bottom:1.5px solid var(--vine);padding-bottom:2px}
+
+.wt{width:100%;border-collapse:collapse;table-layout:fixed}
+.wt th{background:var(--vine);color:#fff;font-size:7.5pt;letter-spacing:.08em;text-transform:uppercase;font-weight:800;text-align:left;padding:5px 7px}
+.wt th:first-child{border-top-left-radius:4px}.wt th:last-child{border-top-right-radius:4px}
+.wt td{height:25px;border-bottom:1px solid var(--line);border-right:1px solid #e4e9e2;padding:2px 7px;font-size:9pt;color:var(--muted)}
+.wt td:last-child{border-right:none}
+.wt tbody tr:nth-child(even) td{background:var(--sage-bg2)}
+.wt .totrow td{background:var(--sage-bg)!important;border-bottom:1.5px solid var(--vine)}
+.wt td.tot{font-weight:800;color:var(--vine);letter-spacing:.1em}
+
+.stats{display:grid;gap:10px;margin:12px 0}
+.stats.c3{grid-template-columns:repeat(3,1fr)}
+.stats.c2{grid-template-columns:1fr 1fr}
+.stat{border:1px solid var(--line);border-radius:6px;padding:7px 10px;background:var(--sage-bg2);min-height:.66in;display:flex;flex-direction:column;justify-content:space-between}
+.sl{font-size:7.5pt;font-weight:800;color:var(--vine2);letter-spacing:.04em;line-height:1.25}
+.sv{font-family:var(--serif);font-size:17pt;color:var(--vine)}
+
+.form{display:flex;flex-direction:column;gap:6px;margin-bottom:6px}
+.fr{display:flex;align-items:flex-end;gap:10px}
+.fr span{font-size:9pt;font-weight:700;color:var(--vine);white-space:nowrap}
+.fr i{flex:1;border-bottom:1px solid var(--line);height:22px}
+
+.calc{border:1px solid var(--line);border-radius:6px;overflow:hidden}
+.cr{display:flex;justify-content:space-between;align-items:center;padding:6px 12px;border-bottom:1px solid var(--line)}
+.cr:last-child{border-bottom:none}
+.cr span{font-weight:600}
+.cr b{font-family:var(--serif);font-size:15pt;color:var(--vine);width:1.5in;border-bottom:1px solid var(--line)}
+.cr.total{background:var(--sage-bg)}
+.cr.total span{font-weight:800;color:var(--vine)}
+
+.methods{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.mcard{border:1px solid var(--line);border-radius:6px;padding:10px 12px;background:var(--sage-bg2)}
+.mh{font-family:var(--serif);font-weight:700;font-size:16pt;color:var(--vine)}
+.mcard p{margin:4px 0 0;font-size:9.5pt}
+.mfit{color:var(--gold);font-weight:700}
+
+.cal{display:grid;grid-template-columns:repeat(7,1fr);gap:4px;margin-bottom:12px}
+.cd{border:1px solid var(--line);border-radius:4px;height:.6in;padding:2px 5px}
+.cd span{font-family:var(--serif);font-weight:700;color:var(--gold)}
+.cd.blank{border-style:dashed;opacity:.4}
+
+/* ---- cover */
+.cover{background:var(--vine);color:#f3f1ea;padding:.7in}
+.cover-in{height:100%;display:flex;flex-direction:column;justify-content:space-between}
+.brand{font-size:9pt;letter-spacing:.32em;text-transform:uppercase;color:var(--sage)}
+.cover .vine{width:2.4in;color:var(--sage)}
+.ctag{margin-top:18px;font-size:10pt;letter-spacing:.24em;text-transform:uppercase;color:var(--gold);font-weight:800}
+.ctitle{font-family:var(--serif);font-size:66pt;line-height:.92;margin:12px 0 18px;font-weight:700;color:#fff}
+.csub{font-size:13pt;line-height:1.45;max-width:5.4in;color:#dfe6dc;margin:0}
+.cfeat{list-style:none;padding:0;margin:26px 0 0;display:grid;grid-template-columns:1fr 1fr;gap:8px 18px;max-width:5.6in}
+.cfeat li{font-size:10.5pt;padding-left:18px;position:relative;color:#f3f1ea}
+.cfeat li::before{content:"";position:absolute;left:0;top:6px;width:8px;height:8px;border-radius:50%;background:var(--gold)}
+.cverse{font-family:var(--serif);font-style:italic;font-size:14pt;color:var(--sage);border-top:1px solid rgba(255,255,255,.2);padding-top:14px}
+.cverse span{font-style:normal;font-family:var(--sans);font-size:8pt;letter-spacing:.18em;text-transform:uppercase;margin-left:8px;color:var(--gold)}
+
+/* ---- welcome / how */
+.letter p{margin:0 0 13px;font-size:12pt;line-height:1.65;max-width:6.4in}
+.sig{font-family:var(--serif);font-style:italic;font-size:14pt!important;color:var(--vine)}
+.sig span{font-style:normal;font-family:var(--sans);font-size:9pt;letter-spacing:.2em;text-transform:uppercase;color:var(--gold);font-weight:800}
+.howgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+.howc{border:1px solid var(--line);border-radius:6px;padding:12px;display:flex;gap:10px;align-items:flex-start;background:var(--sage-bg2)}
+.hn{font-family:var(--serif);font-size:30pt;line-height:.9;color:var(--gold);font-weight:700}
+.howc b,.howbox b{display:block;color:var(--vine)}
+.howc span,.howbox span{font-size:9.5pt;color:var(--muted)}
+.howbox{border:1px solid var(--line);border-radius:6px;padding:12px 14px}
+.wklist{display:flex;flex-direction:column}
+.wkrow{display:grid;grid-template-columns:1in 1fr;gap:12px;padding:10px 0;border-bottom:1px solid var(--line)}
+.wkn{font-family:var(--serif);font-size:16pt;font-weight:700;color:var(--gold)}
+.wkrow b{display:block;font-family:var(--serif);font-size:15pt;color:var(--vine)}
+.wkrow span{color:var(--muted)}
+
+/* ---- contents */
+.toc{display:flex;flex-direction:column}
+.tocrow{display:flex;align-items:baseline;gap:8px;padding:8px 0;border-bottom:1px solid #e4e9e2}
+.tocrow span{font-family:var(--serif);font-size:15pt;font-weight:600;color:var(--vine)}
+.tocrow i{flex:1;border-bottom:1px dotted var(--sage)}
+.tocrow b{font-family:var(--serif);font-size:14pt;color:var(--gold)}
+.daylinks{display:grid;grid-template-columns:repeat(10,1fr);gap:6px;margin-top:18px}
+.daylinks a{border:1px solid var(--line);border-radius:4px;text-align:center;padding:5px 0;font-family:var(--serif);font-weight:700;font-size:13pt;color:var(--vine);background:var(--sage-bg2)}
+
+/* ---- tracker */
+.tracker{display:grid;grid-template-columns:repeat(5,1fr);gap:8px}
+.tb{border:1px solid var(--line);border-radius:6px;height:.9in;padding:6px 8px;display:flex;flex-direction:column;justify-content:space-between}
+.tb span{font-size:7.5pt;letter-spacing:.12em;text-transform:uppercase;font-weight:800;color:var(--vine2)}
+.tb b{font-family:var(--serif);font-size:15pt;color:var(--sage)}
+
+/* ---- dividers */
+.divider{background:var(--sage-bg)}
+.divider-in{display:flex;flex-direction:column;height:100%;padding-top:.4in}
+.dwk{font-size:11pt;letter-spacing:.3em;text-transform:uppercase;color:var(--gold);font-weight:800}
+.dtitle{font-family:var(--serif);font-size:56pt;line-height:.95;color:var(--vine);margin:8px 0 10px;font-weight:700}
+.divider .vine{width:2in;color:var(--vine2)}
+.dintro{font-size:13pt;color:#33403a;max-width:5.6in;margin:16px 0 18px}
+.dlist{list-style:none;padding:0;margin:0 0 20px;border-top:1px solid var(--sage)}
+.dlist li{padding:9px 0;border-bottom:1px solid var(--sage);font-family:var(--serif);font-size:16pt;color:var(--vine);font-weight:600}
+.dlist li span{display:inline-block;width:.9in;font-family:var(--sans);font-size:8pt;letter-spacing:.16em;text-transform:uppercase;color:var(--gold);font-weight:800}
+.dgoal .ln{border-color:var(--sage)}
+
+/* ---- scripts */
+.script{border:1px solid var(--line);border-radius:6px;margin-bottom:12px;overflow:hidden}
+.shd{background:var(--sage-bg);padding:6px 12px;font-family:var(--serif);font-size:15pt;font-weight:700;color:var(--vine);display:flex;gap:10px;align-items:center}
+.shd b{background:var(--vine);color:#fff;font-family:var(--sans);font-size:9pt;width:22px;height:22px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center}
+.srow{display:grid;grid-template-columns:1.15in 1fr;gap:10px;padding:5px 12px;border-top:1px solid #e4e9e2}
+.srow span{font-size:7.5pt;letter-spacing:.1em;text-transform:uppercase;font-weight:800;color:var(--gold);padding-top:2px}
+.srow p{margin:0;font-size:9.5pt}
+
+/* ---- trackers */
+.dblock{border:1px solid var(--line);border-radius:6px;padding:10px 12px;margin-bottom:12px}
+.dbh{display:flex;justify-content:space-between;font-weight:700;color:var(--vine);font-size:9.5pt;margin-bottom:8px}
+.dboxes{display:grid;grid-template-columns:repeat(10,1fr);gap:5px}
+.dboxes i{height:.42in;border:1px solid var(--sage);border-radius:4px;position:relative;background:var(--sage-bg2)}
+.dboxes i span{position:absolute;right:4px;bottom:2px;font-style:normal;font-size:6.5pt;color:var(--muted)}
+.coins{display:grid;grid-template-columns:repeat(10,1fr);gap:7px;margin-bottom:16px}
+.coins i{aspect-ratio:1;border:1.5px solid var(--sage);border-radius:50%;display:flex;align-items:center;justify-content:center}
+.coins i span{font-style:normal;font-size:7pt;color:var(--muted);font-weight:700}
+.budtop{display:grid;grid-template-columns:1fr 1fr;gap:18px;margin-bottom:10px}
+.bud td{height:23px}
+.bud tr.cat td{background:var(--sage-bg)!important;font-weight:800;color:var(--vine);font-size:8pt;letter-spacing:.1em;text-transform:uppercase;height:20px}
+.sink th{padding:5px 3px;text-align:center;font-size:7pt}
+.sink th:first-child{text-align:left;padding-left:7px}
+.sink td{height:34px}
+
+/* ---- certificate */
+.certpage{padding:.6in}
+.cert{height:100%;border:2px solid var(--vine);outline:1px solid var(--gold);outline-offset:-10px;border-radius:4px;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;gap:10px;padding:.6in}
+.cert .vine{width:2.2in;color:var(--vine2)}
+.ctitle2{font-family:var(--serif);font-size:48pt;color:var(--vine);margin:0;font-weight:700}
+.cert p{margin:0;font-size:12pt}
+.certline{width:4.5in;border-bottom:1px solid var(--vine);height:44px}
+.certamt{font-family:var(--serif);font-size:26pt;color:var(--gold)}
+.cv{font-family:var(--serif);font-style:italic;font-size:15pt!important;color:var(--vine);margin-top:14px!important}
+.cv span{font-style:normal;font-family:var(--sans);font-size:8pt;letter-spacing:.18em;text-transform:uppercase;color:var(--gold)}
+.certsig{display:grid;grid-template-columns:1fr 1fr;gap:.6in;width:5in;margin-top:30px}
+.certsig i{display:block;border-bottom:1px solid var(--vine);height:30px}
+.certsig span{font-size:8pt;letter-spacing:.16em;text-transform:uppercase;color:var(--muted)}
+
+.disc{margin-top:16px;font-size:8pt;color:var(--muted);border-top:1px solid var(--line);padding-top:10px}
+</style></head><body><section class="page cover" id="cover">
+<div class="cover-in">
+  <div class="brand">TheAbidingYear</div>
+  <div class="cover-mid">
+    <svg class="vine" viewBox="0 0 120 40" aria-hidden="true">
+<path d="M4 30 C 30 26, 50 14, 116 10" fill="none" stroke="currentColor" stroke-width="1.6"/>
+<ellipse cx="26" cy="21" rx="9" ry="4" transform="rotate(-35 26 21)" fill="currentColor" opacity=".85"/>
+<ellipse cx="34" cy="30" rx="9" ry="4" transform="rotate(25 34 30)" fill="currentColor" opacity=".55"/>
+<ellipse cx="58" cy="12" rx="9" ry="4" transform="rotate(-30 58 12)" fill="currentColor" opacity=".85"/>
+<ellipse cx="66" cy="22" rx="9" ry="4" transform="rotate(25 66 22)" fill="currentColor" opacity=".55"/>
+<ellipse cx="90" cy="6" rx="8" ry="3.6" transform="rotate(-20 90 6)" fill="currentColor" opacity=".85"/>
+<ellipse cx="98" cy="15" rx="8" ry="3.6" transform="rotate(25 98 15)" fill="currentColor" opacity=".55"/>
+<circle cx="112" cy="16" r="2.6" fill="var(--gold)"/><circle cx="117" cy="19" r="2.2" fill="var(--gold)"/><circle cx="111" cy="22" r="2" fill="var(--gold)"/>
+</svg>
+    <div class="ctag">A faith-filled money workbook</div>
+    <h1 class="ctitle">30-Day<br>Stewardship<br>Reset</h1>
+    <p class="csub">Free up room in your budget, lower your bills, face your debt, and find peace with money, one 15-minute step at a time.</p>
+    <ul class="cfeat"><li>30 daily devotionals &amp; steps</li><li>Bill negotiation scripts</li><li>Debt payoff &amp; budget trackers</li><li>KJV scripture throughout</li></ul>
+  </div>
+  <div class="cverse">“He that abideth in me, and the same bringeth forth much fruit.” <span>John 15:5</span></div>
+</div></section><section class="page " id="welcome">
+<div class="eyebrow">Welcome</div>
+<h2 class="ptitle">Before you begin</h2>
+<div class="letter">
+<p>Dear friend,</p>
+<p>If money has felt heavy lately, you are not alone. Prices keep climbing, bills arrive faster than paychecks, and debt can feel like a weight you carry everywhere. Many of us were never taught how to handle money, and even fewer were taught to handle it with God.</p>
+<p>This workbook is not a lecture and it is not a get-rich plan. It is thirty days of small, faithful steps. Each day takes about fifteen minutes: a short scripture, a few honest sentences, and one practical task. Some days you will write. Some days you will make a phone call. Every day you will move a little closer to peace.</p>
+<p>You will see clearly where your money goes, lower the bills you can, make a real plan for your debt, start an emergency fund, and build a budget that honors God first. Along the way, you will keep a running total of the money you find and free up.</p>
+<p>Go at your own pace. If you miss a day, simply pick up where you left off. Grace is built into this plan.</p>
+<p class="sig">Abiding with you,<br><span>TheAbidingYear</span></p>
+</div>
+<blockquote class="verse big"><p>But my God shall supply all your need according to his riches in glory by Christ Jesus.</p><cite>Philippians 4:19 (KJV)</cite></blockquote>
+<footer class="pfoot"><a href="#contents">← Contents</a><span>30-Day Stewardship Reset · TheAbidingYear</span><span class="pn">2</span></footer></section><section class="page " id="how">
+<div class="eyebrow">How it works</div>
+<h2 class="ptitle">How to use this workbook</h2>
+<div class="howgrid">
+  <div class="howc"><div class="hn">15</div><div><b>minutes a day</b><span>Read the verse and devotional, then do the step. That's it.</span></div></div>
+  <div class="howc"><div class="hn">30</div><div><b>days, 4 weeks</b><span>Each week ends with a review day to rest and count progress.</span></div></div>
+  <div class="howc"><div class="hn">$</div><div><b>Track what you find</b><span>Write money found or freed at the bottom of every day, then add it to the tracker.</span></div></div>
+</div>
+<div class="sub" style="margin-top:22px">The four weeks</div>
+<div class="wklist"><div class="wkrow"><div class="wkn">Week 1</div><div><b>See Clearly</b><span>Look honestly at income, bills, spending, and subscriptions.</span></div></div><div class="wkrow"><div class="wkn">Week 2</div><div><b>Cut &amp; Negotiate</b><span>Make a few calls with our scripts to lower your monthly bills.</span></div></div><div class="wkrow"><div class="wkn">Week 3</div><div><b>Face the Debt</b><span>List every debt, choose a payoff method, and find your extra payment.</span></div></div><div class="wkrow"><div class="wkn">Week 4</div><div><b>Build &amp; Give</b><span>Start an emergency fund, plan for surprises, budget, and give.</span></div></div></div>
+<div class="twocol" style="margin-top:22px">
+  <div class="howbox"><b>Printing</b><span>Print at home on US Letter or A4 (choose “Fit to page”). Print the whole book or only the pages you need each week.</span></div>
+  <div class="howbox"><b>On a tablet</b><span>Import the PDF into GoodNotes, Notability, or any PDF app. The contents page and the link at the bottom of every page are clickable.</span></div>
+</div>
+<div class="howbox" style="margin-top:14px"><b>You will need</b><span>Last month's bank and card statements, a phone for a few short calls, a pen, and an open heart.</span></div>
+<footer class="pfoot"><a href="#contents">← Contents</a><span>30-Day Stewardship Reset · TheAbidingYear</span><span class="pn">3</span></footer></section><section class="page" id="contents">
+<div class="eyebrow">Contents</div>
+<h2 class="ptitle">What's inside</h2>
+<nav class="toc"><a class="tocrow" href="#tracker"><span>30-Day Money Found Tracker</span><i></i><b>5</b></a><a class="tocrow" href="#week-1"><span>Week 1: See Clearly</span><i></i><b>6</b></a><a class="tocrow" href="#week-2"><span>Week 2: Cut &amp; Negotiate</span><i></i><b>14</b></a><a class="tocrow" href="#week-3"><span>Week 3: Face the Debt</span><i></i><b>22</b></a><a class="tocrow" href="#week-4"><span>Week 4: Build &amp; Give</span><i></i><b>30</b></a><a class="tocrow" href="#scripts"><span>Bill Negotiation Scripts</span><i></i><b>40</b></a><a class="tocrow" href="#calllog"><span>Call &amp; Savings Log</span><i></i><b>42</b></a><a class="tocrow" href="#debt"><span>Debt Freedom Tracker</span><i></i><b>43</b></a><a class="tocrow" href="#fund"><span>Emergency Fund Tracker</span><i></i><b>44</b></a><a class="tocrow" href="#budget"><span>Monthly Zero-Based Budget</span><i></i><b>45</b></a><a class="tocrow" href="#sinking"><span>Sinking Funds Tracker</span><i></i><b>46</b></a><a class="tocrow" href="#spending"><span>Spending Log</span><i></i><b>47</b></a><a class="tocrow" href="#prayer"><span>Prayer &amp; Provision Journal</span><i></i><b>48</b></a><a class="tocrow" href="#certificate"><span>Certificate of Completion</span><i></i><b>49</b></a></nav>
+<div class="daylinks"><a href="#day-1">1</a><a href="#day-2">2</a><a href="#day-3">3</a><a href="#day-4">4</a><a href="#day-5">5</a><a href="#day-6">6</a><a href="#day-7">7</a><a href="#day-8">8</a><a href="#day-9">9</a><a href="#day-10">10</a><a href="#day-11">11</a><a href="#day-12">12</a><a href="#day-13">13</a><a href="#day-14">14</a><a href="#day-15">15</a><a href="#day-16">16</a><a href="#day-17">17</a><a href="#day-18">18</a><a href="#day-19">19</a><a href="#day-20">20</a><a href="#day-21">21</a><a href="#day-22">22</a><a href="#day-23">23</a><a href="#day-24">24</a><a href="#day-25">25</a><a href="#day-26">26</a><a href="#day-27">27</a><a href="#day-28">28</a><a href="#day-29">29</a><a href="#day-30">30</a></div>
+<p class="lead small">Tap any line or day number to jump there in GoodNotes or your PDF app.</p>
+<footer class="pfoot"><span></span><span>30-Day Stewardship Reset · TheAbidingYear</span><span class="pn">4</span></footer></section><section class="page " id="tracker">
+<div class="eyebrow">Your running total</div>
+<h2 class="ptitle">30-Day Money Found Tracker</h2>
+<p class="lead">Each day, write the money you found, saved, or freed up. Count one-time savings once, and monthly savings as the monthly amount.</p>
+<div class="tracker"><div class="tb"><span>Day 1</span><b>$</b></div><div class="tb"><span>Day 2</span><b>$</b></div><div class="tb"><span>Day 3</span><b>$</b></div><div class="tb"><span>Day 4</span><b>$</b></div><div class="tb"><span>Day 5</span><b>$</b></div><div class="tb"><span>Day 6</span><b>$</b></div><div class="tb"><span>Day 7</span><b>$</b></div><div class="tb"><span>Day 8</span><b>$</b></div><div class="tb"><span>Day 9</span><b>$</b></div><div class="tb"><span>Day 10</span><b>$</b></div><div class="tb"><span>Day 11</span><b>$</b></div><div class="tb"><span>Day 12</span><b>$</b></div><div class="tb"><span>Day 13</span><b>$</b></div><div class="tb"><span>Day 14</span><b>$</b></div><div class="tb"><span>Day 15</span><b>$</b></div><div class="tb"><span>Day 16</span><b>$</b></div><div class="tb"><span>Day 17</span><b>$</b></div><div class="tb"><span>Day 18</span><b>$</b></div><div class="tb"><span>Day 19</span><b>$</b></div><div class="tb"><span>Day 20</span><b>$</b></div><div class="tb"><span>Day 21</span><b>$</b></div><div class="tb"><span>Day 22</span><b>$</b></div><div class="tb"><span>Day 23</span><b>$</b></div><div class="tb"><span>Day 24</span><b>$</b></div><div class="tb"><span>Day 25</span><b>$</b></div><div class="tb"><span>Day 26</span><b>$</b></div><div class="tb"><span>Day 27</span><b>$</b></div><div class="tb"><span>Day 28</span><b>$</b></div><div class="tb"><span>Day 29</span><b>$</b></div><div class="tb"><span>Day 30</span><b>$</b></div></div>
+<div class="stats c3"><div class="stat"><div class="sl">My 30-day goal</div><div class="sv">$</div></div><div class="stat"><div class="sl">Total found</div><div class="sv">$</div></div><div class="stat"><div class="sl">Goal reached? ✓</div><div class="sv"></div></div></div>
+<footer class="pfoot"><a href="#contents">← Contents</a><span>30-Day Stewardship Reset · TheAbidingYear</span><span class="pn">5</span></footer></section><section class="page divider" id="week-1">
+<div class="divider-in">
+  <div class="dwk">Week 1</div>
+  <h2 class="dtitle">See Clearly</h2>
+  <svg class="vine" viewBox="0 0 120 40" aria-hidden="true">
+<path d="M4 30 C 30 26, 50 14, 116 10" fill="none" stroke="currentColor" stroke-width="1.6"/>
+<ellipse cx="26" cy="21" rx="9" ry="4" transform="rotate(-35 26 21)" fill="currentColor" opacity=".85"/>
+<ellipse cx="34" cy="30" rx="9" ry="4" transform="rotate(25 34 30)" fill="currentColor" opacity=".55"/>
+<ellipse cx="58" cy="12" rx="9" ry="4" transform="rotate(-30 58 12)" fill="currentColor" opacity=".85"/>
+<ellipse cx="66" cy="22" rx="9" ry="4" transform="rotate(25 66 22)" fill="currentColor" opacity=".55"/>
+<ellipse cx="90" cy="6" rx="8" ry="3.6" transform="rotate(-20 90 6)" fill="currentColor" opacity=".85"/>
+<ellipse cx="98" cy="15" rx="8" ry="3.6" transform="rotate(25 98 15)" fill="currentColor" opacity=".55"/>
+<circle cx="112" cy="16" r="2.6" fill="var(--gold)"/><circle cx="117" cy="19" r="2.2" fill="var(--gold)"/><circle cx="111" cy="22" r="2" fill="var(--gold)"/>
+</svg>
+  <p class="dintro">This week is about looking honestly at where you are. No judgment, only clarity.</p>
+  <ol class="dlist"><li><span>Day 1</span>Abide first</li><li><span>Day 2</span>Know the state of your flocks</li><li><span>Day 3</span>Count the cost</li><li><span>Day 4</span>Find the holes in the bag</li><li><span>Day 5</span>The subscription sweep</li><li><span>Day 6</span>Needs, wants, and the heart</li><li><span>Day 7</span>Rest and review</li></ol>
+  <div class="prompt dgoal"><div class="pl">My intention for this week</div><div class="ln"></div><div class="ln"></div><div class="ln"></div></div>
+</div><footer class="pfoot"><a href="#contents">← Contents</a><span>30-Day Stewardship Reset · TheAbidingYear</span><span class="pn">6</span></footer></section><section class="page day" id="day-1">
+<header class="ph"><div class="wk">Week 1 · See Clearly</div><div class="dn"><span>Day</span>01</div></header>
+<h2 class="ttl">Abide first</h2>
+<blockquote class="verse"><p>I am the vine, ye are the branches: He that abideth in me, and the same bringeth forth much fruit: for without me ye can do nothing.</p><cite>John 15:5 (KJV)</cite></blockquote>
+<p class="devo">Before we change a single number, we start where fruit starts: connected to the Vine. This reset is not about trying harder on your own. It is thirty short, faithful steps, taken one day at a time, with the Lord.</p>
+<div class="steps"><div class="sh">Today's 15-minute step</div><ol><li>Write down why you are doing this reset.</li><li>Set one money goal for the next 30 days.</li><li>Name what worries you most, then pray over this page.</li></ol></div>
+<div class="work"><div class="prompts"><div class="prompt"><div class="pl">Why I&#x27;m doing this</div><div class="ln"></div><div class="ln"></div><div class="ln"></div></div><div class="prompt"><div class="pl">My 30-day goal (e.g. free up $___ a month, pay $___ toward debt)</div><div class="ln"></div><div class="ln"></div><div class="ln"></div></div><div class="prompt"><div class="pl">What worries me most about money right now</div><div class="ln"></div><div class="ln"></div><div class="ln"></div></div><div class="prompt"><div class="pl">My prayer as I begin</div><div class="ln"></div><div class="ln"></div><div class="ln"></div></div></div><div class="fill"></div></div>
+<div class="dayfoot">
+  <div class="df money"><span>Money found or freed today</span><b>$</b></div>
+  <div class="df pray"><span>One-line prayer</span><i></i></div>
+  <div class="df done"><span>Done</span><em></em></div>
+</div><footer class="pfoot"><a href="#contents">← Contents</a><span>30-Day Stewardship Reset · TheAbidingYear</span><span class="pn">7</span></footer></section><section class="page day" id="day-2">
+<header class="ph"><div class="wk">Week 1 · See Clearly</div><div class="dn"><span>Day</span>02</div></header>
+<h2 class="ttl">Know the state of your flocks</h2>
+<blockquote class="verse"><p>Be thou diligent to know the state of thy flocks, and look well to thy herds.</p><cite>Proverbs 27:23 (KJV)</cite></blockquote>
+<p class="devo">Good shepherds count. You cannot steward what you will not look at, and looking is the bravest step in this whole workbook. Today is about facts, not feelings.</p>
+<div class="steps"><div class="sh">Today's 15-minute step</div><ol><li>Gather last month&#x27;s bank and card statements.</li><li>Write every source of take-home income.</li><li>Write the balance of every account you have today.</li></ol></div>
+<div class="work"><div class="sub">Monthly take-home income</div><table class="wt "><thead><tr><th style="width:64%">Income source</th><th style="width:36%">Monthly take-home</th></tr></thead><tbody><tr class=""><td class=""></td><td></td></tr><tr class=""><td class=""></td><td></td></tr><tr class=""><td class=""></td><td></td></tr><tr class=""><td class=""></td><td></td></tr><tr class="totrow"><td class="tot">TOTAL</td><td></td></tr></tbody></table><div class="sub" style="margin-top:14px">Every account I have</div><table class="wt "><thead><tr><th style="width:36%">Account</th><th style="width:40%">Type (checking, savings, card, loan)</th><th style="width:24%">Balance today</th></tr></thead><tbody><tr class=""><td class=""></td><td></td><td></td></tr><tr class=""><td class=""></td><td></td><td></td></tr><tr class=""><td class=""></td><td></td><td></td></tr><tr class=""><td class=""></td><td></td><td></td></tr><tr class=""><td class=""></td><td></td><td></td></tr><tr class=""><td class=""></td><td></td><td></td></tr><tr class=""><td class=""></td><td></td><td></td></tr></tbody></table><div class="fill"></div></div>
+<div class="dayfoot">
+  <div class="df money"><span>Money found or freed today</span><b>$</b></div>
+  <div class="df pray"><span>One-line prayer</span><i></i></div>
+  <div class="df done"><span>Done</span><em></em></div>
+</div><footer class="pfoot"><a href="#contents">← Contents</a><span>30-Day Stewardship Reset · TheAbidingYear</span><span class="pn">8</span></footer></section><section class="page day" id="day-3">
+<header class="ph"><div class="wk">Week 1 · See Clearly</div><div class="dn"><span>Day</span>03</div></header>
+<h2 class="ttl">Count the cost</h2>
+<blockquote class="verse"><p>For which of you, intending to build a tower, sitteth not down first, and counteth the cost, whether he have sufficient to finish it?</p><cite>Luke 14:28 (KJV)</cite></blockquote>
+<p class="devo">Jesus assumed His followers would sit down and count. Listing every bill takes away the fog and the dread that comes with not knowing. Include the small ones; they add up.</p>
+<div class="steps"><div class="sh">Today's 15-minute step</div><ol><li>List every recurring bill, big and small.</li><li>Note the due date and whether it is on autopay.</li><li>Add up the total. Circle any bill that surprised you.</li></ol></div>
+<div class="work"><table class="wt "><thead><tr><th style="width:46%">Bill</th><th style="width:18%">Due date</th><th style="width:20%">Amount</th><th style="width:16%">Autopay?</th></tr></thead><tbody><tr class=""><td class=""></td><td></td><td></td><td></td></tr><tr class=""><td class=""></td><td></td><td></td><td></td></tr><tr class=""><td class=""></td><td></td><td></td><td></td></tr><tr class=""><td class=""></td><td></td><td></td><td></td></tr><tr class=""><td class=""></td><td></td><td></td><td></td></tr><tr class=""><td class=""></td><td></td><td></td><td></td></tr><tr class=""><td class=""></td><td></td><td></td><td></td></tr><tr class=""><td class=""></td><td></td><td></td><td></td></tr><tr class=""><td class=""></td><td></td><td></td><td></td></tr><tr class=""><td class=""></td><td></td><td></td><td></td></tr><tr class=""><td class=""></td><td></td><td></td><td></td></tr><tr class=""><td class=""></td><td></td><td></td><td></td></tr><tr class=""><td class=""></td><td></td><td></td><td></td></tr><tr class=""><td class=""></td><td></td><td></td><td></td></tr></tbody></table><div class="fill"></div></div>
+<div class="dayfoot">
+  <div class="df money"><span>Money found or freed today</span><b>$</b></div>
+  <div class="df pray"><span>One-line prayer</span><i></i></div>
+  <div class="df done"><span>Done</span><em></em></div>
+</div><footer class="pfoot"><a href="#contents">← Contents</a><span>30-Day Stewardship Reset · TheAbidingYear</span><span class="pn">9</span></footer></section><section class="page day" id="day-4">
+<header class="ph"><div class="wk">Week 1 · See Clearly</div><div class="dn"><span>Day</span>04</div></header>
+<h2 class="ttl">Find the holes in the bag</h2>
+<blockquote class="verse"><p>He that earneth wages earneth wages to put it into a bag with holes.</p><cite>Haggai 1:6 (KJV)</cite></blockquote>
+<p class="devo">Most of us do not have a spending problem everywhere. We have two or three holes where money quietly slips out. Today you find them.</p>
+<div class="steps"><div class="sh">Today's 15-minute step</div><ol><li>Using last month&#x27;s statements, total your spending in each category.</li><li>Mark how you feel about each number.</li><li>Circle the two biggest holes in your bag.</li></ol></div>
+<div class="work"><table class="wt "><thead><tr><th style="width:40%">Category</th><th style="width:28%">Spent last month</th><th style="width:32%">How I feel (✓ ok · ! surprised)</th></tr></thead><tbody><tr class=""><td class="">Groceries</td><td></td><td></td></tr><tr class=""><td class="">Dining out &amp; takeout</td><td></td><td></td></tr><tr class=""><td class="">Gas &amp; transport</td><td></td><td></td></tr><tr class=""><td class="">Shopping &amp; online orders</td><td></td><td></td></tr><tr class=""><td class="">Subscriptions</td><td></td><td></td></tr><tr class=""><td class="">Kids &amp; school</td><td></td><td></td></tr><tr class=""><td class="">Personal care</td><td></td><td></td></tr><tr class=""><td class="">Gifts</td><td></td><td></td></tr><tr class=""><td class="">Entertainment</td><td></td><td></td></tr><tr class=""><td class="">Other</td><td></td><td></td></tr><tr class="totrow"><td class="tot">TOTAL</td><td></td><td></td></tr></tbody></table><div class="fill"></div></div>
+<div class="dayfoot">
+  <div class="df money"><span>Money found or freed today</span><b>$</b></div>
+  <div class="df pray"><span>One-line prayer</span><i></i></div>
+  <div class="df done"><span>Done</span><em></em></div>
+</div><footer class="pfoot"><a href="#contents">← Contents</a><span>30-Day Stewardship Reset · TheAbidingYear</span><span class="pn">10</span></footer></section><section class="page day" id="day-5">
+<header class="ph"><div class="wk">Week 1 · See Clearly</div><div class="dn"><span>Day</span>05</div></header>
+<h2 class="ttl">The subscription sweep</h2>
+<blockquote class="verse"><p>The thoughts of the diligent tend only to plenteousness; but of every one that is hasty only to want.</p><cite>Proverbs 21:5 (KJV)</cite></blockquote>
+<p class="devo">Subscriptions are designed to be forgotten. A few minutes of diligence today can free up money every single month for the rest of the year.</p>
+<div class="steps"><div class="sh">Today's 15-minute step</div><ol><li>Search your statements and app store for every recurring charge.</li><li>Decide: keep, cancel, or downgrade.</li><li>Cancel at least one today and write the savings below.</li></ol></div>
+<div class="work"><table class="wt "><thead><tr><th style="width:38%">Subscription</th><th style="width:18%">Monthly cost</th><th style="width:28%">Keep / Cancel / Downgrade</th><th style="width:16%">Saved</th></tr></thead><tbody><tr class=""><td class=""></td><td></td><td></td><td></td></tr><tr class=""><td class=""></td><td></td><td></td><td></td></tr><tr class=""><td class=""></td><td></td><td></td><td></td></tr><tr class=""><td class=""></td><td></td><td></td><td></td></tr><tr class=""><td class=""></td><td></td><td></td><td></td></tr><tr class=""><td class=""></td><td></td><td></td><td></td></tr><tr class=""><td class=""></td><td></td><td></td><td></td></tr><tr class=""><td class=""></td><td></td><td></td><td></td></tr><tr class=""><td class=""></td><td></td><td></td><td></td></tr><tr class=""><td class=""></td><td></td><td></td><td></td></tr><tr class=""><td class=""></td><td></td><td></td><td></td></tr><tr class=""><td class=""></td><td></td><td></td><td></td></tr><tr class=""><td class=""></td><td></td><td></td><td></td></tr></tbody></table><div class="fill"></div></div>
+<div class="dayfoot">
+  <div class="df money"><span>Money found or freed today</span><b>$</b></div>
+  <div class="df pray"><span>One-line prayer</span><i></i></div>
+  <div class="df done"><span>Done</span><em></em></div>
+</div><footer class="pfoot"><a href="#contents">← Contents</a><span>30-Day Stewardship Reset · TheAbidingYear</span><span class="pn">11</span></footer></section><section class="page day" id="day-6">
+<header class="ph"><div class="wk">Week 1 · See Clearly</div><div class="dn"><span>Day</span>06</div></header>
+<h2 class="ttl">Needs, wants, and the heart</h2>
+<blockquote class="verse"><p>For where your treasure is, there will your heart be also.</p><cite>Matthew 6:21 (KJV)</cite></blockquote>
+<p class="devo">Wants are not wrong, but they should not be in charge. Sorting your spending shows where your treasure has been going, and gently invites your heart to follow God&#x27;s priorities instead.</p>
+<div class="steps"><div class="sh">Today's 15-minute step</div><ol><li>Sort last month&#x27;s spending into needs and wants.</li><li>Choose one want to pause for the rest of this reset.</li><li>Write what you will do instead when the urge comes.</li></ol></div>
+<div class="work"><div class="twocol"><div><div class="colh">Needs</div><div class="ln"></div><div class="ln"></div><div class="ln"></div><div class="ln"></div><div class="ln"></div><div class="ln"></div><div class="ln"></div><div class="ln"></div><div class="ln"></div><div class="ln"></div><div class="ln"></div><div class="ln"></div></div><div><div class="colh">Wants</div><div class="ln"></div><div class="ln"></div><div class="ln"></div><div class="ln"></div><div class="ln"></div><div class="ln"></div><div class="ln"></div><div class="ln"></div><div class="ln"></div><div class="ln"></div><div class="ln"></div><div class="ln"></div></div></div><div class="prompt" style="margin-top:14px"><div class="pl">The one want I'm pausing, and what I'll do instead</div><div class="ln"></div><div class="ln"></div></div><div class="fill"></div></div>
+<div class="dayfoot">
+  <div class="df money"><span>Money found or freed today</span><b>$</b></div>
+  <div class="df pray"><span>One-line prayer</span><i></i></div>
+  <div class="df done"><span>Done</span><em></em></div>
+</div><footer class="pfoot"><a href="#contents">← Contents</a><span>30-Day Stewardship Reset · TheAbidingYear</span><span class="pn">12</span></footer></section><section class="page day" id="day-7">
+<header class="ph"><div class="wk">Week 1 · See Clearly<span class="rv">Review day</span></div><div class="dn"><span>Day</span>07</div></header>
+<h2 class="ttl">Rest and review</h2>
+<blockquote class="verse"><p>Be careful for nothing; but in every thing by prayer and supplication with thanksgiving let your requests be made known unto God.</p><cite>Philippians 4:6 (KJV)</cite></blockquote>
+<p class="devo">You have looked at your whole financial picture this week. That is no small thing. Rest today, give thanks, and bring every worry you uncovered to God in prayer.</p>
+<div class="steps"><div class="sh">Today's 15-minute step</div><ol><li>Fill in your Week 1 numbers.</li><li>Write what you learned.</li><li>Turn each worry into a prayer request.</li></ol></div>
+<div class="work"><div class="stats c3"><div class="stat"><div class="sl">Monthly take-home income (Day 2)</div><div class="sv">$</div></div><div class="stat"><div class="sl">Monthly bills (Day 3)</div><div class="sv">$</div></div><div class="stat"><div class="sl">Monthly spending (Day 4)</div><div class="sv">$</div></div><div class="stat"><div class="sl">Income − bills − spending =</div><div class="sv">$</div></div><div class="stat"><div class="sl">Subscriptions cancelled (Day 5)</div><div class="sv">$</div></div><div class="stat"><div class="sl">Money found this week</div><div class="sv">$</div></div></div><div class="prompts"><div class="prompt"><div class="pl">What I learned about our money this week</div><div class="ln"></div><div class="ln"></div><div class="ln"></div></div><div class="prompt"><div class="pl">Worries I uncovered, turned into prayer requests</div><div class="ln"></div><div class="ln"></div><div class="ln"></div><div class="ln"></div></div></div><div class="fill"></div></div>
+<div class="dayfoot">
+  <div class="df money"><span>Money found or freed today</span><b>$</b></div>
+  <div class="df pray"><span>One-line prayer</span><i></i></div>
+  <div class="df done"><span>Done</span><em></em></div>
+</div><footer class="pfoot"><a href="#contents">← Contents</a><span>30-Day Stewardship Reset · TheAbidingYear</span><span class="pn">13</span></footer></section><section class="page divider" id="week-2">
+<div class="divider-in">
+  <div class="dwk">Week 2</div>
+  <h2 class="dtitle">Cut &amp; Negotiate</h2>
+  <svg class="vine" viewBox="0 0 120 40" aria-hidden="true">
+<path d="M4 30 C 30 26, 50 14, 116 10" fill="none" stroke="currentColor" stroke-width="1.6"/>
+<ellipse cx="26" cy="21" rx="9" ry="4" transform="rotate(-35 26 21)" fill="currentColor" opacity=".85"/>
+<ellipse cx="34" cy="30" rx="9" ry="4" transform="rotate(25 34 30)" fill="currentColor" opacity=".55"/>
+<ellipse cx="58" cy="12" rx="9" ry="4" transform="rotate(-30 58 12)" fill="currentColor" opacity=".85"/>
+<ellipse cx="66" cy="22" rx="9" ry="4" transform="rotate(25 66 22)" fill="currentColor" opacity=".55"/>
+<ellipse cx="90" cy="6" rx="8" ry="3.6" transform="rotate(-20 90 6)" fill="currentColor" opacity=".85"/>
+<ellipse cx="98" cy="15" rx="8" ry="3.6" transform="rotate(25 98 15)" fill="currentColor" opacity=".55"/>
+<circle cx="112" cy="16" r="2.6" fill="var(--gold)"/><circle cx="117" cy="19" r="2.2" fill="var(--gold)"/><circle cx="111" cy="22" r="2" fill="var(--gold)"/>
+</svg>
+  <p class="dintro">This week you will lower the bills you can, with ready-made scripts for every call.</p>
+  <ol class="dlist"><li><span>Day 8</span>Ask for wisdom first</li><li><span>Day 9</span>Call your internet provider</li><li><span>Day 10</span>Call your phone carrier</li><li><span>Day 11</span>Shop your insurance</li><li><span>Day 12</span>Ask for a lower rate</li><li><span>Day 13</span>Plan the table</li><li><span>Day 14</span>Count what you&#x27;ve freed</li></ol>
+  <div class="prompt dgoal"><div class="pl">My intention for this week</div><div class="ln"></div><div class="ln"></div><div class="ln"></div></div>
+</div><footer class="pfoot"><a href="#contents">← Contents</a><span>30-Day Stewardship Reset · TheAbidingYear</span><span class="pn">14</span></footer></section><section class="page day" id="day-8">
+<header class="ph"><div class="wk">Week 2 · Cut &amp; Negotiate</div><div class="dn"><span>Day</span>08</div></header>
+<h2 class="ttl">Ask for wisdom first</h2>
+<blockquote class="verse"><p>If any of you lack wisdom, let him ask of God, that giveth to all men liberally, and upbraideth not; and it shall be given him.</p><cite>James 1:5 (KJV)</cite></blockquote>
+<p class="devo">This week you will make a few phone calls that can lower your bills. Most companies have better prices than the one you are paying; they simply wait for you to ask. Prepare today.</p>
+<div class="steps"><div class="sh">Today's 15-minute step</div><ol><li>Read the Negotiation Scripts at the back of this workbook.</li><li>Look up one competitor price for each bill below.</li><li>Set your target price and schedule each call.</li></ol></div>
+<div class="work"><table class="wt "><thead><tr><th style="width:28%">Company</th><th style="width:17%">Paying now</th><th style="width:21%">Competitor offer</th><th style="width:17%">My target</th><th style="width:17%">Call day</th></tr></thead><tbody><tr class=""><td class=""></td><td></td><td></td><td></td><td></td></tr><tr class=""><td class=""></td><td></td><td></td><td></td><td></td></tr><tr class=""><td class=""></td><td></td><td></td><td></td><td></td></tr><tr class=""><td class=""></td><td></td><td></td><td></td><td></td></tr><tr class=""><td class=""></td><td></td><td></td><td></td><td></td></tr><tr class=""><td class=""></td><td></td><td></td><td></td><td></td></tr><tr class=""><td class=""></td><td></td><td></td><td></td><td></td></tr><tr class=""><td class=""></td><td></td><td></td><td></td><td></td></tr></tbody></table><div class="fill"></div></div>
+<div class="dayfoot">
+  <div class="df money"><span>Money found or freed today</span><b>$</b></div>
+  <div class="df pray"><span>One-line prayer</span><i></i></div>
+  <div class="df done"><span>Done</span><em></em></div>
+</div><footer class="pfoot"><a href="#contents">← Contents</a><span>30-Day Stewardship Reset · TheAbidingYear</span><span class="pn">15</span></footer></section><section class="page day" id="day-9">
+<header class="ph"><div class="wk">Week 2 · Cut &amp; Negotiate</div><div class="dn"><span>Day</span>09</div></header>
+<h2 class="ttl">Call your internet provider</h2>
+<blockquote class="verse"><p>Commit thy works unto the LORD, and thy thoughts shall be established.</p><cite>Proverbs 16:3 (KJV)</cite></blockquote>
+<p class="devo">Pray before you dial. Be kind, be clear, and be willing to ask for the retention department. Your calm, honest request is a form of good stewardship.</p>
+<div class="steps"><div class="sh">Today's 15-minute step</div><ol><li>Use Script A (Internet &amp; Cable).</li><li>Ask for the retention or loyalty department.</li><li>Log the result below, even if the answer is no.</li></ol></div>
+<div class="work"><div class="form"><div class="fr"><span>Company &amp; phone number</span><i></i></div><div class="fr"><span>Date &amp; time called</span><i></i></div><div class="fr"><span>Representative&#x27;s name</span><i></i></div><div class="fr"><span>Old monthly price</span><i></i></div><div class="fr"><span>New monthly price</span><i></i></div><div class="fr"><span>Offer details &amp; end date</span><i></i></div></div><div class="stats c3"><div class="stat"><div class="sl">Monthly savings</div><div class="sv">$</div></div><div class="stat"><div class="sl">× 12 = yearly savings</div><div class="sv">$</div></div><div class="stat"><div class="sl">Reminder to recheck on</div><div class="sv"></div></div></div><div class="prompts"><div class="prompt"><div class="pl">How it went, and what I&#x27;d say differently next time</div><div class="ln"></div><div class="ln"></div><div class="ln"></div></div></div><div class="fill"></div></div>
+<div class="dayfoot">
+  <div class="df money"><span>Money found or freed today</span><b>$</b></div>
+  <div class="df pray"><span>One-line prayer</span><i></i></div>
+  <div class="df done"><span>Done</span><em></em></div>
+</div><footer class="pfoot"><a href="#contents">← Contents</a><span>30-Day Stewardship Reset · TheAbidingYear</span><span class="pn">16</span></footer></section><section class="page day" id="day-10">
+<header class="ph"><div class="wk">Week 2 · Cut &amp; Negotiate</div><div class="dn"><span>Day</span>10</div></header>
+<h2 class="ttl">Call your phone carrier</h2>
+<blockquote class="verse"><p>He becometh poor that dealeth with a slack hand: but the hand of the diligent maketh rich.</p><cite>Proverbs 10:4 (KJV)</cite></blockquote>
+<p class="devo">Phone plans change constantly and older plans are rarely the best deal. Check what you actually use. Many families pay for far more data than they need.</p>
+<div class="steps"><div class="sh">Today's 15-minute step</div><ol><li>Check your actual data use for the last 3 months.</li><li>Use Script B (Mobile Phone).</li><li>Log the result and any new monthly price.</li></ol></div>
+<div class="work"><div class="form"><div class="fr"><span>Company &amp; phone number</span><i></i></div><div class="fr"><span>Date &amp; time called</span><i></i></div><div class="fr"><span>Representative&#x27;s name</span><i></i></div><div class="fr"><span>Old monthly price</span><i></i></div><div class="fr"><span>New monthly price</span><i></i></div><div class="fr"><span>Offer details &amp; end date</span><i></i></div></div><div class="stats c3"><div class="stat"><div class="sl">Monthly savings</div><div class="sv">$</div></div><div class="stat"><div class="sl">× 12 = yearly savings</div><div class="sv">$</div></div><div class="stat"><div class="sl">Reminder to recheck on</div><div class="sv"></div></div></div><div class="prompts"><div class="prompt"><div class="pl">How it went, and what I&#x27;d say differently next time</div><div class="ln"></div><div class="ln"></div><div class="ln"></div></div></div><div class="fill"></div></div>
+<div class="dayfoot">
+  <div class="df money"><span>Money found or freed today</span><b>$</b></div>
+  <div class="df pray"><span>One-line prayer</span><i></i></div>
+  <div class="df done"><span>Done</span><em></em></div>
+</div><footer class="pfoot"><a href="#contents">← Contents</a><span>30-Day Stewardship Reset · TheAbidingYear</span><span class="pn">17</span></footer></section><section class="page day" id="day-11">
+<header class="ph"><div class="wk">Week 2 · Cut &amp; Negotiate</div><div class="dn"><span>Day</span>11</div></header>
+<h2 class="ttl">Shop your insurance</h2>
+<blockquote class="verse"><p>A prudent man foreseeth the evil, and hideth himself; but the simple pass on, and are punished.</p><cite>Proverbs 22:3 (KJV)</cite></blockquote>
+<p class="devo">Insurance is wise protection, but loyalty is rarely rewarded with lower prices. Comparing quotes once a year is prudence, not disloyalty.</p>
+<div class="steps"><div class="sh">Today's 15-minute step</div><ol><li>Get two quotes for car, home, or renters insurance.</li><li>Use Script C to ask your current insurer to match.</li><li>Never cancel a policy before the new one is active.</li></ol></div>
+<div class="work"><table class="wt "><thead><tr><th style="width:18%">Insurance type</th><th style="width:26%">Current company &amp; price</th><th style="width:18%">Quote 1</th><th style="width:18%">Quote 2</th><th style="width:20%">Decision</th></tr></thead><tbody><tr class=""><td class=""></td><td></td><td></td><td></td><td></td></tr><tr class=""><td class=""></td><td></td><td></td><td></td><td></td></tr><tr class=""><td class=""></td><td></td><td></td><td></td><td></td></tr><tr class=""><td class=""></td><td></td><td></td><td></td><td></td></tr><tr class=""><td class=""></td><td></td><td></td><td></td><td></td></tr><tr class=""><td class=""></td><td></td><td></td><td></td><td></td></tr></tbody></table><div class="fill"></div></div>
+<div class="dayfoot">
+  <div class="df money"><span>Money found or freed today</span><b>$</b></div>
+  <div class="df pray"><span>One-line prayer</span><i></i></div>
+  <div class="df done"><span>Done</span><em></em></div>
+</div><footer class="pfoot"><a href="#contents">← Contents</a><span>30-Day Stewardship Reset · TheAbidingYear</span><span class="pn">18</span></footer></section><section class="page day" id="day-12">
+<header class="ph"><div class="wk">Week 2 · Cut &amp; Negotiate</div><div class="dn"><span>Day</span>12</div></header>
+<h2 class="ttl">Ask for a lower rate</h2>
+<blockquote class="verse"><p>The rich ruleth over the poor, and the borrower is servant to the lender.</p><cite>Proverbs 22:7 (KJV)</cite></blockquote>
+<p class="devo">High interest keeps you serving the lender longer. One polite call can lower your rate, which means more of every payment goes to the debt itself.</p>
+<div class="steps"><div class="sh">Today's 15-minute step</div><ol><li>List each credit card and its current APR.</li><li>Use Script D (Credit Card Rate) for each one.</li><li>Write the new rate, or the date to try again.</li></ol></div>
+<div class="work"><table class="wt "><thead><tr><th style="width:26%">Card</th><th style="width:17%">Balance</th><th style="width:14%">Old APR</th><th style="width:14%">New APR</th><th style="width:29%">Result / try again on</th></tr></thead><tbody><tr class=""><td class=""></td><td></td><td></td><td></td><td></td></tr><tr class=""><td class=""></td><td></td><td></td><td></td><td></td></tr><tr class=""><td class=""></td><td></td><td></td><td></td><td></td></tr><tr class=""><td class=""></td><td></td><td></td><td></td><td></td></tr><tr class=""><td class=""></td><td></td><td></td><td></td><td></td></tr><tr class=""><td class=""></td><td></td><td></td><td></td><td></td></tr><tr class=""><td class=""></td><td></td><td></td><td></td><td></td></tr></tbody></table><div class="fill"></div></div>
+<div class="dayfoot">
+  <div class="df money"><span>Money found or freed today</span><b>$</b></div>
+  <div class="df pray"><span>One-line prayer</span><i></i></div>
+  <div class="df done"><span>Done</span><em></em></div>
+</div><footer class="pfoot"><a href="#contents">← Contents</a><span>30-Day Stewardship Reset · TheAbidingYear</span><span class="pn">19</span></footer></section><section class="page day" id="day-13">
+<header class="ph"><div class="wk">Week 2 · Cut &amp; Negotiate</div><div class="dn"><span>Day</span>13</div></header>
+<h2 class="ttl">Plan the table</h2>
+<blockquote class="verse"><p>The LORD is my shepherd; I shall not want.</p><cite>Psalm 23:1 (KJV)</cite></blockquote>
+<p class="devo">Food is usually the largest flexible line in a family budget. A simple plan built around what you already have, and what is on sale, can save more than any single phone call.</p>
+<div class="steps"><div class="sh">Today's 15-minute step</div><ol><li>Check your pantry, fridge, and freezer first.</li><li>Plan 7 dinners around what you have and this week&#x27;s sales.</li><li>Write one grocery list and shop it once.</li></ol></div>
+<div class="work"><table class="wt "><thead><tr><th style="width:16%">Day</th><th style="width:50%">Dinner</th><th style="width:34%">Uses what I already have</th></tr></thead><tbody><tr class=""><td class="">Sun</td><td></td><td></td></tr><tr class=""><td class="">Mon</td><td></td><td></td></tr><tr class=""><td class="">Tue</td><td></td><td></td></tr><tr class=""><td class="">Wed</td><td></td><td></td></tr><tr class=""><td class="">Thu</td><td></td><td></td></tr><tr class=""><td class="">Fri</td><td></td><td></td></tr><tr class=""><td class="">Sat</td><td></td><td></td></tr></tbody></table><div class="sub" style="margin-top:14px">Grocery list</div><div class="twocol tight"><div><div class="ln chk"></div><div class="ln chk"></div><div class="ln chk"></div><div class="ln chk"></div><div class="ln chk"></div><div class="ln chk"></div></div><div><div class="ln chk"></div><div class="ln chk"></div><div class="ln chk"></div><div class="ln chk"></div><div class="ln chk"></div><div class="ln chk"></div></div></div><div class="stats c3"><div class="stat"><div class="sl">Grocery budget</div><div class="sv">$</div></div><div class="stat"><div class="sl">Actually spent</div><div class="sv">$</div></div><div class="stat"><div class="sl">Saved vs. usual week</div><div class="sv">$</div></div></div><div class="fill"></div></div>
+<div class="dayfoot">
+  <div class="df money"><span>Money found or freed today</span><b>$</b></div>
+  <div class="df pray"><span>One-line prayer</span><i></i></div>
+  <div class="df done"><span>Done</span><em></em></div>
+</div><footer class="pfoot"><a href="#contents">← Contents</a><span>30-Day Stewardship Reset · TheAbidingYear</span><span class="pn">20</span></footer></section><section class="page day" id="day-14">
+<header class="ph"><div class="wk">Week 2 · Cut &amp; Negotiate<span class="rv">Review day</span></div><div class="dn"><span>Day</span>14</div></header>
+<h2 class="ttl">Count what you&#x27;ve freed</h2>
+<blockquote class="verse"><p>And let us not be weary in well doing: for in due season we shall reap, if we faint not.</p><cite>Galatians 6:9 (KJV)</cite></blockquote>
+<p class="devo">Phone calls are uncomfortable, and you made them anyway. Add up every dollar you freed this week, then multiply by twelve. That is the harvest of one faithful week.</p>
+<div class="steps"><div class="sh">Today's 15-minute step</div><ol><li>Add up the monthly savings from this week.</li><li>Multiply by 12 to see the yearly difference.</li><li>Decide where that freed money will go.</li></ol></div>
+<div class="work"><table class="wt "><thead><tr><th style="width:40%">Bill</th><th style="width:20%">Old monthly</th><th style="width:20%">New monthly</th><th style="width:20%">Saved / month</th></tr></thead><tbody><tr class=""><td class="">Internet</td><td></td><td></td><td></td></tr><tr class=""><td class="">Phone</td><td></td><td></td><td></td></tr><tr class=""><td class="">Insurance</td><td></td><td></td><td></td></tr><tr class=""><td class="">Card interest (est.)</td><td></td><td></td><td></td></tr><tr class=""><td class="">Subscriptions</td><td></td><td></td><td></td></tr><tr class=""><td class="">Groceries</td><td></td><td></td><td></td></tr><tr class="totrow"><td class="tot">TOTAL</td><td></td><td></td><td></td></tr></tbody></table><div class="stats c2"><div class="stat"><div class="sl">Total saved per month</div><div class="sv">$</div></div><div class="stat wide"><div class="sl">× 12 = saved per year</div><div class="sv">$</div></div></div><div class="prompts"><div class="prompt"><div class="pl">Where this freed money will go (debt, emergency fund, giving)</div><div class="ln"></div><div class="ln"></div><div class="ln"></div></div></div><div class="fill"></div></div>
+<div class="dayfoot">
+  <div class="df money"><span>Money found or freed today</span><b>$</b></div>
+  <div class="df pray"><span>One-line prayer</span><i></i></div>
+  <div class="df done"><span>Done</span><em></em></div>
+</div><footer class="pfoot"><a href="#contents">← Contents</a><span>30-Day Stewardship Reset · TheAbidingYear</span><span class="pn">21</span></footer></section><section class="page divider" id="week-3">
+<div class="divider-in">
+  <div class="dwk">Week 3</div>
+  <h2 class="dtitle">Face the Debt</h2>
+  <svg class="vine" viewBox="0 0 120 40" aria-hidden="true">
+<path d="M4 30 C 30 26, 50 14, 116 10" fill="none" stroke="currentColor" stroke-width="1.6"/>
+<ellipse cx="26" cy="21" rx="9" ry="4" transform="rotate(-35 26 21)" fill="currentColor" opacity=".85"/>
+<ellipse cx="34" cy="30" rx="9" ry="4" transform="rotate(25 34 30)" fill="currentColor" opacity=".55"/>
+<ellipse cx="58" cy="12" rx="9" ry="4" transform="rotate(-30 58 12)" fill="currentColor" opacity=".85"/>
+<ellipse cx="66" cy="22" rx="9" ry="4" transform="rotate(25 66 22)" fill="currentColor" opacity=".55"/>
+<ellipse cx="90" cy="6" rx="8" ry="3.6" transform="rotate(-20 90 6)" fill="currentColor" opacity=".85"/>
+<ellipse cx="98" cy="15" rx="8" ry="3.6" transform="rotate(25 98 15)" fill="currentColor" opacity=".55"/>
+<circle cx="112" cy="16" r="2.6" fill="var(--gold)"/><circle cx="117" cy="19" r="2.2" fill="var(--gold)"/><circle cx="111" cy="22" r="2" fill="var(--gold)"/>
+</svg>
+  <p class="dintro">This week you bring your debt into the light and make a plan you can follow.</p>
+  <ol class="dlist"><li><span>Day 15</span>Bring it into the light</li><li><span>Day 16</span>Choose your method</li><li><span>Day 17</span>Never miss a minimum</li><li><span>Day 18</span>Find your extra payment</li><li><span>Day 19</span>Close the door</li><li><span>Day 20</span>Two are better than one</li><li><span>Day 21</span>Content on the climb</li></ol>
+  <div class="prompt dgoal"><div class="pl">My intention for this week</div><div class="ln"></div><div class="ln"></div><div class="ln"></div></div>
+</div><footer class="pfoot"><a href="#contents">← Contents</a><span>30-Day Stewardship Reset · TheAbidingYear</span><span class="pn">22</span></footer></section><section class="page day" id="day-15">
+<header class="ph"><div class="wk">Week 3 · Face the Debt</div><div class="dn"><span>Day</span>15</div></header>
+<h2 class="ttl">Bring it into the light</h2>
+<blockquote class="verse"><p>It is of the LORD&#x27;s mercies that we are not consumed, because his compassions fail not. They are new every morning: great is thy faithfulness.</p><cite>Lamentations 3:22–23 (KJV)</cite></blockquote>
+<p class="devo">Debt often carries shame, and shame keeps us from looking. His mercies are new this morning. Write down every debt without judging yourself; this list is the start of freedom, not a verdict.</p>
+<div class="steps"><div class="sh">Today's 15-minute step</div><ol><li>List every debt: cards, loans, medical, family.</li><li>Write the balance, interest rate, and minimum payment.</li><li>Add up the total, then pray a prayer of surrender.</li></ol></div>
+<div class="work"><table class="wt "><thead><tr><th style="width:32%">Owed to</th><th style="width:18%">Balance</th><th style="width:14%">APR</th><th style="width:18%">Minimum</th><th style="width:18%">Due date</th></tr></thead><tbody><tr class=""><td class=""></td><td></td><td></td><td></td><td></td></tr><tr class=""><td class=""></td><td></td><td></td><td></td><td></td></tr><tr class=""><td class=""></td><td></td><td></td><td></td><td></td></tr><tr class=""><td class=""></td><td></td><td></td><td></td><td></td></tr><tr class=""><td class=""></td><td></td><td></td><td></td><td></td></tr><tr class=""><td class=""></td><td></td><td></td><td></td><td></td></tr><tr class=""><td class=""></td><td></td><td></td><td></td><td></td></tr><tr class=""><td class=""></td><td></td><td></td><td></td><td></td></tr><tr class=""><td class=""></td><td></td><td></td><td></td><td></td></tr><tr class=""><td class=""></td><td></td><td></td><td></td><td></td></tr><tr class=""><td class=""></td><td></td><td></td><td></td><td></td></tr><tr class=""><td class=""></td><td></td><td></td><td></td><td></td></tr></tbody></table><div class="fill"></div></div>
+<div class="dayfoot">
+  <div class="df money"><span>Money found or freed today</span><b>$</b></div>
+  <div class="df pray"><span>One-line prayer</span><i></i></div>
+  <div class="df done"><span>Done</span><em></em></div>
+</div><footer class="pfoot"><a href="#contents">← Contents</a><span>30-Day Stewardship Reset · TheAbidingYear</span><span class="pn">23</span></footer></section><section class="page day" id="day-16">
+<header class="ph"><div class="wk">Week 3 · Face the Debt</div><div class="dn"><span>Day</span>16</div></header>
+<h2 class="ttl">Choose your method</h2>
+<blockquote class="verse"><p>Through wisdom is an house builded; and by understanding it is established.</p><cite>Proverbs 24:3 (KJV)</cite></blockquote>
+<p class="devo">There are two proven ways to pay off debt. Both work. The best one is the one you will actually stick with.</p>
+<div class="steps"><div class="sh">Today's 15-minute step</div><ol><li>Read the two methods below.</li><li>Circle the one that fits you.</li><li>Re-list your debts in that order.</li></ol></div>
+<div class="work"><div class="methods"><div class="mcard"><div class="mh">○ Debt Snowball</div><p>Pay minimums on everything. Put every extra dollar on the <b>smallest balance</b> first. When it's gone, roll that payment into the next smallest.</p><p class="mfit">Best if you need quick wins to stay motivated.</p></div><div class="mcard"><div class="mh">○ Debt Avalanche</div><p>Pay minimums on everything. Put every extra dollar on the <b>highest interest rate</b> first. When it's gone, roll that payment into the next highest.</p><p class="mfit">Best if you want to pay the least interest overall.</p></div></div><div class="sub" style="margin-top:12px">My debts in payoff order</div><table class="wt "><thead><tr><th style="width:8%">#</th><th style="width:38%">Debt</th><th style="width:20%">Balance</th><th style="width:14%">APR</th><th style="width:20%">Minimum</th></tr></thead><tbody><tr class=""><td class="">1</td><td></td><td></td><td></td><td></td></tr><tr class=""><td class="">2</td><td></td><td></td><td></td><td></td></tr><tr class=""><td class="">3</td><td></td><td></td><td></td><td></td></tr><tr class=""><td class="">4</td><td></td><td></td><td></td><td></td></tr><tr class=""><td class="">5</td><td></td><td></td><td></td><td></td></tr><tr class=""><td class="">6</td><td></td><td></td><td></td><td></td></tr><tr class=""><td class="">7</td><td></td><td></td><td></td><td></td></tr><tr class=""><td class="">8</td><td></td><td></td><td></td><td></td></tr></tbody></table><div class="fill"></div></div>
+<div class="dayfoot">
+  <div class="df money"><span>Money found or freed today</span><b>$</b></div>
+  <div class="df pray"><span>One-line prayer</span><i></i></div>
+  <div class="df done"><span>Done</span><em></em></div>
+</div><footer class="pfoot"><a href="#contents">← Contents</a><span>30-Day Stewardship Reset · TheAbidingYear</span><span class="pn">24</span></footer></section><section class="page day" id="day-17">
+<header class="ph"><div class="wk">Week 3 · Face the Debt</div><div class="dn"><span>Day</span>17</div></header>
+<h2 class="ttl">Never miss a minimum</h2>
+<blockquote class="verse"><p>Let all things be done decently and in order.</p><cite>1 Corinthians 14:40 (KJV)</cite></blockquote>
+<p class="devo">Late fees and penalty rates undo progress fast. Order protects you. Set every minimum payment on autopay so nothing slips while you focus on the one debt you are attacking.</p>
+<div class="steps"><div class="sh">Today's 15-minute step</div><ol><li>Turn on autopay for the minimum on every debt.</li><li>Line up due dates with your paydays if you can.</li><li>Write your monthly payment calendar below.</li></ol></div>
+<div class="work"><div class="sub">Write each payment on its due date. Mark paydays with a ★</div><div class="cal"><div class="cd"><span>1</span></div><div class="cd"><span>2</span></div><div class="cd"><span>3</span></div><div class="cd"><span>4</span></div><div class="cd"><span>5</span></div><div class="cd"><span>6</span></div><div class="cd"><span>7</span></div><div class="cd"><span>8</span></div><div class="cd"><span>9</span></div><div class="cd"><span>10</span></div><div class="cd"><span>11</span></div><div class="cd"><span>12</span></div><div class="cd"><span>13</span></div><div class="cd"><span>14</span></div><div class="cd"><span>15</span></div><div class="cd"><span>16</span></div><div class="cd"><span>17</span></div><div class="cd"><span>18</span></div><div class="cd"><span>19</span></div><div class="cd"><span>20</span></div><div class="cd"><span>21</span></div><div class="cd"><span>22</span></div><div class="cd"><span>23</span></div><div class="cd"><span>24</span></div><div class="cd"><span>25</span></div><div class="cd"><span>26</span></div><div class="cd"><span>27</span></div><div class="cd"><span>28</span></div><div class="cd"><span>29</span></div><div class="cd"><span>30</span></div><div class="cd"><span>31</span></div><div class="cd blank"></div><div class="cd blank"></div><div class="cd blank"></div><div class="cd blank"></div></div><div class="prompts"><div class="prompt"><div class="pl">Autopay is on for</div><div class="ln"></div><div class="ln"></div></div></div><div class="fill"></div></div>
+<div class="dayfoot">
+  <div class="df money"><span>Money found or freed today</span><b>$</b></div>
+  <div class="df pray"><span>One-line prayer</span><i></i></div>
+  <div class="df done"><span>Done</span><em></em></div>
+</div><footer class="pfoot"><a href="#contents">← Contents</a><span>30-Day Stewardship Reset · TheAbidingYear</span><span class="pn">25</span></footer></section><section class="page day" id="day-18">
+<header class="ph"><div class="wk">Week 3 · Face the Debt</div><div class="dn"><span>Day</span>18</div></header>
+<h2 class="ttl">Find your extra payment</h2>
+<blockquote class="verse"><p>He that is faithful in that which is least is faithful also in much.</p><cite>Luke 16:10 (KJV)</cite></blockquote>
+<p class="devo">The money you freed in Week 2 now gets a job. Even a small extra payment, made faithfully every month, shortens your debt by months or years.</p>
+<div class="steps"><div class="sh">Today's 15-minute step</div><ol><li>Total the money you freed in Week 2.</li><li>Decide how much goes to your first target debt.</li><li>Make your first extra payment today if you can.</li></ol></div>
+<div class="work"><div class="calc"><div class="cr"><span>Money freed in Week 2 (per month)</span><b>$</b></div><div class="cr"><span>− Amount going to emergency fund</span><b>$</b></div><div class="cr total"><span>= My extra debt payment each month</span><b>$</b></div><div class="cr"><span>Target debt (first on my list)</span><b></b></div><div class="cr"><span>Its minimum + my extra = new payment</span><b>$</b></div></div><div class="sub" style="margin-top:14px">Rollover plan: when one debt is paid, add its payment to the next</div><table class="wt "><thead><tr><th style="width:30%">Debt</th><th style="width:16%">Minimum</th><th style="width:22%">+ Rolled-over amount</th><th style="width:18%">= New payment</th><th style="width:14%">Paid off ✓</th></tr></thead><tbody><tr class=""><td class=""></td><td></td><td></td><td></td><td></td></tr><tr class=""><td class=""></td><td></td><td></td><td></td><td></td></tr><tr class=""><td class=""></td><td></td><td></td><td></td><td></td></tr><tr class=""><td class=""></td><td></td><td></td><td></td><td></td></tr><tr class=""><td class=""></td><td></td><td></td><td></td><td></td></tr></tbody></table><div class="fill"></div></div>
+<div class="dayfoot">
+  <div class="df money"><span>Money found or freed today</span><b>$</b></div>
+  <div class="df pray"><span>One-line prayer</span><i></i></div>
+  <div class="df done"><span>Done</span><em></em></div>
+</div><footer class="pfoot"><a href="#contents">← Contents</a><span>30-Day Stewardship Reset · TheAbidingYear</span><span class="pn">26</span></footer></section><section class="page day" id="day-19">
+<header class="ph"><div class="wk">Week 3 · Face the Debt</div><div class="dn"><span>Day</span>19</div></header>
+<h2 class="ttl">Close the door</h2>
+<blockquote class="verse"><p>Owe no man any thing, but to love one another.</p><cite>Romans 13:8 (KJV)</cite></blockquote>
+<p class="devo">You cannot climb out of a hole while still digging. Today you make new debt harder to take on, so every payment you make actually moves you forward.</p>
+<div class="steps"><div class="sh">Today's 15-minute step</div><ol><li>Remove saved cards from shopping apps and browsers.</li><li>Adopt the 24-hour rule for any unplanned purchase over $50.</li><li>Write your plan for emergencies that is not a credit card.</li></ol></div>
+<div class="work"><div class="prompts"><div class="prompt"><div class="pl">Cards I removed from apps and websites</div><div class="ln"></div><div class="ln"></div></div><div class="prompt"><div class="pl">My 24-hour rule amount: $____  Purchases I waited on this week</div><div class="ln"></div><div class="ln"></div><div class="ln"></div></div><div class="prompt"><div class="pl">If an emergency happens before my fund is ready, I will</div><div class="ln"></div><div class="ln"></div><div class="ln"></div></div><div class="prompt"><div class="pl">Things that tempt me to spend, and what I will do instead</div><div class="ln"></div><div class="ln"></div><div class="ln"></div><div class="ln"></div></div></div><div class="fill"></div></div>
+<div class="dayfoot">
+  <div class="df money"><span>Money found or freed today</span><b>$</b></div>
+  <div class="df pray"><span>One-line prayer</span><i></i></div>
+  <div class="df done"><span>Done</span><em></em></div>
+</div><footer class="pfoot"><a href="#contents">← Contents</a><span>30-Day Stewardship Reset · TheAbidingYear</span><span class="pn">27</span></footer></section><section class="page day" id="day-20">
+<header class="ph"><div class="wk">Week 3 · Face the Debt</div><div class="dn"><span>Day</span>20</div></header>
+<h2 class="ttl">Two are better than one</h2>
+<blockquote class="verse"><p>Two are better than one; because they have a good reward for their labour.</p><cite>Ecclesiastes 4:9 (KJV)</cite></blockquote>
+<p class="devo">Money handled alone is heavy. Share this plan with your spouse, or with a trusted friend who will pray for you and check in. Accountability is a gift, not a punishment.</p>
+<div class="steps"><div class="sh">Today's 15-minute step</div><ol><li>Choose your accountability person.</li><li>Share your debt list and your plan with them.</li><li>Agree on a weekly check-in time.</li></ol></div>
+<div class="work"><div class="prompts"><div class="prompt"><div class="pl">My accountability partner and our check-in time</div><div class="ln"></div><div class="ln"></div></div><div class="prompt"><div class="pl">What I want them to know about my plan</div><div class="ln"></div><div class="ln"></div><div class="ln"></div></div><div class="prompt"><div class="pl">How they can pray for me</div><div class="ln"></div><div class="ln"></div><div class="ln"></div></div><div class="prompt"><div class="pl">Notes from our conversation</div><div class="ln"></div><div class="ln"></div><div class="ln"></div><div class="ln"></div></div></div><div class="fill"></div></div>
+<div class="dayfoot">
+  <div class="df money"><span>Money found or freed today</span><b>$</b></div>
+  <div class="df pray"><span>One-line prayer</span><i></i></div>
+  <div class="df done"><span>Done</span><em></em></div>
+</div><footer class="pfoot"><a href="#contents">← Contents</a><span>30-Day Stewardship Reset · TheAbidingYear</span><span class="pn">28</span></footer></section><section class="page day" id="day-21">
+<header class="ph"><div class="wk">Week 3 · Face the Debt<span class="rv">Review day</span></div><div class="dn"><span>Day</span>21</div></header>
+<h2 class="ttl">Content on the climb</h2>
+<blockquote class="verse"><p>Let your conversation be without covetousness; and be content with such things as ye have: for he hath said, I will never leave thee, nor forsake thee.</p><cite>Hebrews 13:5 (KJV)</cite></blockquote>
+<p class="devo">You now have a real plan for your debt. Paying it off is a climb, not a sprint. He has promised never to leave you on the way.</p>
+<div class="steps"><div class="sh">Today's 15-minute step</div><ol><li>Fill in your debt numbers.</li><li>Color in your first boxes on the Debt Freedom Tracker.</li><li>Thank God for one specific provision this week.</li></ol></div>
+<div class="work"><div class="stats c3"><div class="stat"><div class="sl">Total debt (Day 15)</div><div class="sv">$</div></div><div class="stat"><div class="sl">Total monthly minimums</div><div class="sv">$</div></div><div class="stat"><div class="sl">Extra payment per month</div><div class="sv">$</div></div><div class="stat"><div class="sl">Target debt</div><div class="sv"></div></div><div class="stat"><div class="sl">Estimated payoff month</div><div class="sv"></div></div><div class="stat"><div class="sl">Paid this week</div><div class="sv">$</div></div></div><div class="prompts"><div class="prompt"><div class="pl">One way God provided for me this week</div><div class="ln"></div><div class="ln"></div><div class="ln"></div></div><div class="prompt"><div class="pl">What I&#x27;m learning about contentment</div><div class="ln"></div><div class="ln"></div><div class="ln"></div></div></div><div class="fill"></div></div>
+<div class="dayfoot">
+  <div class="df money"><span>Money found or freed today</span><b>$</b></div>
+  <div class="df pray"><span>One-line prayer</span><i></i></div>
+  <div class="df done"><span>Done</span><em></em></div>
+</div><footer class="pfoot"><a href="#contents">← Contents</a><span>30-Day Stewardship Reset · TheAbidingYear</span><span class="pn">29</span></footer></section><section class="page divider" id="week-4">
+<div class="divider-in">
+  <div class="dwk">Week 4</div>
+  <h2 class="dtitle">Build &amp; Give</h2>
+  <svg class="vine" viewBox="0 0 120 40" aria-hidden="true">
+<path d="M4 30 C 30 26, 50 14, 116 10" fill="none" stroke="currentColor" stroke-width="1.6"/>
+<ellipse cx="26" cy="21" rx="9" ry="4" transform="rotate(-35 26 21)" fill="currentColor" opacity=".85"/>
+<ellipse cx="34" cy="30" rx="9" ry="4" transform="rotate(25 34 30)" fill="currentColor" opacity=".55"/>
+<ellipse cx="58" cy="12" rx="9" ry="4" transform="rotate(-30 58 12)" fill="currentColor" opacity=".85"/>
+<ellipse cx="66" cy="22" rx="9" ry="4" transform="rotate(25 66 22)" fill="currentColor" opacity=".55"/>
+<ellipse cx="90" cy="6" rx="8" ry="3.6" transform="rotate(-20 90 6)" fill="currentColor" opacity=".85"/>
+<ellipse cx="98" cy="15" rx="8" ry="3.6" transform="rotate(25 98 15)" fill="currentColor" opacity=".55"/>
+<circle cx="112" cy="16" r="2.6" fill="var(--gold)"/><circle cx="117" cy="19" r="2.2" fill="var(--gold)"/><circle cx="111" cy="22" r="2" fill="var(--gold)"/>
+</svg>
+  <p class="dintro">This week you build margin: an emergency fund, a real budget, and a giving plan.</p>
+  <ol class="dlist"><li><span>Day 22</span>Go to the ant</li><li><span>Day 23</span>No more surprises</li><li><span>Day 24</span>Give every dollar a job</li><li><span>Day 25</span>Honour the Lord first</li><li><span>Day 26</span>The work of your hands</li><li><span>Day 27</span>Contentment is great gain</li><li><span>Day 28</span>Plan the next thirty</li><li><span>Day 29</span>Count your harvest</li><li><span>Day 30</span>Well done</li></ol>
+  <div class="prompt dgoal"><div class="pl">My intention for this week</div><div class="ln"></div><div class="ln"></div><div class="ln"></div></div>
+</div><footer class="pfoot"><a href="#contents">← Contents</a><span>30-Day Stewardship Reset · TheAbidingYear</span><span class="pn">30</span></footer></section><section class="page day" id="day-22">
+<header class="ph"><div class="wk">Week 4 · Build &amp; Give</div><div class="dn"><span>Day</span>22</div></header>
+<h2 class="ttl">Go to the ant</h2>
+<blockquote class="verse"><p>Go to the ant, thou sluggard; consider her ways, and be wise: which provideth her meat in the summer, and gathereth her food in the harvest.</p><cite>Proverbs 6:6, 8 (KJV)</cite></blockquote>
+<p class="devo">The ant saves before winter comes. A starter emergency fund of $1,000 keeps an ordinary surprise, like a flat tire, from becoming new debt.</p>
+<div class="steps"><div class="sh">Today's 15-minute step</div><ol><li>Open or choose a separate savings account for emergencies.</li><li>Set up an automatic transfer on payday, even if it is small.</li><li>Color in what you have saved on the Emergency Fund tracker.</li></ol></div>
+<div class="work"><div class="prompts"><div class="prompt"><div class="pl">Where my emergency fund will live</div><div class="ln"></div><div class="ln"></div></div><div class="prompt"><div class="pl">Automatic transfer: $____ every ________ starting ________</div><div class="ln"></div><div class="ln"></div></div><div class="prompt"><div class="pl">Things I could sell to jump-start my fund</div><div class="ln"></div><div class="ln"></div><div class="ln"></div><div class="ln"></div></div><div class="prompt"><div class="pl">What counts as an emergency for our family (and what doesn&#x27;t)</div><div class="ln"></div><div class="ln"></div><div class="ln"></div><div class="ln"></div></div></div><div class="fill"></div></div>
+<div class="dayfoot">
+  <div class="df money"><span>Money found or freed today</span><b>$</b></div>
+  <div class="df pray"><span>One-line prayer</span><i></i></div>
+  <div class="df done"><span>Done</span><em></em></div>
+</div><footer class="pfoot"><a href="#contents">← Contents</a><span>30-Day Stewardship Reset · TheAbidingYear</span><span class="pn">31</span></footer></section><section class="page day" id="day-23">
+<header class="ph"><div class="wk">Week 4 · Build &amp; Give</div><div class="dn"><span>Day</span>23</div></header>
+<h2 class="ttl">No more surprises</h2>
+<blockquote class="verse"><p>There is treasure to be desired and oil in the dwelling of the wise; but a foolish man spendeth it up.</p><cite>Proverbs 21:20 (KJV)</cite></blockquote>
+<p class="devo">Christmas, car repairs, and school fees are not emergencies; they are expected. A sinking fund saves a little each month so these costs never catch you off guard again.</p>
+<div class="steps"><div class="sh">Today's 15-minute step</div><ol><li>List the irregular expenses you know are coming this year.</li><li>Divide each yearly cost by 12.</li><li>Add the monthly total to next month&#x27;s budget.</li></ol></div>
+<div class="work"><table class="wt "><thead><tr><th style="width:40%">Expense</th><th style="width:20%">Yearly cost</th><th style="width:22%">÷ 12 = Monthly</th><th style="width:18%">Due month</th></tr></thead><tbody><tr class=""><td class="">Christmas &amp; birthdays</td><td></td><td></td><td></td></tr><tr class=""><td class="">Car repairs &amp; tires</td><td></td><td></td><td></td></tr><tr class=""><td class="">Car registration</td><td></td><td></td><td></td></tr><tr class=""><td class="">School &amp; activities</td><td></td><td></td><td></td></tr><tr class=""><td class="">Medical &amp; dental</td><td></td><td></td><td></td></tr><tr class=""><td class="">Home repairs</td><td></td><td></td><td></td></tr><tr class=""><td class="">Annual subscriptions</td><td></td><td></td><td></td></tr><tr class=""><td class="">Travel</td><td></td><td></td><td></td></tr><tr class=""><td class=""></td><td></td><td></td><td></td></tr><tr class=""><td class=""></td><td></td><td></td><td></td></tr><tr class=""><td class=""></td><td></td><td></td><td></td></tr><tr class="totrow"><td class="tot">TOTAL</td><td></td><td></td><td></td></tr></tbody></table><div class="fill"></div></div>
+<div class="dayfoot">
+  <div class="df money"><span>Money found or freed today</span><b>$</b></div>
+  <div class="df pray"><span>One-line prayer</span><i></i></div>
+  <div class="df done"><span>Done</span><em></em></div>
+</div><footer class="pfoot"><a href="#contents">← Contents</a><span>30-Day Stewardship Reset · TheAbidingYear</span><span class="pn">32</span></footer></section><section class="page day" id="day-24">
+<header class="ph"><div class="wk">Week 4 · Build &amp; Give</div><div class="dn"><span>Day</span>24</div></header>
+<h2 class="ttl">Give every dollar a job</h2>
+<blockquote class="verse"><p>Through wisdom is an house builded; and by understanding it is established: and by knowledge shall the chambers be filled with all precious and pleasant riches.</p><cite>Proverbs 24:3–4 (KJV)</cite></blockquote>
+<p class="devo">A zero-based budget gives every dollar a purpose before the month begins. It is not about restriction. It is about deciding on purpose instead of wondering where it went.</p>
+<div class="steps"><div class="sh">Today's 15-minute step</div><ol><li>Use the Monthly Budget page at the back of this workbook.</li><li>Start with giving and saving, then needs, then wants.</li><li>Adjust until income minus planned spending equals zero.</li></ol></div>
+<div class="work"><div class="calc"><div class="cr"><span>Expected income next month</span><b>$</b></div><div class="cr"><span>Giving</span><b>$</b></div><div class="cr"><span>Saving &amp; emergency fund</span><b>$</b></div><div class="cr"><span>Sinking funds (Day 23)</span><b>$</b></div><div class="cr"><span>Housing, utilities, insurance</span><b>$</b></div><div class="cr"><span>Food &amp; household</span><b>$</b></div><div class="cr"><span>Transportation</span><b>$</b></div><div class="cr"><span>Debt payments (min + extra)</span><b>$</b></div><div class="cr"><span>Personal &amp; family wants</span><b>$</b></div><div class="cr total"><span>Income − everything above =</span><b>$ 0</b></div></div><div class="prompts"><div class="prompt"><div class="pl">Three changes from last month&#x27;s spending</div><div class="ln"></div><div class="ln"></div></div></div><div class="fill"></div></div>
+<div class="dayfoot">
+  <div class="df money"><span>Money found or freed today</span><b>$</b></div>
+  <div class="df pray"><span>One-line prayer</span><i></i></div>
+  <div class="df done"><span>Done</span><em></em></div>
+</div><footer class="pfoot"><a href="#contents">← Contents</a><span>30-Day Stewardship Reset · TheAbidingYear</span><span class="pn">33</span></footer></section><section class="page day" id="day-25">
+<header class="ph"><div class="wk">Week 4 · Build &amp; Give</div><div class="dn"><span>Day</span>25</div></header>
+<h2 class="ttl">Honour the Lord first</h2>
+<blockquote class="verse"><p>Honour the LORD with thy substance, and with the firstfruits of all thine increase.</p><cite>Proverbs 3:9 (KJV)</cite></blockquote>
+<p class="devo">Giving first reminds us who owns it all. Whatever your season, decide your giving on purpose and with joy, never out of guilt or pressure.</p>
+<div class="steps"><div class="sh">Today's 15-minute step</div><ol><li>Pray about what and where God is leading you to give.</li><li>Decide on an amount or percentage you can give cheerfully.</li><li>Write it into next month&#x27;s budget first.</li></ol></div>
+<div class="work"><div class="prompts"><div class="prompt"><div class="pl">Where I feel led to give (church, ministry, neighbor)</div><div class="ln"></div><div class="ln"></div><div class="ln"></div></div><div class="prompt"><div class="pl">My giving plan: $____ or ____% each month</div><div class="ln"></div><div class="ln"></div></div><div class="prompt"><div class="pl">Ways to give that don&#x27;t cost money (time, skills, hospitality)</div><div class="ln"></div><div class="ln"></div><div class="ln"></div></div><div class="prompt"><div class="pl">2 Corinthians 9:7 in my own words</div><div class="ln"></div><div class="ln"></div><div class="ln"></div><div class="ln"></div></div></div><div class="fill"></div></div>
+<div class="dayfoot">
+  <div class="df money"><span>Money found or freed today</span><b>$</b></div>
+  <div class="df pray"><span>One-line prayer</span><i></i></div>
+  <div class="df done"><span>Done</span><em></em></div>
+</div><footer class="pfoot"><a href="#contents">← Contents</a><span>30-Day Stewardship Reset · TheAbidingYear</span><span class="pn">34</span></footer></section><section class="page day" id="day-26">
+<header class="ph"><div class="wk">Week 4 · Build &amp; Give</div><div class="dn"><span>Day</span>26</div></header>
+<h2 class="ttl">The work of your hands</h2>
+<blockquote class="verse"><p>She considereth a field, and buyeth it: with the fruit of her hands she planteth a vineyard.</p><cite>Proverbs 31:16 (KJV)</cite></blockquote>
+<p class="devo">Sometimes the budget is already lean, and the answer is to earn more. Start with skills you already have. Be wary of anything that promises fast, easy money; Proverbs 13:11 warns that wealth gained hastily dwindles.</p>
+<div class="steps"><div class="sh">Today's 15-minute step</div><ol><li>List skills people have asked you for help with.</li><li>Brainstorm three ways to earn with them.</li><li>Take one small first step this week.</li></ol></div>
+<div class="work"><div class="prompts"><div class="prompt"><div class="pl">Skills people already ask me for help with</div><div class="ln"></div><div class="ln"></div><div class="ln"></div></div><div class="prompt"><div class="pl">Three ways I could earn with these skills</div><div class="ln"></div><div class="ln"></div><div class="ln"></div></div><div class="prompt"><div class="pl">Hours I can realistically give each week</div><div class="ln"></div></div><div class="prompt"><div class="pl">My first step, and the date I will take it</div><div class="ln"></div><div class="ln"></div></div><div class="prompt"><div class="pl">Red flags I will avoid (upfront fees, &quot;get rich&quot; promises)</div><div class="ln"></div><div class="ln"></div></div></div><div class="fill"></div></div>
+<div class="dayfoot">
+  <div class="df money"><span>Money found or freed today</span><b>$</b></div>
+  <div class="df pray"><span>One-line prayer</span><i></i></div>
+  <div class="df done"><span>Done</span><em></em></div>
+</div><footer class="pfoot"><a href="#contents">← Contents</a><span>30-Day Stewardship Reset · TheAbidingYear</span><span class="pn">35</span></footer></section><section class="page day" id="day-27">
+<header class="ph"><div class="wk">Week 4 · Build &amp; Give</div><div class="dn"><span>Day</span>27</div></header>
+<h2 class="ttl">Contentment is great gain</h2>
+<blockquote class="verse"><p>But godliness with contentment is great gain.</p><cite>1 Timothy 6:6 (KJV)</cite></blockquote>
+<p class="devo">Comparison is expensive. Gratitude helps you notice how much God has already provided, and makes it easier to stay on the plan you made.</p>
+<div class="steps"><div class="sh">Today's 15-minute step</div><ol><li>Write ten things God has already provided.</li><li>Name one comparison trigger (an app, store, or habit).</li><li>Mute, unfollow, or unsubscribe from it today.</li></ol></div>
+<div class="work"><div class="sub">Ten things God has already provided</div><div class="twocol tight"><div><div class="ln num"><span>1</span></div><div class="ln num"><span>2</span></div><div class="ln num"><span>3</span></div><div class="ln num"><span>4</span></div><div class="ln num"><span>5</span></div></div><div><div class="ln num"><span>6</span></div><div class="ln num"><span>7</span></div><div class="ln num"><span>8</span></div><div class="ln num"><span>9</span></div><div class="ln num"><span>10</span></div></div></div><div class="prompts"><div class="prompt"><div class="pl">My biggest comparison trigger</div><div class="ln"></div><div class="ln"></div></div><div class="prompt"><div class="pl">What I muted, unfollowed, or unsubscribed from</div><div class="ln"></div><div class="ln"></div></div><div class="prompt"><div class="pl">A prayer of thanks</div><div class="ln"></div><div class="ln"></div><div class="ln"></div></div></div><div class="fill"></div></div>
+<div class="dayfoot">
+  <div class="df money"><span>Money found or freed today</span><b>$</b></div>
+  <div class="df pray"><span>One-line prayer</span><i></i></div>
+  <div class="df done"><span>Done</span><em></em></div>
+</div><footer class="pfoot"><a href="#contents">← Contents</a><span>30-Day Stewardship Reset · TheAbidingYear</span><span class="pn">36</span></footer></section><section class="page day" id="day-28">
+<header class="ph"><div class="wk">Week 4 · Build &amp; Give</div><div class="dn"><span>Day</span>28</div></header>
+<h2 class="ttl">Plan the next thirty</h2>
+<blockquote class="verse"><p>A man&#x27;s heart deviseth his way: but the LORD directeth his steps.</p><cite>Proverbs 16:9 (KJV)</cite></blockquote>
+<p class="devo">A reset only lasts if it becomes a rhythm. Today you put your new habits on the calendar so they keep happening after this workbook ends.</p>
+<div class="steps"><div class="sh">Today's 15-minute step</div><ol><li>Choose a weekly money check-in day.</li><li>Put next month&#x27;s budget meeting on the calendar.</li><li>Pick the one habit from this reset you most want to keep.</li></ol></div>
+<div class="work"><div class="prompts"><div class="prompt"><div class="pl">My weekly money check-in: every ____________ at ________</div><div class="ln"></div></div><div class="prompt"><div class="pl">Next month&#x27;s budget meeting date</div><div class="ln"></div></div><div class="prompt"><div class="pl">The habit from this reset I most want to keep</div><div class="ln"></div><div class="ln"></div><div class="ln"></div></div><div class="prompt"><div class="pl">Next month&#x27;s goals: giving, saving, debt</div><div class="ln"></div><div class="ln"></div><div class="ln"></div><div class="ln"></div></div><div class="prompt"><div class="pl">What could knock me off track, and my plan for it</div><div class="ln"></div><div class="ln"></div><div class="ln"></div></div></div><div class="fill"></div></div>
+<div class="dayfoot">
+  <div class="df money"><span>Money found or freed today</span><b>$</b></div>
+  <div class="df pray"><span>One-line prayer</span><i></i></div>
+  <div class="df done"><span>Done</span><em></em></div>
+</div><footer class="pfoot"><a href="#contents">← Contents</a><span>30-Day Stewardship Reset · TheAbidingYear</span><span class="pn">37</span></footer></section><section class="page day" id="day-29">
+<header class="ph"><div class="wk">Week 4 · Build &amp; Give</div><div class="dn"><span>Day</span>29</div></header>
+<h2 class="ttl">Count your harvest</h2>
+<blockquote class="verse"><p>Wealth gotten by vanity shall be diminished: but he that gathereth by labour shall increase.</p><cite>Proverbs 13:11 (KJV)</cite></blockquote>
+<p class="devo">Slow and steady built this. Look at where you started on Day 1 and where you are now. This is the fruit of faithful, daily labour.</p>
+<div class="steps"><div class="sh">Today's 15-minute step</div><ol><li>Fill in your before-and-after numbers.</li><li>Total the money you found or freed over 30 days.</li><li>Write the biggest change, in numbers and in your heart.</li></ol></div>
+<div class="work"><table class="wt "><thead><tr><th style="width:40%">Measure</th><th style="width:20%">Day 1</th><th style="width:20%">Day 30</th><th style="width:20%">Change</th></tr></thead><tbody><tr class=""><td class="">Monthly bills total</td><td></td><td></td><td></td></tr><tr class=""><td class="">Subscriptions per month</td><td></td><td></td><td></td></tr><tr class=""><td class="">Highest card APR</td><td></td><td></td><td></td></tr><tr class=""><td class="">Total debt</td><td></td><td></td><td></td></tr><tr class=""><td class="">Emergency savings</td><td></td><td></td><td></td></tr><tr class=""><td class="">Monthly giving</td><td></td><td></td><td></td></tr><tr class=""><td class="">Money freed per month</td><td></td><td></td><td></td></tr></tbody></table><div class="stats c2"><div class="stat wide"><div class="sl">Total found or freed in 30 days</div><div class="sv">$</div></div><div class="stat"><div class="sl">Days completed</div><div class="sv">/ 30</div></div></div><div class="prompts"><div class="prompt"><div class="pl">The biggest change, in numbers and in my heart</div><div class="ln"></div><div class="ln"></div><div class="ln"></div></div></div><div class="fill"></div></div>
+<div class="dayfoot">
+  <div class="df money"><span>Money found or freed today</span><b>$</b></div>
+  <div class="df pray"><span>One-line prayer</span><i></i></div>
+  <div class="df done"><span>Done</span><em></em></div>
+</div><footer class="pfoot"><a href="#contents">← Contents</a><span>30-Day Stewardship Reset · TheAbidingYear</span><span class="pn">38</span></footer></section><section class="page day" id="day-30">
+<header class="ph"><div class="wk">Week 4 · Build &amp; Give</div><div class="dn"><span>Day</span>30</div></header>
+<h2 class="ttl">Well done</h2>
+<blockquote class="verse"><p>Well done, thou good and faithful servant: thou hast been faithful over a few things, I will make thee ruler over many things: enter thou into the joy of thy lord.</p><cite>Matthew 25:21 (KJV)</cite></blockquote>
+<p class="devo">You finished. Faithfulness in a few things is exactly what Jesus praised. Celebrate in a way that does not undo your progress, and fill in your certificate.</p>
+<div class="steps"><div class="sh">Today's 15-minute step</div><ol><li>Write a letter to yourself to read in 90 days.</li><li>Plan a small, budget-friendly celebration.</li><li>Sign your certificate of completion.</li></ol></div>
+<div class="work"><div class="prompts"><div class="prompt"><div class="pl">Dear me, 90 days from now...</div><div class="ln"></div><div class="ln"></div><div class="ln"></div><div class="ln"></div><div class="ln"></div><div class="ln"></div><div class="ln"></div><div class="ln"></div><div class="ln"></div><div class="ln"></div><div class="ln"></div><div class="ln"></div></div><div class="prompt"><div class="pl">How we will celebrate (on budget)</div><div class="ln"></div><div class="ln"></div></div></div><div class="fill"></div></div>
+<div class="dayfoot">
+  <div class="df money"><span>Money found or freed today</span><b>$</b></div>
+  <div class="df pray"><span>One-line prayer</span><i></i></div>
+  <div class="df done"><span>Done</span><em></em></div>
+</div><footer class="pfoot"><a href="#contents">← Contents</a><span>30-Day Stewardship Reset · TheAbidingYear</span><span class="pn">39</span></footer></section><section class="page tool" id="scripts">
+<div class="eyebrow">Tools</div>
+<h2 class="ptitle">Bill Negotiation Scripts</h2>
+<p class="lead">Read the script once, fill in the blanks, then pray and dial. Be calm, kind, and specific. It's fine to say, “Let me think about it,” and call back.</p>
+<div class="script"><div class="shd"><b>A</b>Internet &amp; Cable</div><div class="srow"><span>You</span><p>Hi, I&#x27;ve been a customer for ____ years. My bill is now $____ a month and that&#x27;s more than I can keep paying. Before I look at switching, I wanted to see what you can do.</p></div><div class="srow"><span>If they offer little</span><p>I understand. I&#x27;ve seen ________ offering $____ a month for similar speed. Could you transfer me to your retention or loyalty department?</p></div><div class="srow"><span>Retention</span><p>I&#x27;d like to stay, but I need my bill closer to $____. What promotions do you have for existing customers?</p></div><div class="srow"><span>Close</span><p>Thank you. Could you confirm the new monthly price, how long it lasts, and email me a confirmation?</p></div></div><div class="script"><div class="shd"><b>B</b>Mobile Phone</div><div class="srow"><span>You</span><p>Hi, I&#x27;d like to review my plan. I&#x27;m paying $____ a month and only using about ____ GB of data. What&#x27;s the lowest plan that fits how I actually use my phone?</p></div><div class="srow"><span>Ask</span><p>Are there any loyalty, autopay, or paperless discounts I&#x27;m not getting?</p></div><div class="srow"><span>If needed</span><p>________ offers a similar plan for $____. I&#x27;d rather stay with you if you can come closer to that.</p></div><div class="srow"><span>Close</span><p>Great. Will this change affect my device payments or contract? Please confirm the new total.</p></div></div><div class="script"><div class="shd"><b>C</b>Insurance</div><div class="srow"><span>You</span><p>Hi, my policy renews soon. I received a quote for $____ from ________ for the same coverage. Can you review my policy for any discounts?</p></div><div class="srow"><span>Ask about</span><p>Bundling, safe driver, good student, paperless, autopay, paying in full, or a higher deductible.</p></div><div class="srow"><span>If needed</span><p>Can you match or come close to $____? I&#x27;d prefer to stay if the price works.</p></div><div class="srow"><span>Remember</span><p>Compare the same coverage. Never cancel your old policy until the new one is confirmed active.</p></div></div>
+<footer class="pfoot"><a href="#contents">← Contents</a><span>30-Day Stewardship Reset · TheAbidingYear</span><span class="pn">40</span></footer></section><section class="page tool">
+<div class="eyebrow">Tools</div>
+<h2 class="ptitle">Scripts, continued</h2>
+<div class="script"><div class="shd"><b>D</b>Credit Card Interest Rate</div><div class="srow"><span>You</span><p>Hi, I&#x27;ve been a customer since ____ and I&#x27;m working hard to pay down my balance. I&#x27;d like to request a lower interest rate on my account.</p></div><div class="srow"><span>If no</span><p>I understand. Are there any hardship programs or temporary rate reductions available?</p></div><div class="srow"><span>If still no</span><p>Thank you. When can I request a review again?  (Write that date in your Day 12 log.)</p></div><div class="srow"><span>Remember</span><p>Be polite and brief. Ask about any effect on your credit before agreeing to a program.</p></div></div><div class="script"><div class="shd"><b>E</b>Medical Bill</div><div class="srow"><span>You</span><p>Hi, I received a bill for $____ for a visit on ________. Before I pay, could you send me an itemized bill?</p></div><div class="srow"><span>Ask</span><p>Do you offer a discount for paying in full, a financial assistance program, or a no-interest payment plan?</p></div><div class="srow"><span>If needed</span><p>I can pay $____ a month. Can we set up a plan at that amount with no interest?</p></div><div class="srow"><span>Remember</span><p>Check the itemized bill for duplicate or incorrect charges. Get every agreement in writing.</p></div></div><div class="script"><div class="shd"><b>F</b>Cancelling a Subscription</div><div class="srow"><span>You</span><p>Hi, I&#x27;d like to cancel my subscription, effective today.</p></div><div class="srow"><span>If they offer a deal</span><p>Thank you. Is that discount permanent or temporary? (Only accept if you truly want to keep it.)</p></div><div class="srow"><span>Close</span><p>Please confirm the cancellation and that I won&#x27;t be charged again. Can you email me a confirmation?</p></div><div class="srow"><span>Remember</span><p>Note the confirmation number and check next month&#x27;s statement.</p></div></div>
+<div class="howbox" style="margin-top:6px"><b>Good to know</b><span>Call during weekday mornings when wait times are shorter. Ask for the retention or loyalty department. Write down every name, date, and promised price.</span></div>
+<footer class="pfoot"><a href="#contents">← Contents</a><span>30-Day Stewardship Reset · TheAbidingYear</span><span class="pn">41</span></footer></section><section class="page tool" id="calllog">
+<div class="eyebrow">Tools</div>
+<h2 class="ptitle">Call &amp; Savings Log</h2>
+<table class="wt "><thead><tr><th style="width:12%">Date</th><th style="width:22%">Company</th><th style="width:18%">Spoke with</th><th style="width:16%">Old price</th><th style="width:16%">New price</th><th style="width:16%">Saved / mo</th></tr></thead><tbody><tr class=""><td class=""></td><td></td><td></td><td></td><td></td><td></td></tr><tr class=""><td class=""></td><td></td><td></td><td></td><td></td><td></td></tr><tr class=""><td class=""></td><td></td><td></td><td></td><td></td><td></td></tr><tr class=""><td class=""></td><td></td><td></td><td></td><td></td><td></td></tr><tr class=""><td class=""></td><td></td><td></td><td></td><td></td><td></td></tr><tr class=""><td class=""></td><td></td><td></td><td></td><td></td><td></td></tr><tr class=""><td class=""></td><td></td><td></td><td></td><td></td><td></td></tr><tr class=""><td class=""></td><td></td><td></td><td></td><td></td><td></td></tr><tr class=""><td class=""></td><td></td><td></td><td></td><td></td><td></td></tr><tr class=""><td class=""></td><td></td><td></td><td></td><td></td><td></td></tr><tr class=""><td class=""></td><td></td><td></td><td></td><td></td><td></td></tr><tr class=""><td class=""></td><td></td><td></td><td></td><td></td><td></td></tr><tr class=""><td class=""></td><td></td><td></td><td></td><td></td><td></td></tr><tr class=""><td class=""></td><td></td><td></td><td></td><td></td><td></td></tr><tr class=""><td class=""></td><td></td><td></td><td></td><td></td><td></td></tr><tr class=""><td class=""></td><td></td><td></td><td></td><td></td><td></td></tr><tr class=""><td class=""></td><td></td><td></td><td></td><td></td><td></td></tr><tr class=""><td class=""></td><td></td><td></td><td></td><td></td><td></td></tr><tr class=""><td class=""></td><td></td><td></td><td></td><td></td><td></td></tr><tr class=""><td class=""></td><td></td><td></td><td></td><td></td><td></td></tr><tr class=""><td class=""></td><td></td><td></td><td></td><td></td><td></td></tr><tr class=""><td class=""></td><td></td><td></td><td></td><td></td><td></td></tr><tr class=""><td class=""></td><td></td><td></td><td></td><td></td><td></td></tr><tr class=""><td class=""></td><td></td><td></td><td></td><td></td><td></td></tr><tr class=""><td class=""></td><td></td><td></td><td></td><td></td><td></td></tr><tr class=""><td class=""></td><td></td><td></td><td></td><td></td><td></td></tr><tr class=""><td class=""></td><td></td><td></td><td></td><td></td><td></td></tr></tbody></table>
+<div class="stats c2"><div class="stat"><div class="sl">Total saved per month</div><div class="sv">$</div></div><div class="stat"><div class="sl">× 12 = per year</div><div class="sv">$</div></div></div>
+<footer class="pfoot"><a href="#contents">← Contents</a><span>30-Day Stewardship Reset · TheAbidingYear</span><span class="pn">42</span></footer></section><section class="page tool" id="debt">
+<div class="eyebrow">Tools</div>
+<h2 class="ptitle">Debt Freedom Tracker</h2>
+<p class="lead">Each box is 5% of the starting balance. Color one in every time you pay off another 5%. Watch the vine grow.</p>
+<div class="dblock"><div class="dbh"><span>Debt 1: ____________________</span><span>Start balance $________</span></div><div class="dboxes"><i><span>5%</span></i><i><span>10%</span></i><i><span>15%</span></i><i><span>20%</span></i><i><span>25%</span></i><i><span>30%</span></i><i><span>35%</span></i><i><span>40%</span></i><i><span>45%</span></i><i><span>50%</span></i><i><span>55%</span></i><i><span>60%</span></i><i><span>65%</span></i><i><span>70%</span></i><i><span>75%</span></i><i><span>80%</span></i><i><span>85%</span></i><i><span>90%</span></i><i><span>95%</span></i><i><span>100%</span></i></div></div><div class="dblock"><div class="dbh"><span>Debt 2: ____________________</span><span>Start balance $________</span></div><div class="dboxes"><i><span>5%</span></i><i><span>10%</span></i><i><span>15%</span></i><i><span>20%</span></i><i><span>25%</span></i><i><span>30%</span></i><i><span>35%</span></i><i><span>40%</span></i><i><span>45%</span></i><i><span>50%</span></i><i><span>55%</span></i><i><span>60%</span></i><i><span>65%</span></i><i><span>70%</span></i><i><span>75%</span></i><i><span>80%</span></i><i><span>85%</span></i><i><span>90%</span></i><i><span>95%</span></i><i><span>100%</span></i></div></div><div class="dblock"><div class="dbh"><span>Debt 3: ____________________</span><span>Start balance $________</span></div><div class="dboxes"><i><span>5%</span></i><i><span>10%</span></i><i><span>15%</span></i><i><span>20%</span></i><i><span>25%</span></i><i><span>30%</span></i><i><span>35%</span></i><i><span>40%</span></i><i><span>45%</span></i><i><span>50%</span></i><i><span>55%</span></i><i><span>60%</span></i><i><span>65%</span></i><i><span>70%</span></i><i><span>75%</span></i><i><span>80%</span></i><i><span>85%</span></i><i><span>90%</span></i><i><span>95%</span></i><i><span>100%</span></i></div></div><div class="dblock"><div class="dbh"><span>Debt 4: ____________________</span><span>Start balance $________</span></div><div class="dboxes"><i><span>5%</span></i><i><span>10%</span></i><i><span>15%</span></i><i><span>20%</span></i><i><span>25%</span></i><i><span>30%</span></i><i><span>35%</span></i><i><span>40%</span></i><i><span>45%</span></i><i><span>50%</span></i><i><span>55%</span></i><i><span>60%</span></i><i><span>65%</span></i><i><span>70%</span></i><i><span>75%</span></i><i><span>80%</span></i><i><span>85%</span></i><i><span>90%</span></i><i><span>95%</span></i><i><span>100%</span></i></div></div>
+<div class="stats c3"><div class="stat"><div class="sl">Total debt on Day 15</div><div class="sv">$</div></div><div class="stat"><div class="sl">Total paid off</div><div class="sv">$</div></div><div class="stat"><div class="sl">Debt-free target date</div><div class="sv"></div></div></div>
+<footer class="pfoot"><a href="#contents">← Contents</a><span>30-Day Stewardship Reset · TheAbidingYear</span><span class="pn">43</span></footer></section><section class="page tool" id="fund">
+<div class="eyebrow">Tools</div>
+<h2 class="ptitle">$1,000 Emergency Fund</h2>
+<p class="lead">Every circle is $10. Color one in each time you save another $10. One hundred circles and your starter fund is complete.</p>
+<div class="coins"><i><span>10</span></i><i><span>20</span></i><i><span>30</span></i><i><span>40</span></i><i><span>50</span></i><i><span>60</span></i><i><span>70</span></i><i><span>80</span></i><i><span>90</span></i><i><span>100</span></i><i><span>110</span></i><i><span>120</span></i><i><span>130</span></i><i><span>140</span></i><i><span>150</span></i><i><span>160</span></i><i><span>170</span></i><i><span>180</span></i><i><span>190</span></i><i><span>200</span></i><i><span>210</span></i><i><span>220</span></i><i><span>230</span></i><i><span>240</span></i><i><span>250</span></i><i><span>260</span></i><i><span>270</span></i><i><span>280</span></i><i><span>290</span></i><i><span>300</span></i><i><span>310</span></i><i><span>320</span></i><i><span>330</span></i><i><span>340</span></i><i><span>350</span></i><i><span>360</span></i><i><span>370</span></i><i><span>380</span></i><i><span>390</span></i><i><span>400</span></i><i><span>410</span></i><i><span>420</span></i><i><span>430</span></i><i><span>440</span></i><i><span>450</span></i><i><span>460</span></i><i><span>470</span></i><i><span>480</span></i><i><span>490</span></i><i><span>500</span></i><i><span>510</span></i><i><span>520</span></i><i><span>530</span></i><i><span>540</span></i><i><span>550</span></i><i><span>560</span></i><i><span>570</span></i><i><span>580</span></i><i><span>590</span></i><i><span>600</span></i><i><span>610</span></i><i><span>620</span></i><i><span>630</span></i><i><span>640</span></i><i><span>650</span></i><i><span>660</span></i><i><span>670</span></i><i><span>680</span></i><i><span>690</span></i><i><span>700</span></i><i><span>710</span></i><i><span>720</span></i><i><span>730</span></i><i><span>740</span></i><i><span>750</span></i><i><span>760</span></i><i><span>770</span></i><i><span>780</span></i><i><span>790</span></i><i><span>800</span></i><i><span>810</span></i><i><span>820</span></i><i><span>830</span></i><i><span>840</span></i><i><span>850</span></i><i><span>860</span></i><i><span>870</span></i><i><span>880</span></i><i><span>890</span></i><i><span>900</span></i><i><span>910</span></i><i><span>920</span></i><i><span>930</span></i><i><span>940</span></i><i><span>950</span></i><i><span>960</span></i><i><span>970</span></i><i><span>980</span></i><i><span>990</span></i><i><span>1000</span></i></div>
+<blockquote class="verse"><p>Go to the ant, thou sluggard; consider her ways, and be wise.</p><cite>Proverbs 6:6 (KJV)</cite></blockquote>
+<footer class="pfoot"><a href="#contents">← Contents</a><span>30-Day Stewardship Reset · TheAbidingYear</span><span class="pn">44</span></footer></section><section class="page tool" id="budget">
+<div class="eyebrow">Tools</div>
+<h2 class="ptitle">Monthly Budget</h2>
+<div class="budtop">
+  <div class="fr"><span>Month</span><i></i></div>
+  <div class="fr"><span>Total income</span><i></i></div>
+</div>
+<table class="wt bud"><thead><tr><th style="width:50%">Item</th><th style="width:25%">Planned</th><th style="width:25%">Actual</th></tr></thead>
+<tbody><tr class="cat"><td colspan="3">Giving</td></tr><tr><td></td><td></td><td></td></tr><tr><td></td><td></td><td></td></tr><tr class="cat"><td colspan="3">Saving &amp; emergency fund</td></tr><tr><td></td><td></td><td></td></tr><tr><td></td><td></td><td></td></tr><tr class="cat"><td colspan="3">Sinking funds</td></tr><tr><td></td><td></td><td></td></tr><tr><td></td><td></td><td></td></tr><tr class="cat"><td colspan="3">Housing &amp; utilities</td></tr><tr><td></td><td></td><td></td></tr><tr><td></td><td></td><td></td></tr><tr><td></td><td></td><td></td></tr><tr><td></td><td></td><td></td></tr><tr class="cat"><td colspan="3">Food &amp; household</td></tr><tr><td></td><td></td><td></td></tr><tr><td></td><td></td><td></td></tr><tr class="cat"><td colspan="3">Transportation</td></tr><tr><td></td><td></td><td></td></tr><tr><td></td><td></td><td></td></tr><tr><td></td><td></td><td></td></tr><tr class="cat"><td colspan="3">Insurance &amp; medical</td></tr><tr><td></td><td></td><td></td></tr><tr><td></td><td></td><td></td></tr><tr class="cat"><td colspan="3">Debt payments</td></tr><tr><td></td><td></td><td></td></tr><tr><td></td><td></td><td></td></tr><tr><td></td><td></td><td></td></tr><tr class="cat"><td colspan="3">Personal &amp; family</td></tr><tr><td></td><td></td><td></td></tr><tr><td></td><td></td><td></td></tr><tr><td></td><td></td><td></td></tr></tbody></table>
+<div class="calc" style="margin-top:10px"><div class="cr total"><span>Income − total planned =</span><b>$ 0</b></div></div>
+<footer class="pfoot"><a href="#contents">← Contents</a><span>30-Day Stewardship Reset · TheAbidingYear</span><span class="pn">45</span></footer></section><section class="page tool" id="sinking">
+<div class="eyebrow">Tools</div>
+<h2 class="ptitle">Sinking Funds Tracker</h2>
+<p class="lead">Write each fund and its monthly amount. Each month, check it off when you set the money aside.</p>
+<table class="wt sink"><thead><tr><th style="width:24%">Fund</th><th style="width:10%">$/mo</th><th>Jan</th><th>Feb</th><th>Mar</th><th>Apr</th><th>May</th><th>Jun</th><th>Jul</th><th>Aug</th><th>Sep</th><th>Oct</th><th>Nov</th><th>Dec</th></tr></thead>
+<tbody><tr><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr><tr><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr><tr><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr><tr><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr><tr><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr><tr><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr><tr><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr><tr><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr><tr><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr><tr><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr><tr><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr><tr><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr><tr><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr><tr><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr><tr><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr><tr><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr><tr><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr><tr><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr><tr><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr></tbody></table>
+<footer class="pfoot"><a href="#contents">← Contents</a><span>30-Day Stewardship Reset · TheAbidingYear</span><span class="pn">46</span></footer></section><section class="page tool" id="spending">
+<div class="eyebrow">Tools</div>
+<h2 class="ptitle">Spending Log</h2>
+<table class="wt "><thead><tr><th style="width:12%">Date</th><th style="width:40%">What I bought</th><th style="width:18%">Category</th><th style="width:15%">Amount</th><th style="width:15%">Need / Want</th></tr></thead><tbody><tr class=""><td class=""></td><td></td><td></td><td></td><td></td></tr><tr class=""><td class=""></td><td></td><td></td><td></td><td></td></tr><tr class=""><td class=""></td><td></td><td></td><td></td><td></td></tr><tr class=""><td class=""></td><td></td><td></td><td></td><td></td></tr><tr class=""><td class=""></td><td></td><td></td><td></td><td></td></tr><tr class=""><td class=""></td><td></td><td></td><td></td><td></td></tr><tr class=""><td class=""></td><td></td><td></td><td></td><td></td></tr><tr class=""><td class=""></td><td></td><td></td><td></td><td></td></tr><tr class=""><td class=""></td><td></td><td></td><td></td><td></td></tr><tr class=""><td class=""></td><td></td><td></td><td></td><td></td></tr><tr class=""><td class=""></td><td></td><td></td><td></td><td></td></tr><tr class=""><td class=""></td><td></td><td></td><td></td><td></td></tr><tr class=""><td class=""></td><td></td><td></td><td></td><td></td></tr><tr class=""><td class=""></td><td></td><td></td><td></td><td></td></tr><tr class=""><td class=""></td><td></td><td></td><td></td><td></td></tr><tr class=""><td class=""></td><td></td><td></td><td></td><td></td></tr><tr class=""><td class=""></td><td></td><td></td><td></td><td></td></tr><tr class=""><td class=""></td><td></td><td></td><td></td><td></td></tr><tr class=""><td class=""></td><td></td><td></td><td></td><td></td></tr><tr class=""><td class=""></td><td></td><td></td><td></td><td></td></tr><tr class=""><td class=""></td><td></td><td></td><td></td><td></td></tr><tr class=""><td class=""></td><td></td><td></td><td></td><td></td></tr><tr class=""><td class=""></td><td></td><td></td><td></td><td></td></tr><tr class=""><td class=""></td><td></td><td></td><td></td><td></td></tr><tr class=""><td class=""></td><td></td><td></td><td></td><td></td></tr><tr class=""><td class=""></td><td></td><td></td><td></td><td></td></tr><tr class=""><td class=""></td><td></td><td></td><td></td><td></td></tr><tr class=""><td class=""></td><td></td><td></td><td></td><td></td></tr><tr class=""><td class=""></td><td></td><td></td><td></td><td></td></tr><tr class=""><td class=""></td><td></td><td></td><td></td><td></td></tr><tr class=""><td class=""></td><td></td><td></td><td></td><td></td></tr><tr class=""><td class=""></td><td></td><td></td><td></td><td></td></tr></tbody></table>
+<footer class="pfoot"><a href="#contents">← Contents</a><span>30-Day Stewardship Reset · TheAbidingYear</span><span class="pn">47</span></footer></section><section class="page tool" id="prayer">
+<div class="eyebrow">Tools</div>
+<h2 class="ptitle">Prayer &amp; Provision Journal</h2>
+<p class="lead">Write what you are asking God for. When He answers, write how. This page becomes a record of His faithfulness.</p>
+<table class="wt "><thead><tr><th style="width:12%">Date</th><th style="width:38%">I am praying for</th><th style="width:38%">How God answered</th><th style="width:12%">Date</th></tr></thead><tbody><tr class=""><td class=""></td><td></td><td></td><td></td></tr><tr class=""><td class=""></td><td></td><td></td><td></td></tr><tr class=""><td class=""></td><td></td><td></td><td></td></tr><tr class=""><td class=""></td><td></td><td></td><td></td></tr><tr class=""><td class=""></td><td></td><td></td><td></td></tr><tr class=""><td class=""></td><td></td><td></td><td></td></tr><tr class=""><td class=""></td><td></td><td></td><td></td></tr><tr class=""><td class=""></td><td></td><td></td><td></td></tr><tr class=""><td class=""></td><td></td><td></td><td></td></tr><tr class=""><td class=""></td><td></td><td></td><td></td></tr><tr class=""><td class=""></td><td></td><td></td><td></td></tr><tr class=""><td class=""></td><td></td><td></td><td></td></tr><tr class=""><td class=""></td><td></td><td></td><td></td></tr><tr class=""><td class=""></td><td></td><td></td><td></td></tr><tr class=""><td class=""></td><td></td><td></td><td></td></tr><tr class=""><td class=""></td><td></td><td></td><td></td></tr><tr class=""><td class=""></td><td></td><td></td><td></td></tr><tr class=""><td class=""></td><td></td><td></td><td></td></tr><tr class=""><td class=""></td><td></td><td></td><td></td></tr><tr class=""><td class=""></td><td></td><td></td><td></td></tr><tr class=""><td class=""></td><td></td><td></td><td></td></tr><tr class=""><td class=""></td><td></td><td></td><td></td></tr><tr class=""><td class=""></td><td></td><td></td><td></td></tr></tbody></table>
+<footer class="pfoot"><a href="#contents">← Contents</a><span>30-Day Stewardship Reset · TheAbidingYear</span><span class="pn">48</span></footer></section><section class="page certpage" id="certificate">
+<div class="cert">
+  <svg class="vine" viewBox="0 0 120 40" aria-hidden="true">
+<path d="M4 30 C 30 26, 50 14, 116 10" fill="none" stroke="currentColor" stroke-width="1.6"/>
+<ellipse cx="26" cy="21" rx="9" ry="4" transform="rotate(-35 26 21)" fill="currentColor" opacity=".85"/>
+<ellipse cx="34" cy="30" rx="9" ry="4" transform="rotate(25 34 30)" fill="currentColor" opacity=".55"/>
+<ellipse cx="58" cy="12" rx="9" ry="4" transform="rotate(-30 58 12)" fill="currentColor" opacity=".85"/>
+<ellipse cx="66" cy="22" rx="9" ry="4" transform="rotate(25 66 22)" fill="currentColor" opacity=".55"/>
+<ellipse cx="90" cy="6" rx="8" ry="3.6" transform="rotate(-20 90 6)" fill="currentColor" opacity=".85"/>
+<ellipse cx="98" cy="15" rx="8" ry="3.6" transform="rotate(25 98 15)" fill="currentColor" opacity=".55"/>
+<circle cx="112" cy="16" r="2.6" fill="var(--gold)"/><circle cx="117" cy="19" r="2.2" fill="var(--gold)"/><circle cx="111" cy="22" r="2" fill="var(--gold)"/>
+</svg>
+  <div class="eyebrow">Certificate of Completion</div>
+  <h2 class="ctitle2">Good &amp; Faithful</h2>
+  <p>This certifies that</p>
+  <div class="certline"></div>
+  <p>completed the <b>30-Day Stewardship Reset</b>, and found or freed</p>
+  <div class="certamt">$ ____________</div>
+  <p class="cv">“Well done, thou good and faithful servant.”<br><span>Matthew 25:21</span></p>
+  <div class="certsig"><div><i></i><span>Date</span></div><div><i></i><span>Signature</span></div></div>
+</div><footer class="pfoot"><a href="#contents">← Contents</a><span>30-Day Stewardship Reset · TheAbidingYear</span><span class="pn">49</span></footer></section><section class="page " id="notes">
+<div class="eyebrow">Notes</div>
+<h2 class="ptitle">Notes</h2>
+<div class="ln"></div><div class="ln"></div><div class="ln"></div><div class="ln"></div><div class="ln"></div><div class="ln"></div><div class="ln"></div><div class="ln"></div><div class="ln"></div><div class="ln"></div><div class="ln"></div><div class="ln"></div><div class="ln"></div><div class="ln"></div><div class="ln"></div><div class="ln"></div><div class="ln"></div><div class="ln"></div><div class="ln"></div><div class="ln"></div><div class="ln"></div><div class="ln"></div>
+<div class="disc"><b>Please note:</b> This workbook is for educational and devotional purposes only and is not financial, legal, or tax advice. Results vary; savings depend on your providers and situation. For complex debt or tax questions, speak with a qualified professional or a nonprofit credit counselor. Scripture quotations are from the King James Version (public domain). For personal use only; please do not resell or share the files. © TheAbidingYear.</div>
+<footer class="pfoot"><a href="#contents">← Contents</a><span>30-Day Stewardship Reset · TheAbidingYear</span><span class="pn">50</span></footer></section></body></html>
