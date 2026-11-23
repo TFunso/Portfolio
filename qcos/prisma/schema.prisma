@@ -129,3 +129,20 @@ model WeeklyDigest {
   @@unique([weekStart])
   @@index([weekStart])
 }
+
+// An AI-synthesized, one-page promotion case built from every piece of
+// evidence in the vault for a given scope ("all-time" or a single year) -
+// not just a list of accomplishments, but a narrative that identifies
+// recurring strengths, leadership/ownership patterns, and growth over
+// time. One row per scope; regenerating overwrites it (costs one AI call).
+// Falls back to a deterministic, non-narrative compilation when no
+// ANTHROPIC_API_KEY is configured.
+model PromotionReport {
+  id            String   @id @default(cuid())
+  scope         String   @unique // "all-time" | "year-2026"
+  scopeLabel    String // "All-Time" | "2026"
+  content       String // the report body - "## Section" headers, plain text otherwise
+  aiGenerated   Boolean  @default(false)
+  evidenceCount Int
+  generatedAt   DateTime @default(now())
+}

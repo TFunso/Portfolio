@@ -1,3 +1,5 @@
+import Link from "next/link";
+
 interface Props {
   score: number;
   label: string;
@@ -21,35 +23,40 @@ export default function PromotionReadinessSnapshot({
   const offset = circumference - (score / 100) * circumference;
 
   return (
-    <section className="card flex flex-col gap-4 sm:flex-row sm:items-center">
-      <div className="relative h-24 w-24 shrink-0">
-        <svg viewBox="0 0 100 100" className="h-24 w-24 -rotate-90">
-          <circle cx="50" cy="50" r="40" strokeWidth="10" className="fill-none stroke-slate-200 dark:stroke-slate-800" />
-          <circle
-            cx="50"
-            cy="50"
-            r="40"
-            strokeWidth="10"
-            strokeLinecap="round"
-            className={`fill-none ${ring}`}
-            strokeDasharray={circumference}
-            strokeDashoffset={offset}
-          />
-        </svg>
-        <div className="absolute inset-0 flex items-center justify-center">
-          <span className={`text-xl font-bold ${color}`}>{score}</span>
+    <section className="card flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-center">
+        <div className="relative h-24 w-24 shrink-0">
+          <svg viewBox="0 0 100 100" className="h-24 w-24 -rotate-90">
+            <circle cx="50" cy="50" r="40" strokeWidth="10" className="fill-none stroke-slate-200 dark:stroke-slate-800" />
+            <circle
+              cx="50"
+              cy="50"
+              r="40"
+              strokeWidth="10"
+              strokeLinecap="round"
+              className={`fill-none ${ring}`}
+              strokeDasharray={circumference}
+              strokeDashoffset={offset}
+            />
+          </svg>
+          <div className="absolute inset-0 flex items-center justify-center">
+            <span className={`text-xl font-bold ${color}`}>{score}</span>
+          </div>
+        </div>
+        <div>
+          <h2 className="text-sm font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">
+            Promotion Readiness Snapshot
+          </h2>
+          <p className="mt-0.5 text-lg font-semibold">{label}</p>
+          <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
+            {goalsOnTrack}/{goalsTotal} annual goal metrics on track &middot; {evidenceCountThisYear} pieces of evidence
+            banked this year &middot; {highImpactCount} high-impact leadership/cross-functional wins
+          </p>
         </div>
       </div>
-      <div>
-        <h2 className="text-sm font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">
-          Promotion Readiness Snapshot
-        </h2>
-        <p className="mt-0.5 text-lg font-semibold">{label}</p>
-        <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
-          {goalsOnTrack}/{goalsTotal} annual goal metrics on track &middot; {evidenceCountThisYear} pieces of evidence
-          banked this year &middot; {highImpactCount} high-impact leadership/cross-functional wins
-        </p>
-      </div>
+      <Link href="/promotion-report" className="btn-primary shrink-0 text-sm">
+        Build my promotion report →
+      </Link>
     </section>
   );
 }

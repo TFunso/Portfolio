@@ -31,6 +31,7 @@ const NAV_ITEMS = [
   { href: "/cross-functional", label: "Cross-Functional" },
   { href: "/reflection", label: "Reflection" },
   { href: "/review", label: "Year-End Review" },
+  { href: "/promotion-report", label: "Promotion Report" },
 ];
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
