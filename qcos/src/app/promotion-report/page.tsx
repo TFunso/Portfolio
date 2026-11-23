@@ -85,7 +85,10 @@ export default function PromotionReportPage() {
         <div>
           <h1 className="text-2xl font-bold">Promotion Report</h1>
           <p className="mt-1 text-slate-500 dark:text-slate-400">
-            A one-page case built from everything you&apos;ve logged - ready for your manager.
+            A one-page case built from everything you&apos;ve logged - ready for your manager.{" "}
+            <a href="/gap-check" className="font-medium text-brand-600 hover:underline dark:text-brand-400">
+              Check it against the job description &rarr;
+            </a>
           </p>
         </div>
         <div className="flex flex-wrap gap-2">

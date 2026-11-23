@@ -34,6 +34,35 @@ gracefully without their env vars:
   - "Download as Word" on the Review page, built server-side with the
     `docx` package from the exact same data as the in-app review.
 
+Later additions, built on the same data:
+
+- **KPI trend + pace forecasting** (`src/lib/kpiTrend.ts`, `src/lib/goals.ts`,
+  `/api/goals/trend`) - a monthly chart of goal events (captured from entries
+  vs. reported manually) and an "on pace / behind" forecast per goal.
+- **Manager 1:1 Prep** (`src/lib/managerPrep.ts`, `/api/manager-prep/export`)
+  - a Word doc of recent wins and asks to bring to a 1:1.
+- **Promotion Report** (`src/lib/promotionReport.ts`, `/promotion-report`) - a
+  one-page promotion case from the whole vault (AI narrative, cached per
+  scope; compiled fallback without a key), with an "At a Glance" visual
+  dashboard (`src/components/PromotionDashboard.tsx`, live from
+  `/api/promotion-report/stats`), Print/PDF and Word export.
+- **Promotion Gap Check** (`src/lib/gapCheck.ts`, `/gap-check`) - paste the
+  target role's job description; each requirement is marked covered / thin /
+  missing against the Evidence Vault, with the entries that prove it and a
+  90-day next step. One Claude call with structured JSON output; evidence
+  references are validated against the vault (unknown ones dropped, a
+  "covered" with no valid proof downgraded to "thin"). Keyword matching when
+  no `ANTHROPIC_API_KEY`. Every run is kept, so re-checks show progress.
+- **Data & Backup** (`src/lib/backup.ts`, `/data`) - full JSON backup of every
+  table, Evidence Vault as an Excel-friendly CSV, and a merge-only restore
+  (adds missing rows, never overwrites or deletes; one transaction). With
+  `RESEND_API_KEY` + `NOTIFY_EMAIL`, the Monday cron also emails a full
+  backup on the first Monday of each month, plus an "Email me a backup now"
+  button.
+
+All Claude calls go through `src/lib/claude.ts` (`claude-opus-5-5`, with
+server-side refusal fallback enabled).
+
 ---
 
 ## 1. Architecture
@@ -68,7 +97,7 @@ gracefully without their env vars:
 ┌───────────────▼──────────────┐
 │      AI Polish (optional)     │
 │      src/lib/ai.ts            │
-│      Claude (claude-opus-5)   │
+│      Claude (claude-opus-5-5) │
 │      rewrites the verdict     │
 │      into one resume-ready    │
 │      sentence, grounded in    │
@@ -97,7 +126,7 @@ What *is* AI-generated is the polished, resume-ready sentence shown as the
 "Professional Summary" / "Suggested Review Language" - the part the spec's
 Feature 2 example ("Supported operational priorities by...") calls for.
 `polishProfessionalSummary()` in `src/lib/ai.ts` sends Claude
-(`claude-opus-5`) the raw note plus the classifier's already-extracted
+(`claude-opus-5-5`) the raw note plus the classifier's already-extracted
 facts and asks for one sentence, grounded in exactly those facts - it's
 told explicitly not to invent anything beyond them. This only runs for
 entries that clear the evidence bar (`shouldAutoFile`), not on every

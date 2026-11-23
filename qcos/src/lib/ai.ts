@@ -1,4 +1,4 @@
-import Anthropic from "@anthropic-ai/sdk";
+import { CLAUDE_MODEL, REFUSAL_FALLBACK, getAnthropic, responseText } from "@/lib/claude";
 
 // ---------------------------------------------------------------------------
 // Optional AI polish pass. The classifier (src/lib/classifier.ts) always
@@ -14,14 +14,6 @@ import Anthropic from "@anthropic-ai/sdk";
 // app is fully functional with or without an API key.
 // ---------------------------------------------------------------------------
 
-let client: Anthropic | null | undefined;
-
-function getClient(): Anthropic | null {
-  if (client !== undefined) return client;
-  client = process.env.ANTHROPIC_API_KEY ? new Anthropic() : null;
-  return client;
-}
-
 export interface PolishContext {
   reason: string;
   categories: string[];
@@ -34,12 +26,13 @@ export async function polishProfessionalSummary(
   context: PolishContext,
   fallback: string,
 ): Promise<string> {
-  const anthropic = getClient();
+  const anthropic = getAnthropic();
   if (!anthropic) return fallback;
 
   try {
-    const response = await anthropic.messages.create({
-      model: "claude-opus-5",
+    const response = await anthropic.beta.messages.create({
+      ...REFUSAL_FALLBACK,
+      model: CLAUDE_MODEL,
       max_tokens: 300,
       output_config: { effort: "low" },
       system:
@@ -58,8 +51,7 @@ export async function polishProfessionalSummary(
       ],
     });
 
-    const block = response.content.find((b) => b.type === "text");
-    const text = block && block.type === "text" ? block.text.trim() : "";
+    const text = responseText(response);
     return text || fallback;
   } catch (error) {
     console.error("AI polish failed, falling back to template summary:", error);

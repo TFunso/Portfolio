@@ -1,4 +1,4 @@
-import Anthropic from "@anthropic-ai/sdk";
+import { CLAUDE_MODEL, REFUSAL_FALLBACK, getAnthropic, responseText } from "@/lib/claude";
 import { prisma } from "@/lib/prisma";
 import { fromJson, toJson } from "@/lib/json";
 import { startOfWeek, formatDate } from "@/lib/dates";
@@ -15,14 +15,6 @@ import type { Category, DigestSuggestion, GoalMetricKey } from "@/types";
 // nothing here writes to EvidenceRecord or GoalMetricEvent on its own; the
 // user reviews and accepts each one from the homepage.
 // ---------------------------------------------------------------------------
-
-let client: Anthropic | null | undefined;
-
-function getClient(): Anthropic | null {
-  if (client !== undefined) return client;
-  client = process.env.ANTHROPIC_API_KEY ? new Anthropic() : null;
-  return client;
-}
 
 export interface WeekRange {
   start: Date;
@@ -83,7 +75,7 @@ function parseSuggestions(raw: unknown): DigestSuggestion[] {
 async function generateWithAI(
   entries: { content: string; categories: Category[]; impactLevel: string }[],
 ): Promise<{ summary: string; suggestions: DigestSuggestion[] } | null> {
-  const anthropic = getClient();
+  const anthropic = getAnthropic();
   if (!anthropic) return null;
 
   const goalKeyList = VALID_GOAL_KEYS.map((k) => `"${k}" (${goalMetricLabel(k)})`).join(", ");
@@ -94,8 +86,9 @@ async function generateWithAI(
     .join("\n");
 
   try {
-    const response = await anthropic.messages.create({
-      model: "claude-opus-5",
+    const response = await anthropic.beta.messages.create({
+      ...REFUSAL_FALLBACK,
+      model: CLAUDE_MODEL,
       max_tokens: 1024,
       output_config: { effort: "low" },
       system:
@@ -105,8 +98,7 @@ async function generateWithAI(
       messages: [{ role: "user", content: `This week's entries:\n${entryLines}` }],
     });
 
-    const block = response.content.find((b) => b.type === "text");
-    const text = block && block.type === "text" ? block.text.trim() : "";
+    const text = responseText(response);
     const jsonText = text.replace(/^```(?:json)?/i, "").replace(/```$/, "").trim();
     const parsed = JSON.parse(jsonText);
     const summary = typeof parsed.summary === "string" && parsed.summary.trim() ? parsed.summary.trim() : null;

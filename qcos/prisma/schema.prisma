@@ -146,3 +146,22 @@ model PromotionReport {
   evidenceCount Int
   generatedAt   DateTime @default(now())
 }
+
+// A Promotion Gap Check: the job description of the role you're going for,
+// split into requirements, each marked covered / thin / missing against
+// your Evidence Vault, with the entries that prove it and what to log next.
+// Every run is kept (newest shown first) so you can re-check after 90 days
+// and see the gaps close. AI-mapped when ANTHROPIC_API_KEY is set; keyword
+// matching otherwise.
+model GapCheck {
+  id             String   @id @default(cuid())
+  jobTitle       String
+  jobDescription String
+  summary        String
+  requirements   String // JSON GapRequirement[]
+  aiGenerated    Boolean  @default(false)
+  evidenceCount  Int
+  createdAt      DateTime @default(now())
+
+  @@index([createdAt])
+}

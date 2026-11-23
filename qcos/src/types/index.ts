@@ -65,3 +65,21 @@ export interface DigestSuggestion {
   suggestedGoalKey: GoalMetricKey | null;
   suggestedCategory: Category | null;
 }
+
+// Promotion Gap Check - one requirement from the target role's job
+// description, judged against the Evidence Vault.
+export type GapStatus = "covered" | "thin" | "missing";
+
+export interface GapEvidenceRef {
+  id: string;
+  date: string; // ISO
+  text: string; // the review-ready sentence, snapshotted at check time
+}
+
+export interface GapRequirement {
+  requirement: string;
+  status: GapStatus;
+  evidence: GapEvidenceRef[];
+  note: string; // why it got this status
+  nextStep: string; // what to do/log to strengthen it
+}

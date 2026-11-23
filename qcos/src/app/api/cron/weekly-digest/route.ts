@@ -1,7 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { getOrCreateWeeklyDigest, lastCompletedWeek, formatWeekRange } from "@/lib/weeklyDigest";
-import { sendWeeklyNudgeEmail } from "@/lib/email";
+import { appBaseUrl, sendBackupEmail, sendWeeklyNudgeEmail } from "@/lib/email";
+import { backupFilename, buildBackup } from "@/lib/backup";
 import { fromJson } from "@/lib/json";
 import type { DigestSuggestion } from "@/types";
 
@@ -29,9 +30,7 @@ export async function GET(req: NextRequest) {
 
   let emailSent = false;
   if (!digest.emailSentAt) {
-    const appUrl = process.env.VERCEL_PROJECT_PRODUCTION_URL
-      ? `https://${process.env.VERCEL_PROJECT_PRODUCTION_URL}`
-      : "https://qcos.vercel.app";
+    const appUrl = appBaseUrl();
 
     emailSent = await sendWeeklyNudgeEmail({
       weekLabel: formatWeekRange(range),
@@ -45,5 +44,20 @@ export async function GET(req: NextRequest) {
     }
   }
 
-  return NextResponse.json({ digest: { ...digest, suggestions }, emailSent });
+  // Monthly backup: the cron runs every Monday, so the first Monday of the
+  // month is the one whose date is 1-7. Emails a full JSON backup so a copy
+  // of everything lives outside the database.
+  let backupEmailed = false;
+  if (new Date().getUTCDate() <= 7) {
+    const backup = await buildBackup();
+    backupEmailed = await sendBackupEmail({
+      filename: backupFilename(),
+      json: JSON.stringify(backup),
+      evidenceCount: backup.counts.evidenceRecords,
+      entryCount: backup.counts.dailyEntries,
+      appUrl: appBaseUrl(),
+    });
+  }
+
+  return NextResponse.json({ digest: { ...digest, suggestions }, emailSent, backupEmailed });
 }

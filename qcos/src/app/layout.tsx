@@ -32,6 +32,7 @@ const NAV_ITEMS = [
   { href: "/reflection", label: "Reflection" },
   { href: "/review", label: "Year-End Review" },
   { href: "/promotion-report", label: "Promotion Report" },
+  { href: "/gap-check", label: "Gap Check" },
 ];
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
@@ -60,7 +61,14 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           </header>
           <main className="mx-auto max-w-6xl px-4 py-6">{children}</main>
           <footer className="mx-auto max-w-6xl print:hidden px-4 py-8 text-center text-xs text-slate-400 dark:text-slate-600">
-            Local-first evidence, not employee surveillance. Every insight here comes only from what you chose to log.
+            <p>
+              Local-first evidence, not employee surveillance. Every insight here comes only from what you chose to log.
+            </p>
+            <p className="mt-2">
+              <a href="/data" className="font-medium text-brand-600 hover:underline dark:text-brand-400">
+                Data &amp; Backup
+              </a>
+            </p>
           </footer>
         </div>
       </body>

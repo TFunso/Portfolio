@@ -155,6 +155,19 @@ anything external.
   `src/components/OfflineSync.tsx`) queues brain-dump entries in
   `localStorage` when a POST fails offline and replays them on the
   browser's `online` event — it is not the service worker's job.
+- Every Claude call goes through `src/lib/claude.ts` (`getAnthropic()`,
+  `CLAUDE_MODEL`, `REFUSAL_FALLBACK`, `responseText()`) - one model ID to
+  change, and all calls use the beta endpoint only to opt into server-side
+  refusal fallback.
+- **`src/lib/gapCheck.ts`** (Promotion Gap Check) maps a pasted job
+  description's requirements to evidence. AI output is structured JSON
+  whose evidence refs are validated against the vault - never trust a
+  model-cited id without that check. Keyword-matching fallback otherwise.
+- **`src/lib/backup.ts`** - JSON backup/restore of every table plus an
+  evidence CSV. Restore is merge-only (`createMany` + `skipDuplicates` in one
+  transaction, fields whitelisted via Prisma's `*ScalarFieldEnum`). **When
+  adding a model to `schema.prisma`, add it to `TABLES`, `buildBackup()` and
+  `backupCounts()` there**, or backups silently omit it.
 - Full feature map (which spec feature lives where) and the four
   beyond-spec additions (weekly digest, email nudge, PWA/offline, Word
   export): `qcos/README.md`.

@@ -1,4 +1,4 @@
-import Anthropic from "@anthropic-ai/sdk";
+import { CLAUDE_MODEL, REFUSAL_FALLBACK, getAnthropic, responseText } from "@/lib/claude";
 import { prisma } from "@/lib/prisma";
 import { fromJson } from "@/lib/json";
 import { startOfYear, endOfYear, formatDate } from "@/lib/dates";
@@ -35,14 +35,6 @@ export function parseScope(scopeParam: string | null, yearParam: string | null):
 // if the call fails, a deterministic (non-narrative) compilation is stored
 // instead - still useful, just not written prose.
 // ---------------------------------------------------------------------------
-
-let client: Anthropic | null | undefined;
-
-function getClient(): Anthropic | null {
-  if (client !== undefined) return client;
-  client = process.env.ANTHROPIC_API_KEY ? new Anthropic() : null;
-  return client;
-}
 
 const MAX_RECORDS_FOR_DIGEST = 120;
 
@@ -235,12 +227,13 @@ const SECTION_HEADERS = [
 ];
 
 async function generateNarrative(data: GatheredData, scopeLbl: string): Promise<string | null> {
-  const anthropic = getClient();
+  const anthropic = getAnthropic();
   if (!anthropic) return null;
 
   try {
-    const response = await anthropic.messages.create({
-      model: "claude-opus-5",
+    const response = await anthropic.beta.messages.create({
+      ...REFUSAL_FALLBACK,
+      model: CLAUDE_MODEL,
       max_tokens: 2000,
       output_config: { effort: "medium" },
       system: [
@@ -258,8 +251,7 @@ async function generateNarrative(data: GatheredData, scopeLbl: string): Promise<
       messages: [{ role: "user", content: `Scope: ${scopeLbl}\n\n${buildDigestText(data)}` }],
     });
 
-    const block = response.content.find((b) => b.type === "text");
-    const text = block && block.type === "text" ? block.text.trim() : "";
+    const text = responseText(response);
     return text || null;
   } catch (error) {
     console.error("Promotion report AI synthesis failed, falling back to compiled version:", error);
