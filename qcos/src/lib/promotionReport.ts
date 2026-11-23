@@ -1,4 +1,5 @@
 import { CLAUDE_MODEL, REFUSAL_FALLBACK, getAnthropic, responseText } from "@/lib/claude";
+import { formatMetrics, metricsOf, sumMetrics, RESULT_METRICS, type ResultMetricKey, type ResultMetrics } from "@/lib/metrics";
 import { prisma } from "@/lib/prisma";
 import { fromJson } from "@/lib/json";
 import { startOfYear, endOfYear, formatDate } from "@/lib/dates";
@@ -43,15 +44,18 @@ function impactRank(level: string): number {
 }
 
 interface GatheredData {
-  records: {
+  records: ({
     recordDate: Date;
     whatHappened: string;
     suggestedReviewLanguage: string;
     businessImpact: string;
     category: string;
     impactLevel: string;
-  }[];
+    starred: boolean;
+  } & ResultMetrics)[];
   evidenceCount: number;
+  starredCount: number;
+  results: Record<ResultMetricKey, number>;
   categoryTotals: { category: string; count: number }[];
   crossFunctional: { department: string; count: number }[];
   goalProgress: { label: string; actual: number; target: number; comparator: string; status: string }[];
@@ -151,7 +155,7 @@ async function gatherData(scope: PromotionReportScope): Promise<GatheredData> {
   // history - highest impact first, chronological within each tier, so the
   // digest stays a manageable size without just dropping the oldest/newest.
   const curated = [...allRecords]
-    .sort((a, b) => impactRank(b.impactLevel) - impactRank(a.impactLevel))
+    .sort((a, b) => Number(b.starred) - Number(a.starred) || impactRank(b.impactLevel) - impactRank(a.impactLevel))
     .slice(0, MAX_RECORDS_FOR_DIGEST)
     .sort((a, b) => a.recordDate.getTime() - b.recordDate.getTime());
 
@@ -165,6 +169,8 @@ async function gatherData(scope: PromotionReportScope): Promise<GatheredData> {
   return {
     records: curated,
     evidenceCount: allRecords.length,
+    starredCount: allRecords.filter((r) => r.starred).length,
+    results: sumMetrics(allRecords.map(metricsOf)),
     categoryTotals,
     crossFunctional,
     goalProgress,
@@ -185,6 +191,8 @@ export async function getPromotionStats(scope: PromotionReportScope): Promise<Pr
   const data = await gatherData(scope);
   return {
     evidenceCount: data.evidenceCount,
+    starredCount: data.starredCount,
+    results: data.results,
     categoryTotals: data.categoryTotals,
     crossFunctional: data.crossFunctional,
     goalProgress: data.goalProgress,
@@ -194,10 +202,17 @@ export async function getPromotionStats(scope: PromotionReportScope): Promise<Pr
   };
 }
 
+export function resultsSentence(results: Record<ResultMetricKey, number>): string {
+  return RESULT_METRICS.filter((m) => results[m.key] > 0)
+    .map((m) => `${m.key === "costAvoided" ? `$${results[m.key].toLocaleString("en-US")}` : results[m.key].toLocaleString("en-US")} ${m.unit}`)
+    .join(", ");
+}
+
 function buildDigestText(data: GatheredData): string {
-  const lines = data.records.map(
-    (r) => `[${formatDate(r.recordDate)}] (${r.impactLevel}, ${r.category}) ${r.suggestedReviewLanguage || r.whatHappened}`,
-  );
+  const lines = data.records.map((r) => {
+    const result = formatMetrics(metricsOf(r));
+    return `[${formatDate(r.recordDate)}] ${r.starred ? "[TOP WIN] " : ""}(${r.impactLevel}, ${r.category}) ${r.suggestedReviewLanguage || r.whatHappened}${result ? ` | Result: ${result}` : ""}`;
+  });
   const categoryLine = data.categoryTotals.map((c) => `${c.category}: ${c.count}`).join("; ");
   const deptLine = data.crossFunctional.map((d) => `${d.department}: ${d.count}`).join("; ") || "none logged";
   const goalLine = data.goalProgress
@@ -214,6 +229,7 @@ function buildDigestText(data: GatheredData): string {
     `Category totals across all evidence: ${categoryLine}`,
     `Cross-functional support by team: ${deptLine}`,
     `Current-year DRIVE EFFICIENCY goal progress: ${goalLine}`,
+    `Measurable results totaled across all evidence: ${resultsSentence(data.results) || "none recorded"}`,
   ].join("\n");
 }
 
@@ -239,6 +255,7 @@ async function generateNarrative(data: GatheredData, scopeLbl: string): Promise<
       system: [
         `You write a concise, ONE-PAGE (450-650 words total) promotion case for a Quality Technician, to be handed directly to their manager for a promotion/performance discussion.`,
         `Use ONLY the facts provided below - never invent names, numbers, outcomes, dates, or details beyond what's given. If the evidence is thin in an area, say less about it rather than padding with generic claims.`,
+        `Entries marked [TOP WIN] are the person's own pick of their strongest work - feature them first. "Result:" figures and the measurable-results totals are the strongest proof available: use them exactly as given, and lead "Impact By The Numbers" with the totals.`,
         `Structure the output as exactly these sections, each as a "## Header" line followed by content: ${SECTION_HEADERS.join(", ")}.`,
         `"Overview": 2-3 sentences framing their overall trajectory and case for promotion.`,
         `"Where I Shine": 3-5 bullet points ("- " prefix), each naming a recurring strength theme with one concrete grounded example.`,
@@ -271,16 +288,21 @@ function buildFallback(data: GatheredData, scopeLbl: string): string {
     lines.push(`- ${c.category}: ${c.count} logged instance${c.count === 1 ? "" : "s"}`);
   }
 
-  const topRecords = [...data.records].sort((a, b) => impactRank(b.impactLevel) - impactRank(a.impactLevel)).slice(0, 8);
+  const topRecords = [...data.records]
+    .sort((a, b) => Number(b.starred) - Number(a.starred) || impactRank(b.impactLevel) - impactRank(a.impactLevel))
+    .slice(0, 8);
   lines.push("## Leadership & Ownership");
   for (const r of topRecords) {
-    lines.push(`- ${r.suggestedReviewLanguage || r.whatHappened}`);
+    const result = formatMetrics(metricsOf(r));
+    lines.push(`- ${r.suggestedReviewLanguage || r.whatHappened}${result ? ` (Result: ${result})` : ""}`);
   }
 
   lines.push("## Growth Over Time");
   lines.push("Not available without an AI pass - the compiled version lists accomplishments but doesn't analyze trajectory.");
 
   lines.push("## Impact By The Numbers");
+  const totals = resultsSentence(data.results);
+  if (totals) lines.push(`- Measurable results: ${totals}`);
   for (const g of data.goalProgress) {
     lines.push(
       `- ${g.label}: ${g.actual}${g.comparator !== "ongoing" ? ` / ${g.comparator === "max" ? `fewer than ${g.target + 1}` : g.target}` : ""} (${g.status})`,

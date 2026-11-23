@@ -26,6 +26,7 @@ export async function GET(req: NextRequest) {
   const impactLevel = params.get("impactLevel");
   const goal = params.get("goal");
   const q = params.get("q")?.trim();
+  const starred = params.get("starred");
 
   const where: Prisma.EvidenceRecordWhereInput = {};
 
@@ -42,6 +43,7 @@ export async function GET(req: NextRequest) {
     where.recordDate = { gte: qStart, lte: qEnd };
   }
 
+  if (starred === "true") where.starred = true;
   if (category) where.category = category;
   if (impactLevel) where.impactLevel = impactLevel;
   if (goal) where.goalSupported = { contains: goal };

@@ -1,35 +1,43 @@
 import { NextRequest, NextResponse } from "next/server";
 import { Document, Packer, Paragraph, TextRun, HeadingLevel } from "docx";
-import { getYearInReview, SECTION_LABELS, type YearInReview } from "@/lib/review";
+import { getPeriodReport, SECTION_LABELS, type PeriodReport } from "@/lib/review";
+import { parsePeriodParams } from "@/lib/periods";
+import { comparison, goalLine, resultLines } from "@/lib/reviewFormat";
 import { heading, bullet, numbered } from "@/lib/docxHelpers";
 
 export const dynamic = "force-dynamic";
 
-function buildDocument(data: YearInReview): Document {
+function withResult(text: string, result: string): string {
+  return result ? `${text} (Result: ${result})` : text;
+}
+
+function buildDocument(data: PeriodReport): Document {
+  const { current, previous, previousLabel } = data;
+  const subtitle = `${data.period.reviewNote ?? ""}${data.period.inProgress ? " (period still in progress - figures to date)" : ""}`;
+
   const children: Paragraph[] = [
     new Paragraph({
-      text: `${data.year} Self Assessment - ${data.goal.name}`,
+      text: `${data.period.label} Self Assessment - ${data.goal.name}`,
       heading: HeadingLevel.TITLE,
       spacing: { after: 100 },
     }),
-    new Paragraph({
-      children: [new TextRun({ text: `${data.totalEvidenceCount} pieces of evidence logged this year.`, italics: true })],
-      spacing: { after: 200 },
-    }),
-    heading("Goal Achievement Summary"),
-    ...data.goalAchievementSummary.map((g) =>
-      bullet(
-        `${g.label}: ${g.actual}${g.comparator !== "ongoing" ? ` / ${g.comparator === "max" ? `fewer than ${g.target + 1}` : g.target}` : ""} (${g.status === "green" ? "on track" : g.status === "yellow" ? "in progress" : "needs attention"})`,
-      ),
-    ),
-    heading("Top Accomplishments"),
-    ...data.topAccomplishments.map((r, i) => numbered(r.suggestedReviewLanguage, i)),
+    new Paragraph({ children: [new TextRun({ text: subtitle, italics: true })], spacing: { after: 200 } }),
+    heading("At a Glance"),
+    bullet(`${current.evidence} pieces of evidence${comparison(String(previous.evidence), previous, previousLabel)}`),
+    bullet(`${current.highImpact} high-impact wins${comparison(String(previous.highImpact), previous, previousLabel)}`),
+    ...resultLines(current, previous, previousLabel).map((l) => bullet(l)),
+    heading("Top Wins"),
+    ...(data.topWins.length > 0
+      ? data.topWins.map((w, i) => numbered(withResult(w.text, w.result), i))
+      : [bullet("No evidence logged in this period yet.")]),
+    heading(`${data.goal.name} Goal Progress`),
+    ...data.goals.map((g) => bullet(goalLine(g))),
   ];
 
-  for (const [key, records] of Object.entries(data.sections)) {
-    if (records.length === 0) continue;
+  for (const [key, items] of Object.entries(data.sections)) {
+    if (items.length === 0) continue;
     children.push(heading(SECTION_LABELS[key] ?? key));
-    children.push(...records.map((r) => bullet(r.suggestedReviewLanguage)));
+    children.push(...items.map((i) => bullet(withResult(i.text, i.result))));
   }
 
   children.push(heading("Promotion Discussion Talking Points"));
@@ -40,18 +48,17 @@ function buildDocument(data: YearInReview): Document {
   return new Document({ sections: [{ children }] });
 }
 
-// GET /api/review/export?year=2026 - the same Year-End Review data as
-// /api/review, packaged as a downloadable .docx.
+// GET /api/review/export?period=mid-year&year=2026 (same params as
+// /api/review) - the same review report packaged as a downloadable .docx.
 export async function GET(req: NextRequest) {
-  const year = Number(req.nextUrl.searchParams.get("year") ?? new Date().getFullYear());
-  const data = await getYearInReview(year);
-  const doc = buildDocument(data);
-  const buffer = await Packer.toBuffer(doc);
+  const period = parsePeriodParams(req.nextUrl.searchParams);
+  const data = await getPeriodReport(period);
+  const buffer = await Packer.toBuffer(buildDocument(data));
 
   return new NextResponse(new Blob([Uint8Array.from(buffer)]), {
     headers: {
       "Content-Type": "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
-      "Content-Disposition": `attachment; filename="QCOS-Year-End-Review-${year}.docx"`,
+      "Content-Disposition": `attachment; filename="QCOS-Review-${data.period.label.replace(/[^A-Za-z0-9]+/g, "-")}.docx"`,
     },
   });
 }

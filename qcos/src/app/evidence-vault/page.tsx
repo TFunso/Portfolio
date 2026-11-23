@@ -4,6 +4,8 @@ import { useCallback, useEffect, useState } from "react";
 import { ImpactBadge, CategoryBadge } from "@/components/Badges";
 import ManagerPrepExport from "@/components/ManagerPrepExport";
 import { formatDate, MONTH_NAMES } from "@/lib/dates";
+import { formatMetrics, hasMetrics, metricsOf, type ResultMetrics } from "@/lib/metrics";
+import ResultEditor, { StarButton } from "@/components/ResultEditor";
 
 const CATEGORIES = [
   "Cross-Functional Support",
@@ -27,6 +29,12 @@ interface EvidenceRecord {
   suggestedReviewLanguage: string;
   source: string;
   recordDate: string;
+  starred: boolean;
+  hoursSaved: number | null;
+  unitsHandled: number | null;
+  defectsCaught: number | null;
+  delayDaysAvoided: number | null;
+  costAvoided: number | null;
 }
 
 const emptyForm = {
@@ -49,6 +57,10 @@ export default function EvidenceVaultPage() {
   const [showForm, setShowForm] = useState(false);
   const [form, setForm] = useState(emptyForm);
   const [loading, setLoading] = useState(true);
+  const [starredOnly, setStarredOnly] = useState(false);
+  const [editingId, setEditingId] = useState<string | null>(null);
+  const [scanning, setScanning] = useState(false);
+  const [scanNote, setScanNote] = useState<string | null>(null);
 
   useEffect(() => {
     const timer = setTimeout(() => setDebouncedSearch(search.trim()), 300);
@@ -61,10 +73,11 @@ export default function EvidenceVaultPage() {
     if (category) params.set("category", category);
     if (impactLevel) params.set("impactLevel", impactLevel);
     if (debouncedSearch) params.set("q", debouncedSearch);
+    if (starredOnly) params.set("starred", "true");
     const res = await fetch(`/api/evidence?${params.toString()}`);
     if (res.ok) setRecords((await res.json()).records);
     setLoading(false);
-  }, [month, category, impactLevel, debouncedSearch]);
+  }, [month, category, impactLevel, debouncedSearch, starredOnly]);
 
   useEffect(() => {
     load();
@@ -82,6 +95,37 @@ export default function EvidenceVaultPage() {
       setForm(emptyForm);
       setShowForm(false);
       load();
+    }
+  }
+
+  async function patchRecord(id: string, body: Record<string, unknown>): Promise<boolean> {
+    const res = await fetch(`/api/evidence/${id}`, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(body),
+    });
+    if (!res.ok) return false;
+    const { record } = await res.json();
+    setRecords((prev) => prev.map((r) => (r.id === id ? { ...r, ...record } : r)));
+    return true;
+  }
+
+  async function scanForNumbers() {
+    setScanning(true);
+    setScanNote(null);
+    try {
+      const res = await fetch("/api/evidence/extract-metrics", { method: "POST" });
+      if (res.ok) {
+        const { updated, scanned } = await res.json();
+        setScanNote(
+          updated > 0
+            ? `Found results in ${updated} of ${scanned} older entries without one.`
+            : `Checked ${scanned} entries without a result - no numbers found. Add results by hand with "+ Add result".`,
+        );
+        load();
+      }
+    } finally {
+      setScanning(false);
     }
   }
 
@@ -218,6 +262,20 @@ export default function EvidenceVaultPage() {
           <option>Medium</option>
           <option>Low</option>
         </select>
+        <label className="flex items-center gap-2 text-sm">
+          <input type="checkbox" checked={starredOnly} onChange={(e) => setStarredOnly(e.target.checked)} />
+          Top wins only
+        </label>
+        </div>
+        <div className="flex flex-wrap items-center gap-2 border-t border-slate-100 pt-3 text-xs text-slate-500 dark:border-slate-800 dark:text-slate-400">
+          <span>
+            {records.filter((r) => hasMetrics(metricsOf(r))).length} of {records.length} shown have a measurable result
+            &middot; {records.filter((r) => r.starred).length} starred.
+          </span>
+          <button type="button" className="font-semibold text-brand-600 hover:underline dark:text-brand-400" disabled={scanning} onClick={scanForNumbers}>
+            {scanning ? "Scanning…" : "Find numbers in older entries"}
+          </button>
+          {scanNote && <span className="w-full text-green-700 dark:text-green-400">{scanNote}</span>}
         </div>
       </div>
 
@@ -233,18 +291,52 @@ export default function EvidenceVaultPage() {
             <li key={r.id} className="card">
               <div className="flex items-start justify-between gap-3">
                 <p className="font-semibold">{r.whatHappened}</p>
-                <button
-                  onClick={() => remove(r.id)}
-                  className="text-xs text-slate-400 hover:text-red-500"
-                  aria-label="Delete"
-                >
-                  Delete
-                </button>
+                <div className="flex shrink-0 items-center gap-3">
+                  <StarButton starred={r.starred} onToggle={() => patchRecord(r.id, { starred: !r.starred })} />
+                  <button
+                    onClick={() => remove(r.id)}
+                    className="text-xs text-slate-400 hover:text-red-500"
+                    aria-label="Delete"
+                  >
+                    Delete
+                  </button>
+                </div>
               </div>
               <div className="mt-2 flex flex-wrap gap-1.5">
                 <ImpactBadge level={r.impactLevel} />
                 <CategoryBadge category={r.category} />
                 <span className="text-xs text-slate-400">{formatDate(r.recordDate)}</span>
+              </div>
+              <div className="mt-2 text-sm">
+                {editingId === r.id ? (
+                  <ResultEditor
+                    initial={metricsOf(r) as ResultMetrics}
+                    onCancel={() => setEditingId(null)}
+                    onSave={async (metrics) => {
+                      const ok = await patchRecord(r.id, metrics);
+                      if (ok) setEditingId(null);
+                      return ok;
+                    }}
+                  />
+                ) : (
+                  <p className="flex flex-wrap items-center gap-2">
+                    {hasMetrics(metricsOf(r)) ? (
+                      <span>
+                        <span className="text-xs font-semibold uppercase text-slate-400">Result </span>
+                        {formatMetrics(metricsOf(r))}
+                      </span>
+                    ) : (
+                      <span className="text-xs text-slate-400">No measurable result yet.</span>
+                    )}
+                    <button
+                      type="button"
+                      className="text-xs font-semibold text-brand-600 hover:underline dark:text-brand-400"
+                      onClick={() => setEditingId(r.id)}
+                    >
+                      {hasMetrics(metricsOf(r)) ? "Edit result" : "+ Add result"}
+                    </button>
+                  </p>
+                )}
               </div>
               <dl className="mt-3 grid gap-2 text-sm sm:grid-cols-2">
                 <div>

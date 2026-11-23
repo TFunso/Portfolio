@@ -1,5 +1,6 @@
 import type { PromotionStats } from "@/lib/promotionReport";
 import { StatusDot } from "@/components/Badges";
+import { RESULT_METRICS } from "@/lib/metrics";
 
 // Visual one-glance companion to the Promotion Report narrative. Pure
 // HTML/CSS bars (no chart library) so it reflows cleanly from phone to
@@ -162,6 +163,7 @@ export default function PromotionDashboard({ stats }: { stats: PromotionStats })
   const goalsOnTrack = stats.goalProgress.filter((g) => g.status === "green").length;
   const topStrengths = stats.categoryTotals.slice(0, 6).map((c) => ({ label: c.category, count: c.count }));
   const teams = stats.crossFunctional.slice(0, 6).map((d) => ({ label: d.department, count: d.count }));
+  const results = RESULT_METRICS.filter((m) => stats.results[m.key] > 0);
 
   if (stats.evidenceCount === 0) {
     return (
@@ -179,6 +181,25 @@ export default function PromotionDashboard({ stats }: { stats: PromotionStats })
         <StatTile label="Teams supported" value={String(stats.crossFunctional.length)} />
         <StatTile label="Goals on track" value={`${goalsOnTrack}/${stats.goalProgress.length}`} hint="current year" />
       </div>
+
+      {results.length > 0 && (
+        <section className="card break-inside-avoid">
+          <h3 className="text-sm font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">
+            Measurable results
+          </h3>
+          <div className="mt-2 grid grid-cols-2 gap-3 sm:grid-cols-5 print:grid-cols-5">
+            {results.map((m) => (
+              <div key={m.key}>
+                <p className="text-2xl font-bold">
+                  {m.key === "costAvoided" ? "$" : ""}
+                  {stats.results[m.key].toLocaleString("en-US")}
+                </p>
+                <p className="text-xs text-slate-500 dark:text-slate-400">{m.label}</p>
+              </div>
+            ))}
+          </div>
+        </section>
+      )}
 
       <div className="grid gap-4 lg:grid-cols-2 print:grid-cols-2">
         <section className="card break-inside-avoid">

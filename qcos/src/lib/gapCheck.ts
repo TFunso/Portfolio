@@ -3,6 +3,7 @@ import { fromJson, toJson } from "@/lib/json";
 import { formatDate } from "@/lib/dates";
 import { CLAUDE_MODEL, REFUSAL_FALLBACK, getAnthropic, responseText } from "@/lib/claude";
 import type { GapEvidenceRef, GapRequirement, GapStatus } from "@/types";
+import { formatMetrics, metricsOf } from "@/lib/metrics";
 
 // ---------------------------------------------------------------------------
 // Promotion Gap Check. Takes the job description of the role you want and
@@ -49,7 +50,10 @@ export interface GapCheckResult {
 async function loadVault(): Promise<VaultItem[]> {
   const records = await prisma.evidenceRecord.findMany({ orderBy: { recordDate: "desc" } });
   return records
-    .sort((a, b) => (IMPACT_RANK[a.impactLevel] ?? 3) - (IMPACT_RANK[b.impactLevel] ?? 3))
+    .sort(
+      (a, b) =>
+        Number(b.starred) - Number(a.starred) || (IMPACT_RANK[a.impactLevel] ?? 3) - (IMPACT_RANK[b.impactLevel] ?? 3),
+    )
     .map((r, i) => ({
       ref: `E${i + 1}`,
       id: r.id,
@@ -57,7 +61,14 @@ async function loadVault(): Promise<VaultItem[]> {
       impactLevel: r.impactLevel,
       category: r.category,
       text: r.suggestedReviewLanguage || r.whatHappened,
-      detail: [r.whatHappened, r.whyItMattered, r.businessImpact, r.goalSupported ?? ""].join(" "),
+      detail: [
+        r.starred ? "[TOP WIN]" : "",
+        formatMetrics(metricsOf(r)) ? `Result: ${formatMetrics(metricsOf(r))}.` : "",
+        r.whatHappened,
+        r.whyItMattered,
+        r.businessImpact,
+        r.goalSupported ?? "",
+      ].join(" "),
     }));
 }
 

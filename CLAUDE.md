@@ -42,8 +42,11 @@ npm run db:seed                  # tsx prisma/seed.ts
   `affordability`, `geo`) — run a single one with
   `npx vitest run tests/rank.test.ts`. It also has
   `npm run hunter:run` (runs the ingestion worker once, `tsx src/workers/rentHunter.ts`).
-- `qcos` has `vitest` wired up but no test files yet. It also has
-  `npm run db:push` (`prisma db push`, schema sync without a migration).
+- `qcos` has unit tests under `tests/` for its pure logic (`metrics` -
+  result-number extraction, `periods` - review-period boundaries); run one
+  with `npx vitest run tests/periods.test.ts`. Tests import via relative
+  paths (no vitest alias config). It also has `npm run db:push`
+  (`prisma db push`, schema sync without a migration).
 - `qcos`'s `build` script runs `prisma migrate deploy && next build` —
   migrations apply as part of every build (including on Vercel, where the
   DB env vars are only available at build/runtime, not to this sandbox).
@@ -168,6 +171,12 @@ anything external.
   transaction, fields whitelisted via Prisma's `*ScalarFieldEnum`). **When
   adding a model to `schema.prisma`, add it to `TABLES`, `buildBackup()` and
   `backupCounts()` there**, or backups silently omit it.
+- **Reports are period-based** (`src/lib/periods.ts` + `src/lib/review.ts`
+  `getPeriodReport()`): the user's review calendar is a May mid-year review
+  (period Jan 1 - May 31) and a January year-end review (previous calendar
+  year). Evidence carries optional result metrics and a `starred` "top win"
+  flag; `src/lib/metrics.ts` is the single definition of the five metrics -
+  every report, export, and AI prompt reads totals and wording from it.
 - Full feature map (which spec feature lives where) and the four
   beyond-spec additions (weekly digest, email nudge, PWA/offline, Word
   export): `qcos/README.md`.

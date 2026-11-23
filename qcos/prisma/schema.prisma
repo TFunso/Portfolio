@@ -65,8 +65,21 @@ model EvidenceRecord {
   recordDate              DateTime @default(now())
   createdAt               DateTime @default(now())
 
+  // "Top win" - pinned by the user; starred records lead every report.
+  starred                 Boolean  @default(false)
+
+  // Measurable result of the work (all optional). Picked up automatically
+  // from numbers in the entry text (src/lib/metrics.ts) and editable after
+  // logging. Reports total these per period ("38 hours saved this year").
+  hoursSaved              Float?
+  unitsHandled            Int?     // lots / parts / pieces
+  defectsCaught           Int?     // defects, discrepancies, escapes prevented
+  delayDaysAvoided        Float?
+  costAvoided             Int?     // dollars saved or avoided
+
   @@index([recordDate])
   @@index([category])
+  @@index([starred])
 }
 
 // One occurrence toward an annual DRIVE EFFICIENCY metric (e.g. a No

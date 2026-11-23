@@ -1,7 +1,18 @@
 import { prisma } from "@/lib/prisma";
-import { startOfYear, endOfYear } from "@/lib/dates";
 import { GOAL_METRICS, goalMetricStatus, ANNUAL_GOAL } from "@/lib/goals";
+import { formatMetrics, hasMetrics, metricsOf, sumMetrics, RESULT_METRICS } from "@/lib/metrics";
+import { isInProgress, previousPeriod, type Period } from "@/lib/periods";
+import { MONTH_NAMES } from "@/lib/dates";
 import type { EvidenceRecord } from "@prisma/client";
+
+// ---------------------------------------------------------------------------
+// Review reports for any period - Mid-Year (May review), Year-End (January
+// review), a quarter, or a custom range - compiled only from evidence
+// already saved in QCOS, never fabricated. Compared against the previous
+// equivalent period so growth is visible, led by starred "top wins", and
+// built around measurable results. Shared by the /review page (JSON) and
+// the Word export.
+// ---------------------------------------------------------------------------
 
 const CATEGORY_TO_SECTION: Record<string, string> = {
   "Cross-Functional Support": "crossFunctionalSupport",
@@ -13,77 +24,170 @@ const CATEGORY_TO_SECTION: Record<string, string> = {
 };
 
 export const SECTION_LABELS: Record<string, string> = {
-  crossFunctionalSupport: "Cross-Functional Support Summary",
-  leadership: "Leadership Examples",
-  knowledgeSharing: "Knowledge Sharing Examples",
-  continuousImprovement: "Continuous Improvement Summary",
-  goalAchievement: "Goal Achievement Detail",
-  other: "Additional Evidence-Based Contributions",
+  crossFunctionalSupport: "Cross-Functional Support",
+  leadership: "Leadership",
+  knowledgeSharing: "Knowledge Sharing",
+  continuousImprovement: "Continuous Improvement",
+  goalAchievement: "Goal Achievement",
+  other: "Additional Contributions",
 };
 
 function impactRank(level: string): number {
   return level === "High" ? 3 : level === "Medium" ? 2 : 1;
 }
 
+export interface ReportItem {
+  id: string;
+  date: string;
+  text: string;
+  result: string; // "" when no measurable result
+  category: string;
+  impactLevel: string;
+  starred: boolean;
+}
+
+function toItem(r: EvidenceRecord): ReportItem {
+  return {
+    id: r.id,
+    date: r.recordDate.toISOString(),
+    text: r.suggestedReviewLanguage || r.whatHappened,
+    result: formatMetrics(metricsOf(r)),
+    category: r.category,
+    impactLevel: r.impactLevel,
+    starred: r.starred,
+  };
+}
+
+// Starred first, then by impact, then wins with a measurable result, then
+// most recent. Near-identical sentences only appear once.
+function rankTopWins(records: EvidenceRecord[], limit: number): EvidenceRecord[] {
+  const sorted = [...records].sort(
+    (a, b) =>
+      Number(b.starred) - Number(a.starred) ||
+      impactRank(b.impactLevel) - impactRank(a.impactLevel) ||
+      Number(hasMetrics(metricsOf(b))) - Number(hasMetrics(metricsOf(a))) ||
+      b.recordDate.getTime() - a.recordDate.getTime(),
+  );
+  const seen = new Set<string>();
+  const out: EvidenceRecord[] = [];
+  for (const r of sorted) {
+    const key = (r.suggestedReviewLanguage || r.whatHappened).trim().toLowerCase();
+    if (seen.has(key)) continue;
+    seen.add(key);
+    out.push(r);
+    if (out.length === limit) break;
+  }
+  return out;
+}
+
+function summarize(records: EvidenceRecord[]) {
+  return {
+    evidence: records.length,
+    highImpact: records.filter((r) => r.impactLevel === "High").length,
+    starred: records.filter((r) => r.starred).length,
+    withResults: records.filter((r) => hasMetrics(metricsOf(r))).length,
+    crossFunctional: records.filter((r) => r.category === "Cross-Functional Support").length,
+    results: sumMetrics(records.map(metricsOf)),
+  };
+}
+
+export type PeriodSummary = ReturnType<typeof summarize>;
+
+// Months in the period with nothing logged - counted only from the first
+// thing ever logged in QCOS, so months before you started using the app
+// aren't flagged as gaps.
+function monthsWithoutEvidence(period: Period, records: EvidenceRecord[], firstEverLogged: Date | null): string[] {
+  if (!firstEverLogged) return [];
+  const now = new Date();
+  const end = period.end < now ? period.end : now;
+  const have = new Set(records.map((r) => `${r.recordDate.getFullYear()}-${r.recordDate.getMonth()}`));
+  const gaps: string[] = [];
+  const from = period.start > firstEverLogged ? period.start : firstEverLogged;
+  const cursor = new Date(from.getFullYear(), from.getMonth(), 1);
+  while (cursor <= end) {
+    // the current month isn't a gap yet - it's still being logged
+    const isCurrentMonth = cursor.getFullYear() === now.getFullYear() && cursor.getMonth() === now.getMonth();
+    if (!isCurrentMonth && !have.has(`${cursor.getFullYear()}-${cursor.getMonth()}`)) {
+      gaps.push(`${MONTH_NAMES[cursor.getMonth()].slice(0, 3)} ${cursor.getFullYear()}`);
+    }
+    cursor.setMonth(cursor.getMonth() + 1);
+  }
+  return gaps;
+}
+
 function buildTalkingPoints(
-  records: EvidenceRecord[],
-  goalSummary: { label: string; actual: number; target: number; status: string }[],
+  topWins: EvidenceRecord[],
+  current: PeriodSummary,
+  goals: { label: string; ytdActual: number; target: number; status: string; comparator: string }[],
 ) {
   const promotion: string[] = [];
   const raise: string[] = [];
 
-  const highImpact = records.filter((r) => r.impactLevel === "High");
-  for (const r of highImpact.slice(0, 5)) {
-    promotion.push(r.suggestedReviewLanguage);
+  for (const r of topWins.filter((w) => w.starred || w.impactLevel === "High").slice(0, 5)) {
+    const result = formatMetrics(metricsOf(r));
+    promotion.push(`${r.suggestedReviewLanguage || r.whatHappened}${result ? ` (Result: ${result})` : ""}`);
   }
 
-  const metGoals = goalSummary.filter((g) => g.status === "green");
-  for (const g of metGoals) {
-    raise.push(`Met or exceeded the "${g.label}" target (${g.actual} vs. target ${g.target}).`);
+  const resultBits = RESULT_METRICS.filter((m) => current.results[m.key] > 0).map(
+    (m) => `${m.key === "costAvoided" ? `$${current.results[m.key].toLocaleString("en-US")}` : current.results[m.key].toLocaleString("en-US")} ${m.unit}`,
+  );
+  if (resultBits.length > 0) {
+    raise.push(`Measurable results this period: ${resultBits.join(", ")}.`);
   }
-  const crossFunctionalCount = records.filter((r) => r.category === "Cross-Functional Support").length;
-  if (crossFunctionalCount > 0) {
-    raise.push(`Delivered ${crossFunctionalCount} documented instances of cross-functional support beyond core job scope.`);
+  for (const g of goals.filter((g) => g.status === "green" && g.comparator === "min")) {
+    raise.push(`Met the "${g.label}" target (${g.ytdActual} vs. target ${g.target}).`);
+  }
+  if (current.crossFunctional > 0) {
+    raise.push(`${current.crossFunctional} documented instances of cross-functional support beyond core job scope.`);
   }
 
   if (promotion.length === 0) {
-    promotion.push("Log more high-impact entries (urgent saves, led initiatives, cross-team wins) to build this out.");
+    promotion.push("Star your top wins in the Evidence Vault, or log high-impact entries, to build this out.");
   }
   if (raise.length === 0) {
-    raise.push("Log more goal-aligned entries throughout the year to build this out.");
+    raise.push("Add measurable results (hours saved, defects caught, delays avoided) to your entries to build this out.");
   }
-
   return { promotion, raise };
 }
 
-// Compiles every stored EvidenceRecord for the year into a Year-End Self
-// Assessment. Only ever pulls from data already saved in the app, never
-// fabricates accomplishments. Shared by the JSON API route (/review page)
-// and the Word-export route.
-export async function getYearInReview(year: number) {
-  const ref = new Date(year, 0, 1);
-  const range = { gte: startOfYear(ref), lte: endOfYear(ref) };
+export async function getPeriodReport(period: Period) {
+  const prev = previousPeriod(period);
+  const ytdStart = new Date(period.end.getFullYear(), 0, 1);
 
-  const [records, goalEvents] = await Promise.all([
-    prisma.evidenceRecord.findMany({ where: { recordDate: range }, orderBy: { recordDate: "asc" } }),
-    prisma.goalMetricEvent.findMany({ where: { eventDate: range } }),
+  const [records, prevRecords, periodGoalEvents, ytdGoalEvents, firstEntry] = await Promise.all([
+    prisma.evidenceRecord.findMany({
+      where: { recordDate: { gte: period.start, lte: period.end } },
+      orderBy: { recordDate: "asc" },
+    }),
+    prisma.evidenceRecord.findMany({ where: { recordDate: { gte: prev.start, lte: prev.end } } }),
+    prisma.goalMetricEvent.findMany({ where: { eventDate: { gte: period.start, lte: period.end } } }),
+    prisma.goalMetricEvent.findMany({ where: { eventDate: { gte: ytdStart, lte: period.end } } }),
+    prisma.dailyEntry.findFirst({ orderBy: { entryDate: "asc" }, select: { entryDate: true } }),
   ]);
 
-  const counts = new Map<string, number>();
-  for (const e of goalEvents) counts.set(e.metricKey, (counts.get(e.metricKey) ?? 0) + 1);
+  const count = (events: { metricKey: string }[]) => {
+    const m = new Map<string, number>();
+    for (const e of events) m.set(e.metricKey, (m.get(e.metricKey) ?? 0) + 1);
+    return m;
+  };
+  const periodCounts = count(periodGoalEvents);
+  const ytdCounts = count(ytdGoalEvents);
 
-  const goalAchievementSummary = GOAL_METRICS.map((m) => {
-    const actual = counts.get(m.key) ?? 0;
+  // Annual targets are judged on the year to date at the end of the period;
+  // the period's own contribution is shown alongside.
+  const goals = GOAL_METRICS.map((m) => {
+    const ytdActual = ytdCounts.get(m.key) ?? 0;
     return {
       label: m.label,
       target: m.target,
       comparator: m.comparator,
-      actual,
-      status: goalMetricStatus(m, actual),
+      periodActual: periodCounts.get(m.key) ?? 0,
+      ytdActual,
+      status: goalMetricStatus(m, ytdActual),
     };
   });
 
-  const sections: Record<string, EvidenceRecord[]> = {
+  const sections: Record<string, ReportItem[]> = {
     crossFunctionalSupport: [],
     leadership: [],
     knowledgeSharing: [],
@@ -91,27 +195,39 @@ export async function getYearInReview(year: number) {
     goalAchievement: [],
     other: [],
   };
-
-  for (const record of records) {
-    const key = CATEGORY_TO_SECTION[record.category] ?? "other";
-    sections[key].push(record);
+  for (const r of rankTopWins(records, records.length)) {
+    sections[CATEGORY_TO_SECTION[r.category] ?? "other"].push(toItem(r));
   }
 
-  const topAccomplishments = [...records]
-    .sort((a, b) => impactRank(b.impactLevel) - impactRank(a.impactLevel))
-    .slice(0, 8);
-
-  const talkingPoints = buildTalkingPoints(records, goalAchievementSummary);
+  const current = summarize(records);
+  const previous = summarize(prevRecords);
+  const topWins = rankTopWins(records, 8);
 
   return {
-    year,
+    period: {
+      kind: period.kind,
+      label: period.label,
+      reviewNote: period.reviewNote,
+      start: period.start.toISOString(),
+      end: period.end.toISOString(),
+      inProgress: isInProgress(period),
+    },
+    previousLabel: prev.label,
     goal: ANNUAL_GOAL,
-    totalEvidenceCount: records.length,
-    goalAchievementSummary,
-    topAccomplishments,
+    current,
+    previous,
+    topWins: topWins.map(toItem),
+    goals,
     sections,
-    talkingPoints,
+    talkingPoints: buildTalkingPoints(topWins, current, goals),
+    health: {
+      total: current.evidence,
+      withResults: current.withResults,
+      starred: current.starred,
+      monthsWithoutEvidence: monthsWithoutEvidence(period, records, firstEntry?.entryDate ?? null),
+      goalsWithoutEvidence: goals.filter((g) => g.comparator === "min" && g.ytdActual === 0).map((g) => g.label),
+    },
   };
 }
 
-export type YearInReview = Awaited<ReturnType<typeof getYearInReview>>;
+export type PeriodReport = Awaited<ReturnType<typeof getPeriodReport>>;

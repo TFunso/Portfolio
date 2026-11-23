@@ -2,6 +2,16 @@
 
 import { useState } from "react";
 import { queueEntry } from "@/lib/offlineQueue";
+import { formatMetrics, hasMetrics, type ResultMetrics } from "@/lib/metrics";
+import ResultEditor, { StarButton } from "@/components/ResultEditor";
+
+interface LastSaved {
+  entryId: string;
+  hasEvidence: boolean;
+  metrics: ResultMetrics;
+  metricsSaved: boolean;
+  starred: boolean;
+}
 
 const EXAMPLES = [
   "Inspected 6 lots",
@@ -16,6 +26,35 @@ export default function BrainDumpForm({ onSaved }: { onSaved?: () => void }) {
   const [saving, setSaving] = useState(false);
   const [lastResult, setLastResult] = useState<{ counts: boolean; reason: string } | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [lastSaved, setLastSaved] = useState<LastSaved | null>(null);
+  const [editingResult, setEditingResult] = useState(false);
+  const [resultNote, setResultNote] = useState<string | null>(null);
+
+  async function patchResult(body: Record<string, unknown>): Promise<boolean> {
+    if (!lastSaved) return false;
+    const res = await fetch(`/api/entries/${lastSaved.entryId}/result`, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(body),
+    });
+    if (!res.ok) return false;
+    const { evidence } = await res.json();
+    setLastSaved({
+      entryId: lastSaved.entryId,
+      hasEvidence: true,
+      metrics: evidence,
+      metricsSaved: true,
+      starred: evidence.starred,
+    });
+    onSaved?.();
+    return true;
+  }
+
+  async function toggleStar() {
+    if (!lastSaved) return;
+    const ok = await patchResult({ starred: !lastSaved.starred });
+    if (ok) setResultNote(lastSaved.starred ? null : "Starred - this will lead your reports.");
+  }
 
   async function submit() {
     const content = value.trim();
@@ -44,6 +83,15 @@ export default function BrainDumpForm({ onSaved }: { onSaved?: () => void }) {
         counts: data.entry.classification.counts,
         reason: data.entry.classification.reason,
       });
+      setLastSaved({
+        entryId: data.entry.id,
+        hasEvidence: Boolean(data.evidence),
+        metrics: data.evidence ?? data.suggestedMetrics ?? {},
+        metricsSaved: Boolean(data.evidence),
+        starred: false,
+      });
+      setEditingResult(false);
+      setResultNote(null);
       setValue("");
       onSaved?.();
     } catch (e) {
@@ -102,6 +150,59 @@ export default function BrainDumpForm({ onSaved }: { onSaved?: () => void }) {
           }`}
         >
           <strong>{lastResult.counts ? "This counted." : "Logged."}</strong> {lastResult.reason}
+        </div>
+      )}
+      {lastResult && lastSaved && (
+        <div className="mt-3 space-y-2 rounded-xl border border-slate-200 p-3 text-sm dark:border-slate-800">
+          <div className="flex flex-wrap items-center justify-between gap-2">
+            <p className="text-slate-600 dark:text-slate-300">
+              {hasMetrics(lastSaved.metrics) ? (
+                <>
+                  <span className="font-medium">Result: </span>
+                  {formatMetrics(lastSaved.metrics)}
+                  {!lastSaved.metricsSaved && <span className="text-slate-400"> (found in your note - save to keep)</span>}
+                </>
+              ) : (
+                <span className="text-slate-500 dark:text-slate-400">
+                  Any result to add? Numbers make reviews land.
+                </span>
+              )}
+            </p>
+            <div className="flex gap-2">
+              <StarButton starred={lastSaved.starred} onToggle={toggleStar} />
+              {!editingResult && !lastSaved.metricsSaved && hasMetrics(lastSaved.metrics) && (
+                <button
+                  type="button"
+                  className="btn-primary px-2.5 py-1 text-xs"
+                  onClick={async () => {
+                    if (await patchResult(lastSaved.metrics)) setResultNote("Result saved.");
+                  }}
+                >
+                  Keep result
+                </button>
+              )}
+              {!editingResult && (
+                <button type="button" className="btn-secondary px-2.5 py-1 text-xs" onClick={() => setEditingResult(true)}>
+                  {hasMetrics(lastSaved.metrics) ? "Edit result" : "+ Add result"}
+                </button>
+              )}
+            </div>
+          </div>
+          {editingResult && (
+            <ResultEditor
+              initial={lastSaved.metrics}
+              onCancel={() => setEditingResult(false)}
+              onSave={async (metrics) => {
+                const ok = await patchResult(metrics);
+                if (ok) {
+                  setEditingResult(false);
+                  setResultNote("Result saved.");
+                }
+                return ok;
+              }}
+            />
+          )}
+          {resultNote && <p className="text-xs text-green-700 dark:text-green-400">{resultNote}</p>}
         </div>
       )}
     </div>

@@ -60,6 +60,26 @@ Later additions, built on the same data:
   backup on the first Monday of each month, plus an "Email me a backup now"
   button.
 
+- **Measurable results + top wins** (`src/lib/metrics.ts`,
+  `src/lib/evidenceResult.ts`, `src/components/ResultEditor.tsx`) - five
+  optional result fields on each piece of evidence (hours saved, lots/parts,
+  defects caught, days of delay avoided, $ saved/avoided). Numbers already in
+  an entry ("inspected 6 lots", "saved 3 hours") are picked up at capture by
+  a conservative deterministic parser (hours/days/$ only count next to a
+  savings word); a row under the capture box shows them and lets you add or
+  fix results, or star the entry as a **top win**. Starred wins lead every
+  report. The Evidence Vault can edit results, filter to top wins, and scan
+  older entries for numbers.
+- **Review Reports** (`src/lib/periods.ts`, `src/lib/review.ts`, `/review`) -
+  replaces the year-only review. Periods match the review calendar:
+  **Mid-Year** (Jan 1 - May 31, for the May review), **Year-End** (calendar
+  year, for the January review), Q1-Q4, or custom dates; the page opens on
+  whichever review is next. Each report is compared with the previous
+  equivalent period, totals measurable results, leads with starred wins,
+  shows goal progress (annual targets judged year-to-date), flags weak spots
+  before the review (entries with no result, no stars, months with nothing
+  logged, goals with no progress), and exports to Word or PDF.
+
 All Claude calls go through `src/lib/claude.ts` (`claude-opus-5-5`, with
 server-side refusal fallback enabled).
 

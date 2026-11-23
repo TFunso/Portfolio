@@ -5,6 +5,7 @@ import { classifyEntry } from "@/lib/classifier";
 import { buildEvidenceDraft, shouldAutoFile } from "@/lib/evidence";
 import { polishProfessionalSummary } from "@/lib/ai";
 import { toJson } from "@/lib/json";
+import { extractMetrics } from "@/lib/metrics";
 
 export const dynamic = "force-dynamic";
 
@@ -72,9 +73,15 @@ export async function POST(req: NextRequest) {
     include: { classification: true },
   });
 
+  // Numbers already in the text ("inspected 6 lots", "saved 3 hours") are
+  // recorded as results automatically; the capture form shows them for a
+  // quick check and lets you add any it missed.
+  const metrics = extractMetrics(content);
+
+  let evidence = null;
   if (shouldAutoFile(classification)) {
     const draft = buildEvidenceDraft(content, classification);
-    await prisma.evidenceRecord.create({
+    evidence = await prisma.evidenceRecord.create({
       data: {
         entryId: entry.id,
         whatHappened: draft.whatHappened,
@@ -85,6 +92,7 @@ export async function POST(req: NextRequest) {
         impactLevel: draft.impactLevel,
         suggestedReviewLanguage: draft.suggestedReviewLanguage,
         source: "daily-entry",
+        ...metrics,
       },
     });
   }
@@ -98,5 +106,5 @@ export async function POST(req: NextRequest) {
     });
   }
 
-  return NextResponse.json({ entry }, { status: 201 });
+  return NextResponse.json({ entry, evidence, suggestedMetrics: metrics }, { status: 201 });
 }

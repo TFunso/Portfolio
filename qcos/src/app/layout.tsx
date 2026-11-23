@@ -30,7 +30,7 @@ const NAV_ITEMS = [
   { href: "/goals", label: "Goals" },
   { href: "/cross-functional", label: "Cross-Functional" },
   { href: "/reflection", label: "Reflection" },
-  { href: "/review", label: "Year-End Review" },
+  { href: "/review", label: "Reviews" },
   { href: "/promotion-report", label: "Promotion Report" },
   { href: "/gap-check", label: "Gap Check" },
 ];
