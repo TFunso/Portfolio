@@ -3,6 +3,8 @@
 import { useCallback, useEffect, useState } from "react";
 import { parsePromotionReportSections } from "@/lib/promotionReportFormat";
 import { formatDateTime } from "@/lib/dates";
+import PromotionDashboard from "@/components/PromotionDashboard";
+import type { PromotionStats } from "@/lib/promotionReport";
 
 interface Report {
   id: string;
@@ -25,6 +27,7 @@ const SCOPE_OPTIONS = [
 export default function PromotionReportPage() {
   const [scopeValue, setScopeValue] = useState("all-time");
   const [report, setReport] = useState<Report | null>(null);
+  const [stats, setStats] = useState<PromotionStats | null>(null);
   const [loading, setLoading] = useState(true);
   const [generating, setGenerating] = useState(false);
 
@@ -41,8 +44,13 @@ export default function PromotionReportPage() {
 
   const load = useCallback(async () => {
     setLoading(true);
-    const res = await fetch(`/api/promotion-report?${scopeParams().toString()}`);
-    if (res.ok) setReport((await res.json()).report);
+    const query = scopeParams().toString();
+    const [reportRes, statsRes] = await Promise.all([
+      fetch(`/api/promotion-report?${query}`),
+      fetch(`/api/promotion-report/stats?${query}`),
+    ]);
+    if (reportRes.ok) setReport((await reportRes.json()).report);
+    if (statsRes.ok) setStats((await statsRes.json()).stats);
     setLoading(false);
   }, [scopeParams]);
 
@@ -91,34 +99,49 @@ export default function PromotionReportPage() {
           <button className="btn-secondary" disabled={generating} onClick={generate}>
             {generating ? "Generating…" : report ? "Regenerate" : "Generate"}
           </button>
+          {(report || (stats && stats.evidenceCount > 0)) && (
+            <button className="btn-secondary" onClick={() => window.print()}>
+              Print / Save PDF
+            </button>
+          )}
           {report && (
-            <>
-              <button className="btn-secondary" onClick={() => window.print()}>
-                Print / Save PDF
-              </button>
-              <a className="btn-primary" href={exportHref} download>
-                Download as Word
-              </a>
-            </>
+            <a className="btn-primary" href={exportHref} download>
+              Download as Word
+            </a>
           )}
         </div>
       </div>
 
       {loading ? (
         <div className="card animate-pulse text-sm text-slate-400">Loading…</div>
-      ) : !report ? (
-        <div className="card text-sm text-slate-500 dark:text-slate-400">
-          No report generated yet for this scope. Click &ldquo;Generate&rdquo; above - it pulls from everything already
-          saved in your Evidence Vault, so it only takes a moment.
-        </div>
       ) : (
-        <article className="card mx-auto max-w-3xl space-y-5 print:border-none print:shadow-none">
+        <>
+          {stats && (
+            <section className="space-y-3">
+              <h2 className="text-lg font-semibold print:text-base">At a Glance &middot; {stats.scopeLabel}</h2>
+              <PromotionDashboard stats={stats} />
+            </section>
+          )}
+
+          {!report ? (
+            <div className="card text-sm text-slate-500 dark:text-slate-400 print:hidden">
+              No written report yet for this scope. Click &ldquo;Generate&rdquo; above - it pulls from everything
+              already saved in your Evidence Vault, so it only takes a moment.
+            </div>
+          ) : (
+        <article className="card mx-auto max-w-3xl space-y-5 print:break-before-page print:border-none print:shadow-none">
           <header className="border-b border-slate-200 pb-3 dark:border-slate-800">
             <h2 className="text-xl font-bold">Promotion Case &middot; {report.scopeLabel}</h2>
             <p className="mt-1 text-xs text-slate-400">
               Generated {formatDateTime(report.generatedAt)} &middot; {report.evidenceCount} pieces of evidence &middot;{" "}
               {report.aiGenerated ? "AI-written narrative" : "Compiled summary (no AI key configured)"}
             </p>
+            {stats && stats.evidenceCount !== report.evidenceCount && (
+              <p className="mt-2 text-xs font-medium text-brand-600 dark:text-brand-300 print:hidden">
+                You&apos;ve logged more since this was written ({stats.evidenceCount} pieces now) - click
+                &ldquo;Regenerate&rdquo; to include them.
+              </p>
+            )}
           </header>
 
           {sections.map((section, i) => (
@@ -138,6 +161,8 @@ export default function PromotionReportPage() {
             </section>
           ))}
         </article>
+          )}
+        </>
       )}
     </div>
   );

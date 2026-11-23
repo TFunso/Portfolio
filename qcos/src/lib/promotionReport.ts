@@ -63,6 +63,46 @@ interface GatheredData {
   categoryTotals: { category: string; count: number }[];
   crossFunctional: { department: string; count: number }[];
   goalProgress: { label: string; actual: number; target: number; comparator: string; status: string }[];
+  impactTotals: { high: number; medium: number; low: number };
+  monthly: { monthKey: string; label: string; count: number }[];
+}
+
+const MAX_MONTHS_ALL_TIME = 24;
+
+// Evidence counts per month across the scope: Jan-Dec for a year (stopping
+// at the current month for the current year), or from the first logged
+// month to now for all-time, capped to the most recent 24 months so the
+// chart stays readable.
+function monthlyCounts(scope: PromotionReportScope, dates: Date[]): { monthKey: string; label: string; count: number }[] {
+  if (dates.length === 0) return [];
+  const now = new Date();
+  let start: Date;
+  let end: Date;
+  if (scope.type === "year") {
+    start = new Date(scope.year, 0, 1);
+    end = scope.year === now.getFullYear() ? new Date(now.getFullYear(), now.getMonth(), 1) : new Date(scope.year, 11, 1);
+  } else {
+    const first = dates[0];
+    start = new Date(first.getFullYear(), first.getMonth(), 1);
+    end = new Date(now.getFullYear(), now.getMonth(), 1);
+    const earliestAllowed = new Date(end.getFullYear(), end.getMonth() - (MAX_MONTHS_ALL_TIME - 1), 1);
+    if (start < earliestAllowed) start = earliestAllowed;
+  }
+
+  const counts = new Map<string, number>();
+  for (const d of dates) {
+    const key = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}`;
+    counts.set(key, (counts.get(key) ?? 0) + 1);
+  }
+
+  const spansYears = start.getFullYear() !== end.getFullYear();
+  const months: { monthKey: string; label: string; count: number }[] = [];
+  for (let m = new Date(start); m <= end; m = new Date(m.getFullYear(), m.getMonth() + 1, 1)) {
+    const key = `${m.getFullYear()}-${String(m.getMonth() + 1).padStart(2, "0")}`;
+    const name = m.toLocaleDateString("en-US", { month: "short" });
+    months.push({ monthKey: key, label: spansYears ? `${name} '${String(m.getFullYear()).slice(2)}` : name, count: counts.get(key) ?? 0 });
+  }
+  return months;
 }
 
 async function gatherData(scope: PromotionReportScope): Promise<GatheredData> {
@@ -123,12 +163,42 @@ async function gatherData(scope: PromotionReportScope): Promise<GatheredData> {
     .slice(0, MAX_RECORDS_FOR_DIGEST)
     .sort((a, b) => a.recordDate.getTime() - b.recordDate.getTime());
 
+  const impactTotals = { high: 0, medium: 0, low: 0 };
+  for (const r of allRecords) {
+    if (r.impactLevel === "High") impactTotals.high++;
+    else if (r.impactLevel === "Medium") impactTotals.medium++;
+    else impactTotals.low++;
+  }
+
   return {
     records: curated,
     evidenceCount: allRecords.length,
     categoryTotals,
     crossFunctional,
     goalProgress,
+    impactTotals,
+    monthly: monthlyCounts(
+      scope,
+      allRecords.map((r) => r.recordDate),
+    ),
+  };
+}
+
+export type PromotionStats = Omit<GatheredData, "records"> & { scopeLabel: string };
+
+// The numbers behind the Promotion Report's visual dashboard - computed
+// live from the vault on every request (no AI, no caching needed), so the
+// dashboard is always current even when the cached narrative is older.
+export async function getPromotionStats(scope: PromotionReportScope): Promise<PromotionStats> {
+  const data = await gatherData(scope);
+  return {
+    evidenceCount: data.evidenceCount,
+    categoryTotals: data.categoryTotals,
+    crossFunctional: data.crossFunctional,
+    goalProgress: data.goalProgress,
+    impactTotals: data.impactTotals,
+    monthly: data.monthly,
+    scopeLabel: scopeLabel(scope),
   };
 }
 

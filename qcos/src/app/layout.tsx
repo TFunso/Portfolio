@@ -40,7 +40,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       <body>
         <OfflineSync />
         <div className="min-h-screen">
-          <header className="sticky top-0 z-10 border-b border-slate-200 bg-white/80 backdrop-blur dark:border-slate-800 dark:bg-slate-950/80">
+          <header className="sticky top-0 z-10 border-b print:hidden border-slate-200 bg-white/80 backdrop-blur dark:border-slate-800 dark:bg-slate-950/80">
             <div className="mx-auto flex max-w-6xl flex-wrap items-center justify-between gap-3 px-4 py-3">
               <a href="/" className="flex items-center gap-2">
                 <span className="text-xl font-bold tracking-tight text-brand-600 dark:text-brand-400">QCOS</span>
@@ -59,7 +59,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             </div>
           </header>
           <main className="mx-auto max-w-6xl px-4 py-6">{children}</main>
-          <footer className="mx-auto max-w-6xl px-4 py-8 text-center text-xs text-slate-400 dark:text-slate-600">
+          <footer className="mx-auto max-w-6xl print:hidden px-4 py-8 text-center text-xs text-slate-400 dark:text-slate-600">
             Local-first evidence, not employee surveillance. Every insight here comes only from what you chose to log.
           </footer>
         </div>
