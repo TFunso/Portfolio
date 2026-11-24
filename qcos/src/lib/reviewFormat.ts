@@ -15,7 +15,8 @@ export function comparison(previousValue: string, previous: PeriodSummary, previ
 }
 
 export function resultLines(current: PeriodSummary, previous: PeriodSummary, previousLabel: string): string[] {
-  return RESULT_METRICS.filter((m) => current.results[m.key] > 0 || previous.results[m.key] > 0).map(
+  // SIRs have their own section, so they're not repeated here.
+  return RESULT_METRICS.filter((m) => m.key !== "sirsCompleted" && (current.results[m.key] > 0 || previous.results[m.key] > 0)).map(
     (m) =>
       `${m.label}: ${formatResultValue(m.key, current.results[m.key])}${comparison(formatResultValue(m.key, previous.results[m.key]), previous, previousLabel)}`,
   );

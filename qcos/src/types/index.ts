@@ -10,6 +10,7 @@ export type Category =
   | "Continuous Improvement"
   | "Customer Support"
   | "Problem Solving"
+  | "First Article (SIR)"
   | "Promotion Evidence";
 
 export type Department =

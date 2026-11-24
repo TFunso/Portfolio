@@ -43,10 +43,13 @@ npm run db:seed                  # tsx prisma/seed.ts
   `npx vitest run tests/rank.test.ts`. It also has
   `npm run hunter:run` (runs the ingestion worker once, `tsx src/workers/rentHunter.ts`).
 - `qcos` has unit tests under `tests/` for its pure logic (`metrics` -
-  result-number extraction, `periods` - review-period boundaries, `volume` -
-  SAP paste parsing and double-count rule); run one
-  with `npx vitest run tests/periods.test.ts`. Tests import via relative
-  paths (no vitest alias config). It also has `npm run db:push`
+  result-number and SIR extraction, `periods` - review-period boundaries,
+  `volume` - SAP paste parsing and double-count rule, `classifier` - SIR
+  recognition and word-boundary false positives); run one with
+  `npx vitest run tests/periods.test.ts`. `vitest.config.ts` maps the `@/`
+  alias, so modules that import each other through it can be tested.
+  When filtering test output, include the `Test Files` line - a test file
+  that fails to load reports 0 tests rather than a failed test. It also has `npm run db:push`
   (`prisma db push`, schema sync without a migration).
 - `qcos`'s `build` script runs `prisma migrate deploy && next build` —
   migrations apply as part of every build (including on Vercel, where the
@@ -178,6 +181,13 @@ anything external.
   year). Evidence carries optional result metrics and a `starred` "top win"
   flag; `src/lib/metrics.ts` is the single definition of the five metrics -
   every report, export, and AI prompt reads totals and wording from it.
+- **First article inspection (SIR)** is its own classifier category
+  (`"First Article (SIR)"`, matched by `SIR_PATTERNS` in `metrics.ts` -
+  whole-word only; "FAIR" deliberately excluded). Evidence has
+  `sirsCompleted` (a result; counted only when the entry says it's done, so
+  a multi-day SIR isn't counted per day) and `hoursSpent` (effort, not a
+  result - never part of `hasMetrics`). Reports group SIR work in its own
+  section and talking point.
 - **SAP inspection volume** (`InspectionVolume`, one row per month) is the
   official lot count and is kept out of `EvidenceRecord` on purpose. For
   months it covers, `unitsHandled` from entries must not be added on top -

@@ -94,6 +94,13 @@ Later additions, built on the same data:
   decision (so they sum to 100%); and QNs raised are set against logged QN
   clarification requests for a "QNs right first time" rate.
 
+- **First article inspection (SIR)** - entries mentioning SIR, FAI or first
+  article are their own evidence category. QCOS records SIRs completed (only
+  when an entry says it's done, so a multi-day SIR counts once), hours spent
+  (effort), and nonconformances found; review reports get a "First Articles
+  / SIRs" section and talking point. The Evidence Vault's "Find numbers in
+  older entries" also files older SIR entries the earlier rules missed.
+
 All Claude calls go through `src/lib/claude.ts` (`claude-opus-5-5`, with
 server-side refusal fallback enabled).
 

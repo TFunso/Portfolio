@@ -18,6 +18,8 @@ export const resultInputSchema = z.object({
   defectsCaught: metric(1_000_000),
   delayDaysAvoided: metric(10_000),
   costAvoided: metric(1_000_000_000),
+  sirsCompleted: metric(100_000),
+  hoursSpent: metric(100_000),
 });
 
 export type ResultInput = z.infer<typeof resultInputSchema>;
@@ -27,7 +29,7 @@ function toData(input: ResultInput) {
   for (const [key, value] of Object.entries(input)) {
     if (value === undefined) continue;
     // Integer columns: round whatever was typed.
-    if (typeof value === "number" && ["unitsHandled", "defectsCaught", "costAvoided"].includes(key)) {
+    if (typeof value === "number" && ["unitsHandled", "defectsCaught", "costAvoided", "sirsCompleted"].includes(key)) {
       data[key] = Math.round(value);
     } else {
       data[key] = value === 0 ? null : value; // 0 means "cleared"

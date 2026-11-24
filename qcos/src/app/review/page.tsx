@@ -9,6 +9,7 @@ import { formatResultValue, goalStatusWord } from "@/lib/reviewFormat";
 import type { PeriodReport } from "@/lib/review";
 
 const SECTION_LABELS: Record<string, string> = {
+  firstArticle: "First Article / SIR",
   crossFunctionalSupport: "Cross-Functional Support",
   leadership: "Leadership",
   knowledgeSharing: "Knowledge Sharing",
@@ -80,7 +81,9 @@ export default function ReviewPage() {
   const prevLabel = data?.previousLabel ?? "";
   const noPrev = (data?.previous.evidence ?? 0) === 0;
   const resultMetrics = data
-    ? RESULT_METRICS.filter((m) => data.current.results[m.key] > 0 || data.previous.results[m.key] > 0)
+    ? RESULT_METRICS.filter(
+        (m) => m.key !== "sirsCompleted" && (data.current.results[m.key] > 0 || data.previous.results[m.key] > 0),
+      )
     : [];
   const health = data?.health;
   const healthIssues =
@@ -236,6 +239,31 @@ export default function ReviewPage() {
                 Lots mentioned in your daily entries for these months are already inside the SAP totals, so they
                 aren&apos;t added again in Measurable Results.
               </p>
+            </section>
+          )}
+
+          {data.sir && (
+            <section className="card break-inside-avoid">
+              <h3 className="font-semibold">First Articles / SIRs</h3>
+              <p className="text-xs text-slate-400">
+                From {data.sir.current.entries} logged entr{data.sir.current.entries === 1 ? "y" : "ies"} &middot; an SIR counts
+                once it&apos;s logged as completed
+              </p>
+              <div className="mt-3 grid grid-cols-3 gap-3">
+                {(
+                  [
+                    ["SIRs completed", data.sir.current.completed, data.sir.previous.completed],
+                    ["Hours invested", data.sir.current.hours, data.sir.previous.hours],
+                    ["Nonconformances caught", data.sir.current.findings, data.sir.previous.findings],
+                  ] as const
+                ).map(([label, value, prevValue]) => (
+                  <div key={label} className="rounded-xl border border-slate-200 p-3 dark:border-slate-800">
+                    <p className="text-xs text-slate-500 dark:text-slate-400">{label}</p>
+                    <p className="mt-0.5 text-2xl font-bold">{value.toLocaleString("en-US")}</p>
+                    <Delta current={value} previous={prevValue} label={prevLabel} noData={data.sir!.previous.entries === 0} />
+                  </div>
+                ))}
+              </div>
             </section>
           )}
 

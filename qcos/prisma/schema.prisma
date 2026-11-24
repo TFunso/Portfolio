@@ -76,6 +76,10 @@ model EvidenceRecord {
   defectsCaught           Int?     // defects, discrepancies, escapes prevented
   delayDaysAvoided        Float?
   costAvoided             Int?     // dollars saved or avoided
+  sirsCompleted           Int?     // first article inspections (SIRs) completed
+
+  // Effort, not a result: time invested (used for First Article / SIR work).
+  hoursSpent              Float?
 
   @@index([recordDate])
   @@index([category])

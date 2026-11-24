@@ -1,6 +1,6 @@
 import { prisma } from "@/lib/prisma";
 import { GOAL_METRICS, goalMetricLabel, goalMetricStatus, ANNUAL_GOAL } from "@/lib/goals";
-import { formatMetrics, hasMetrics, metricsOf, sumMetrics, RESULT_METRICS } from "@/lib/metrics";
+import { formatMetrics, hasMetrics, isSirText, metricsOf, sumMetrics, RESULT_METRICS } from "@/lib/metrics";
 import { isInProgress, previousPeriod, type Period } from "@/lib/periods";
 import { MONTH_NAMES } from "@/lib/dates";
 import { getVolumeForRange } from "@/lib/volumeData";
@@ -17,6 +17,7 @@ import type { EvidenceRecord } from "@prisma/client";
 // ---------------------------------------------------------------------------
 
 const CATEGORY_TO_SECTION: Record<string, string> = {
+  "First Article (SIR)": "firstArticle",
   "Cross-Functional Support": "crossFunctionalSupport",
   Leadership: "leadership",
   "Knowledge Sharing": "knowledgeSharing",
@@ -26,6 +27,7 @@ const CATEGORY_TO_SECTION: Record<string, string> = {
 };
 
 export const SECTION_LABELS: Record<string, string> = {
+  firstArticle: "First Article / SIR",
   crossFunctionalSupport: "Cross-Functional Support",
   leadership: "Leadership",
   knowledgeSharing: "Knowledge Sharing",
@@ -123,9 +125,20 @@ function buildTalkingPoints(
   goals: { label: string; ytdActual: number; target: number; status: string; comparator: string }[],
   volume: VolumeTotals | null,
   qnQuality: ReturnType<typeof qnFirstTimeRight>,
+  sir: SirSummary,
 ) {
   const promotion: string[] = [];
   const raise: string[] = [];
+
+  if (sir.completed > 0 || sir.hours > 0) {
+    const bits: string[] = [];
+    if (sir.completed > 0) bits.push(`completed ${sir.completed} first article inspection${sir.completed === 1 ? "" : "s"} (SIRs)`);
+    else bits.push("carried out first article inspection (SIR) work");
+    if (sir.hours > 0) bits.push(`investing about ${sir.hours.toLocaleString("en-US")} hours`);
+    let line = bits.join(", ");
+    if (sir.findings > 0) line += `, and caught ${sir.findings} nonconformance${sir.findings === 1 ? "" : "s"} in the process`;
+    raise.push(`${line.charAt(0).toUpperCase()}${line.slice(1)}.`);
+  }
 
   if (volume && volume.inspected > 0) {
     const n = (v: number) => v.toLocaleString("en-US");
@@ -144,7 +157,8 @@ function buildTalkingPoints(
     promotion.push(`${r.suggestedReviewLanguage || r.whatHappened}${result ? ` (Result: ${result})` : ""}`);
   }
 
-  const resultBits = RESULT_METRICS.filter((m) => current.results[m.key] > 0).map(
+  // SIRs get their own talking point above.
+  const resultBits = RESULT_METRICS.filter((m) => m.key !== "sirsCompleted" && current.results[m.key] > 0).map(
     (m) => `${m.key === "costAvoided" ? `$${current.results[m.key].toLocaleString("en-US")}` : current.results[m.key].toLocaleString("en-US")} ${m.unit}`,
   );
   if (resultBits.length > 0) {
@@ -204,6 +218,7 @@ export async function getPeriodReport(period: Period) {
   });
 
   const sections: Record<string, ReportItem[]> = {
+    firstArticle: [],
     crossFunctionalSupport: [],
     leadership: [],
     knowledgeSharing: [],
@@ -212,7 +227,7 @@ export async function getPeriodReport(period: Period) {
     other: [],
   };
   for (const r of rankTopWins(records, records.length)) {
-    sections[CATEGORY_TO_SECTION[r.category] ?? "other"].push(toItem(r));
+    sections[isSirRecord(r) ? "firstArticle" : (CATEGORY_TO_SECTION[r.category] ?? "other")].push(toItem(r));
   }
 
   const current = summarize(records);
@@ -235,6 +250,10 @@ export async function getPeriodReport(period: Period) {
   const clarifications = goals.find((g) => g.label === goalMetricLabel("qn_clarification_request"))?.periodActual ?? 0;
   const qnQuality = volume ? qnFirstTimeRight(volume.totals.qnsRaised, clarifications) : null;
 
+  const sirCurrent = sirSummary(records);
+  const sirPrevious = sirSummary(prevRecords);
+  const sir = sirCurrent.entries > 0 || sirPrevious.entries > 0 ? { current: sirCurrent, previous: sirPrevious } : null;
+
   return {
     period: {
       kind: period.kind,
@@ -254,7 +273,8 @@ export async function getPeriodReport(period: Period) {
     volume: volume && volume.totals.months > 0 ? volume : null,
     previousVolume: prevVolume && prevVolume.totals.months > 0 ? prevVolume.totals : null,
     qnQuality,
-    talkingPoints: buildTalkingPoints(topWins, current, goals, volume?.totals ?? null, qnQuality),
+    sir,
+    talkingPoints: buildTalkingPoints(topWins, current, goals, volume?.totals ?? null, qnQuality, sirCurrent),
     health: {
       volumeMonthsMissing: volume?.missing ?? [],
       total: current.evidence,
@@ -267,3 +287,22 @@ export async function getPeriodReport(period: Period) {
 }
 
 export type PeriodReport = Awaited<ReturnType<typeof getPeriodReport>>;
+
+// First article / SIR work: the category, an SIR count, or the words in the
+// entry itself (covers evidence filed before SIR support existed).
+function isSirRecord(r: EvidenceRecord): boolean {
+  return r.category === "First Article (SIR)" || (r.sirsCompleted ?? 0) > 0 || isSirText(r.whatHappened);
+}
+
+function sirSummary(records: EvidenceRecord[]) {
+  const sirs = records.filter(isSirRecord);
+  const sum = (f: (r: EvidenceRecord) => number | null) => Math.round(sirs.reduce((t, r) => t + (f(r) ?? 0), 0) * 10) / 10;
+  return {
+    entries: sirs.length,
+    completed: sum((r) => r.sirsCompleted),
+    hours: sum((r) => r.hoursSpent),
+    findings: sum((r) => r.defectsCaught),
+  };
+}
+
+type SirSummary = ReturnType<typeof sirSummary>;

@@ -6,6 +6,7 @@ import type {
   GoalMetricKey,
   ImpactLevel,
 } from "@/types";
+import { SIR_PATTERNS } from "@/lib/metrics";
 
 // ---------------------------------------------------------------------------
 // The "AI Achievement Detector". This is a deterministic, explainable rules
@@ -23,10 +24,23 @@ import type {
 interface KeywordRule {
   category: Category;
   keywords: string[];
+  // Whole-word patterns for short acronyms that would otherwise match
+  // inside other words ("sir" in "desire").
+  patterns?: RegExp[];
   weight: number;
 }
 
+
 const CATEGORY_RULES: KeywordRule[] = [
+  // First article inspection (SIR) - listed first so it becomes the
+  // evidence record's primary category. Long, technical work that verifies
+  // a part against its drawing and specs; weighted high so it always counts.
+  {
+    category: "First Article (SIR)",
+    keywords: [],
+    patterns: SIR_PATTERNS,
+    weight: 3,
+  },
   {
     category: "Goal Contribution",
     keywords: [
@@ -109,14 +123,18 @@ const CATEGORY_RULES: KeywordRule[] = [
       "drawing",
       "gd&t",
       "tolerance",
-      "spec",
       "deviation",
       "measurement",
       "calibration",
       "cmm",
       "blueprint",
       "print interpretation",
+      "nonconform",
+      "non-conform",
+      "discrepanc",
     ],
+    // whole word only - a plain "spec" keyword matched inside "inspected"
+    patterns: [/\bspecs?\b/, /\bspecifications?\b/],
     weight: 1.5,
   },
   {
@@ -207,10 +225,10 @@ function scoreCategories(normalized: string): { categories: Category[]; score: n
   const matched: Category[] = [];
   let score = 0;
   for (const rule of CATEGORY_RULES) {
-    const hits = matchKeywords(normalized, rule.keywords);
-    if (hits.length > 0) {
+    const hits = matchKeywords(normalized, rule.keywords).length + (rule.patterns ?? []).filter((re) => re.test(normalized)).length;
+    if (hits > 0) {
       matched.push(rule.category);
-      score += hits.length * rule.weight;
+      score += hits * rule.weight;
     }
   }
   return { categories: matched, score };
@@ -253,6 +271,7 @@ function buildReason(categories: Category[], departments: Department[]): string 
   } else if (categories.includes("Cross-Functional Support")) {
     parts.push("supported another team or function");
   }
+  if (categories.includes("First Article (SIR)")) parts.push("verified a part against its drawing and specs through first article (SIR) inspection");
   if (categories.includes("Goal Contribution")) parts.push("directly advanced a DRIVE EFFICIENCY objective");
   if (categories.includes("Continuous Improvement")) parts.push("improved a process or reduced waste");
   if (categories.includes("Leadership")) parts.push("showed initiative or ownership");
@@ -296,11 +315,26 @@ function buildProfessionalSummary(
         ? ", supporting team and department efficiency"
         : "";
 
-  return `${lead} ${lowerFirst(trimmed)}${deptClause}${impactClause}.`;
+  const body = trimmed.replace(/[.!;,\s]+$/, "");
+  // Entries usually already start with what was done ("Inspected 6 lots",
+  // "Found 3 discrepancies") - prefixing another verb would read "Completed
+  // inspected 6 lots", so keep the user's own verb when there is one.
+  const firstWord = body.split(" ")[0]?.toLowerCase() ?? "";
+  const startsWithVerb = /^[a-z]+ed$/.test(firstWord) || PAST_TENSE_VERBS.has(firstWord);
+  const sentence = startsWithVerb ? `${body.charAt(0).toUpperCase()}${body.slice(1)}` : `${lead} ${lowerFirst(body)}`;
+  return `${sentence}${deptClause}${impactClause}.`;
 }
+
+const PAST_TENSE_VERBS = new Set([
+  "did", "found", "made", "built", "led", "ran", "wrote", "taught", "caught", "set", "put",
+  "took", "gave", "got", "held", "kept", "met", "sent", "spent", "brought", "thought", "won",
+  "drove", "saw", "began", "chose", "fought", "shut", "cut", "read", "rode", "stood", "told",
+]);
 
 function lowerFirst(text: string): string {
   if (!text) return text;
+  // Leave acronyms alone: "SIR on..." must not become "sIR on...".
+  if (/^[A-Z]{2,}/.test(text)) return text;
   return text.charAt(0).toLowerCase() + text.slice(1);
 }
 

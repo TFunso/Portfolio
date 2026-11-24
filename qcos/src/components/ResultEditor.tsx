@@ -3,11 +3,17 @@
 import { useState } from "react";
 import { RESULT_METRICS, type ResultMetricKey, type ResultMetrics } from "@/lib/metrics";
 
-type Draft = Record<ResultMetricKey, string>;
+// The five results plus SIRs, then effort (hours spent) last.
+const EDITOR_FIELDS: { key: ResultMetricKey | "hoursSpent"; label: string; integer: boolean }[] = [
+  ...RESULT_METRICS,
+  { key: "hoursSpent", label: "Hours spent", integer: false },
+];
+
+type Draft = Record<ResultMetricKey | "hoursSpent", string>;
 
 function toDraft(m: ResultMetrics): Draft {
   return Object.fromEntries(
-    RESULT_METRICS.map((def) => [def.key, typeof m[def.key] === "number" && (m[def.key] as number) > 0 ? String(m[def.key]) : ""]),
+    EDITOR_FIELDS.map((def) => [def.key, typeof m[def.key] === "number" && (m[def.key] as number) > 0 ? String(m[def.key]) : ""]),
   ) as Draft;
 }
 
@@ -31,7 +37,7 @@ export default function ResultEditor({
 
   async function save() {
     const metrics: ResultMetrics = {};
-    for (const def of RESULT_METRICS) {
+    for (const def of EDITOR_FIELDS) {
       const raw = draft[def.key].trim().replace(/[$,]/g, "");
       if (raw === "") {
         metrics[def.key] = null;
@@ -56,8 +62,8 @@ export default function ResultEditor({
 
   return (
     <div className="space-y-2">
-      <div className="grid grid-cols-2 gap-2 sm:grid-cols-5">
-        {RESULT_METRICS.map((def) => (
+      <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
+        {EDITOR_FIELDS.map((def) => (
           <label key={def.key} className="text-xs text-slate-500 dark:text-slate-400">
             {def.label}
             <input

@@ -16,6 +16,7 @@ const CATEGORIES = [
   "Continuous Improvement",
   "Customer Support",
   "Goal Contributions",
+  "First Article (SIR)",
 ];
 
 interface EvidenceRecord {
@@ -116,11 +117,13 @@ export default function EvidenceVaultPage() {
     try {
       const res = await fetch("/api/evidence/extract-metrics", { method: "POST" });
       if (res.ok) {
-        const { updated, scanned } = await res.json();
+        const { updated, scanned, filedSirEntries } = await res.json();
+        const sirNote =
+          filedSirEntries > 0 ? ` Also filed ${filedSirEntries} older SIR / first article entr${filedSirEntries === 1 ? "y" : "ies"} as evidence.` : "";
         setScanNote(
-          updated > 0
-            ? `Found results in ${updated} of ${scanned} older entries without one.`
-            : `Checked ${scanned} entries without a result - no numbers found. Add results by hand with "+ Add result".`,
+          (updated > 0
+            ? `Found results in ${updated} older entr${updated === 1 ? "y" : "ies"}.`
+            : `Checked ${scanned} entries without a result - no numbers found. Add results by hand with "+ Add result".`) + sirNote,
         );
         load();
       }

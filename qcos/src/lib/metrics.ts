@@ -20,10 +20,23 @@ export const RESULT_METRICS = [
   { key: "defectsCaught", label: "Defects caught", unit: "defects caught", integer: true },
   { key: "delayDaysAvoided", label: "Days of delay avoided", unit: "days of delay avoided", integer: false },
   { key: "costAvoided", label: "$ saved / avoided", unit: "saved/avoided", integer: true },
+  { key: "sirsCompleted", label: "SIRs completed", unit: "SIRs completed", integer: true },
 ] as const;
 
 export type ResultMetricKey = (typeof RESULT_METRICS)[number]["key"];
-export type ResultMetrics = { [K in ResultMetricKey]?: number | null };
+// hoursSpent is effort, not a result: shown alongside results and totaled
+// for First Article / SIR work, but never counted as a "measurable result".
+export type ResultMetrics = { [K in ResultMetricKey]?: number | null } & { hoursSpent?: number | null };
+
+// First article inspection (SIR). One definition, shared with the
+// classifier. "FAIR" is deliberately left out: lowercased, it's the
+// everyday word "fair".
+export const SIR_PATTERNS = [/\bsirs?\b/, /\bfais?\b/, /\bfirst[- ]articles?\b/, /\bas ?9102\b/];
+
+export function isSirText(text: string): boolean {
+  const t = text.toLowerCase();
+  return SIR_PATTERNS.some((re) => re.test(t));
+}
 
 export const RESULT_METRIC_KEYS = RESULT_METRICS.map((m) => m.key) as ResultMetricKey[];
 
@@ -114,9 +127,32 @@ function extractDefects(text: string): number | null {
   ]);
 }
 
+// SIRs: an explicit count ("completed 3 SIRs") counts as stated; otherwise
+// an SIR entry counts as one only when it says it's done - a first article
+// often spans several days of entries, and "worked on SIR" every day must
+// not count as several SIRs.
+function extractSirs(t: string): number | null {
+  if (!isSirText(t)) return null;
+  const m = /(\d+)\s+(?:sirs?|fais?|first[- ]articles?)\b/.exec(t);
+  if (m && Number(m[1]) > 0) return Number(m[1]);
+  return /\b(complet(?:e|ed)|finish(?:ed)?|closed|submitted|approved|signed off|released|done)\b/.test(t) ? 1 : null;
+}
+
+// Time spent on SIR work ("spent 6 hours on the SIR", "4 hrs on first
+// article") - effort, only read from SIR entries and never from a sentence
+// about time saved.
+function extractHoursSpent(t: string): number | null {
+  if (!isSirText(t) || new RegExp(SAVINGS_WORD).test(t)) return null;
+  return firstNumber(t, [new RegExp(String.raw`${NUM}[-\s]*(?:hours?|hrs?)\b`)]);
+}
+
 export function extractMetrics(text: string): ResultMetrics {
   const t = normalize(text);
   const out: ResultMetrics = {};
+  const sirs = extractSirs(t);
+  const hoursSpent = extractHoursSpent(t);
+  if (sirs !== null) out.sirsCompleted = Math.round(sirs);
+  if (hoursSpent !== null) out.hoursSpent = hoursSpent;
   const hours = extractHours(t);
   const units = extractUnits(t);
   const defects = extractDefects(t);
@@ -144,12 +180,24 @@ export function formatMetricValue(key: ResultMetricKey, value: number): string {
   return formatNumber(value);
 }
 
+const SINGULAR_UNIT: Partial<Record<ResultMetricKey, string>> = {
+  hoursSaved: "hour saved",
+  defectsCaught: "defect caught",
+  delayDaysAvoided: "day of delay avoided",
+};
+
 // "3 hours saved · 6 lots/parts · $5,000 saved/avoided"
 export function formatMetrics(m: ResultMetrics | null | undefined): string {
   if (!m) return "";
-  return RESULT_METRICS.filter((def) => typeof m[def.key] === "number" && (m[def.key] as number) > 0)
-    .map((def) => `${formatMetricValue(def.key, m[def.key] as number)} ${def.unit}`)
-    .join(" · ");
+  const parts = RESULT_METRICS.filter((def) => typeof m[def.key] === "number" && (m[def.key] as number) > 0).map((def) =>
+    def.key === "sirsCompleted"
+      ? `${formatNumber(m[def.key] as number)} SIR${m[def.key] === 1 ? "" : "s"} completed`
+      : `${formatMetricValue(def.key, m[def.key] as number)} ${m[def.key] === 1 ? (SINGULAR_UNIT[def.key] ?? def.unit) : def.unit}`,
+  );
+  if (typeof m.hoursSpent === "number" && m.hoursSpent > 0) {
+    parts.push(`${formatNumber(m.hoursSpent)} ${m.hoursSpent === 1 ? "hour" : "hours"} spent`);
+  }
+  return parts.join(" · ");
 }
 
 export function sumMetrics(records: ResultMetrics[]): Record<ResultMetricKey, number> {
@@ -168,5 +216,6 @@ export function sumMetrics(records: ResultMetrics[]): Record<ResultMetricKey, nu
 export function metricsOf(record: ResultMetrics): ResultMetrics {
   const out: ResultMetrics = {};
   for (const k of RESULT_METRIC_KEYS) out[k] = record[k] ?? null;
+  out.hoursSpent = record.hoursSpent ?? null;
   return out;
 }

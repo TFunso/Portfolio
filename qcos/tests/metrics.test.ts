@@ -33,6 +33,29 @@ describe("extractMetrics", () => {
   });
 });
 
+describe("first article / SIR", () => {
+  it("counts an SIR only when it's logged as done", () => {
+    expect(extractMetrics("Completed SIR for new bracket part")).toEqual({ sirsCompleted: 1 });
+    expect(extractMetrics("Worked on the SIR for the housing")).toEqual({});
+    expect(extractMetrics("Submitted 3 first articles for the new supplier")).toEqual({ sirsCompleted: 3 });
+  });
+
+  it("reads time spent from SIR entries only, never time saved", () => {
+    expect(extractMetrics("Spent 6 hours on first article inspection")).toEqual({ hoursSpent: 6 });
+    expect(extractMetrics("Finished FAI, 4.5 hrs, found 2 nonconformances")).toEqual({
+      sirsCompleted: 1,
+      hoursSpent: 4.5,
+      defectsCaught: 2,
+    });
+    expect(extractMetrics("Spent 2 hours working hot sheets")).toEqual({});
+  });
+
+  it("formats SIR results and effort", () => {
+    expect(formatMetrics({ sirsCompleted: 1, hoursSpent: 6, defectsCaught: 2 })).toBe("2 defects caught · 1 SIR completed · 6 hours spent");
+    expect(formatMetrics({ defectsCaught: 1, hoursSaved: 1 })).toBe("1 hour saved · 1 defect caught");
+  });
+});
+
 describe("helpers", () => {
   it("formats, detects and sums", () => {
     const m = { hoursSaved: 3, unitsHandled: 6, costAvoided: 5000 };
@@ -45,6 +68,7 @@ describe("helpers", () => {
       defectsCaught: 2,
       delayDaysAvoided: 0,
       costAvoided: 5000,
+      sirsCompleted: 0,
     });
   });
 });

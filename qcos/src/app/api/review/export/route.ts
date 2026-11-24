@@ -47,6 +47,14 @@ function buildDocument(data: PeriodReport): Document {
     bullet(`${current.highImpact} high-impact wins${comparison(String(previous.highImpact), previous, previousLabel)}`),
     ...resultLines(current, previous, previousLabel).map((l) => bullet(l)),
     ...volumeSection(data),
+    ...(data.sir
+      ? [
+          heading("First Articles / SIRs"),
+          bullet(
+            `${data.sir.current.completed} SIRs completed · ${data.sir.current.hours} hours invested · ${data.sir.current.findings} nonconformances caught${comparison(`${data.sir.previous.completed} SIRs`, previous, previousLabel)}`,
+          ),
+        ]
+      : []),
     heading("Top Wins"),
     ...(data.topWins.length > 0
       ? data.topWins.map((w, i) => numbered(withResult(w.text, w.result), i))
