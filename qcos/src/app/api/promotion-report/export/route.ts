@@ -10,6 +10,7 @@ import {
 import { parsePromotionReportSections } from "@/lib/promotionReportFormat";
 import { heading, bullet } from "@/lib/docxHelpers";
 import { resultsSentence } from "@/lib/promotionReport";
+import { formatVolume } from "@/lib/volume";
 
 export const dynamic = "force-dynamic";
 export const maxDuration = 60;
@@ -33,6 +34,7 @@ function atAGlance(stats: PromotionStats): Paragraph[] {
     `${onTrack} of ${stats.goalProgress.length} DRIVE EFFICIENCY goals on track (current year)`,
     `Impact mix: ${pct(high, impactSum)} high · ${pct(medium, impactSum)} medium · ${pct(low, impactSum)} low`,
   ];
+  if (stats.volume) lines.push(`Inspection volume (SAP): ${formatVolume(stats.volume)}`);
   const results = resultsSentence(stats.results);
   if (results) lines.push(`Measurable results: ${results}`);
   if (stats.categoryTotals.length > 0) {

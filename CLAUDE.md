@@ -43,7 +43,8 @@ npm run db:seed                  # tsx prisma/seed.ts
   `npx vitest run tests/rank.test.ts`. It also has
   `npm run hunter:run` (runs the ingestion worker once, `tsx src/workers/rentHunter.ts`).
 - `qcos` has unit tests under `tests/` for its pure logic (`metrics` -
-  result-number extraction, `periods` - review-period boundaries); run one
+  result-number extraction, `periods` - review-period boundaries, `volume` -
+  SAP paste parsing and double-count rule); run one
   with `npx vitest run tests/periods.test.ts`. Tests import via relative
   paths (no vitest alias config). It also has `npm run db:push`
   (`prisma db push`, schema sync without a migration).
@@ -177,6 +178,12 @@ anything external.
   year). Evidence carries optional result metrics and a `starred` "top win"
   flag; `src/lib/metrics.ts` is the single definition of the five metrics -
   every report, export, and AI prompt reads totals and wording from it.
+- **SAP inspection volume** (`InspectionVolume`, one row per month) is the
+  official lot count and is kept out of `EvidenceRecord` on purpose. For
+  months it covers, `unitsHandled` from entries must not be added on top -
+  use `unitsOutsideSapMonths()` (`src/lib/volume.ts`) wherever lots are
+  totaled. Only monthly totals are stored; raw SAP rows are parsed in the
+  browser and never sent to the server.
 - Full feature map (which spec feature lives where) and the four
   beyond-spec additions (weekly digest, email nudge, PWA/offline, Word
   export): `qcos/README.md`.

@@ -182,12 +182,26 @@ export default function PromotionDashboard({ stats }: { stats: PromotionStats })
         <StatTile label="Goals on track" value={`${goalsOnTrack}/${stats.goalProgress.length}`} hint="current year" />
       </div>
 
-      {results.length > 0 && (
+      {(results.length > 0 || stats.volume) && (
         <section className="card break-inside-avoid">
           <h3 className="text-sm font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">
             Measurable results
           </h3>
           <div className="mt-2 grid grid-cols-2 gap-3 sm:grid-cols-5 print:grid-cols-5">
+            {stats.volume && (
+              <>
+                <div>
+                  <p className="text-2xl font-bold">{stats.volume.inspected.toLocaleString("en-US")}</p>
+                  <p className="text-xs text-slate-500 dark:text-slate-400">Lots inspected (SAP)</p>
+                </div>
+                <div>
+                  <p className="text-2xl font-bold">{stats.volume.rejected.toLocaleString("en-US")}</p>
+                  <p className="text-xs text-slate-500 dark:text-slate-400">
+                    Rejected at inspection{stats.volume.rejectRate !== null ? ` (${stats.volume.rejectRate}%)` : ""}
+                  </p>
+                </div>
+              </>
+            )}
             {results.map((m) => (
               <div key={m.key}>
                 <p className="text-2xl font-bold">

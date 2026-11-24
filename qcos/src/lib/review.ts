@@ -3,6 +3,8 @@ import { GOAL_METRICS, goalMetricStatus, ANNUAL_GOAL } from "@/lib/goals";
 import { formatMetrics, hasMetrics, metricsOf, sumMetrics, RESULT_METRICS } from "@/lib/metrics";
 import { isInProgress, previousPeriod, type Period } from "@/lib/periods";
 import { MONTH_NAMES } from "@/lib/dates";
+import { getVolumeForRange } from "@/lib/volumeData";
+import { unitsOutsideSapMonths, type VolumeTotals } from "@/lib/volume";
 import type { EvidenceRecord } from "@prisma/client";
 
 // ---------------------------------------------------------------------------
@@ -119,9 +121,16 @@ function buildTalkingPoints(
   topWins: EvidenceRecord[],
   current: PeriodSummary,
   goals: { label: string; ytdActual: number; target: number; status: string; comparator: string }[],
+  volume: VolumeTotals | null,
 ) {
   const promotion: string[] = [];
   const raise: string[] = [];
+
+  if (volume && volume.inspected > 0) {
+    raise.push(
+      `Inspected ${volume.inspected.toLocaleString("en-US")} lots this period (SAP): ${volume.accepted.toLocaleString("en-US")} accepted, ${volume.rejected.toLocaleString("en-US")} rejected at inspection${volume.rejectRate !== null ? ` (${volume.rejectRate}% reject rate)` : ""}.`,
+    );
+  }
 
   for (const r of topWins.filter((w) => w.starred || w.impactLevel === "High").slice(0, 5)) {
     const result = formatMetrics(metricsOf(r));
@@ -203,6 +212,17 @@ export async function getPeriodReport(period: Period) {
   const previous = summarize(prevRecords);
   const topWins = rankTopWins(records, 8);
 
+  const [volume, prevVolume] = await Promise.all([
+    getVolumeForRange(period.start, period.end),
+    getVolumeForRange(prev.start, prev.end),
+  ]);
+  // SAP volume is the official lot count for the months it covers. Lots
+  // mentioned in daily entries from those months are already inside the SAP
+  // total, so only lots from months WITHOUT an SAP figure stay in the
+  // results totals (each entry still shows its own lots as an example).
+  current.results.unitsHandled = unitsOutsideSapMonths(records, volume?.months ?? []);
+  previous.results.unitsHandled = unitsOutsideSapMonths(prevRecords, prevVolume?.months ?? []);
+
   return {
     period: {
       kind: period.kind,
@@ -219,8 +239,11 @@ export async function getPeriodReport(period: Period) {
     topWins: topWins.map(toItem),
     goals,
     sections,
-    talkingPoints: buildTalkingPoints(topWins, current, goals),
+    volume: volume && volume.totals.months > 0 ? volume : null,
+    previousVolume: prevVolume && prevVolume.totals.months > 0 ? prevVolume.totals : null,
+    talkingPoints: buildTalkingPoints(topWins, current, goals, volume?.totals ?? null),
     health: {
+      volumeMonthsMissing: volume?.missing ?? [],
       total: current.evidence,
       withResults: current.withResults,
       starred: current.starred,

@@ -178,3 +178,22 @@ model GapCheck {
 
   @@index([createdAt])
 }
+
+// Official inspection volume from SAP, one row per month - entered by hand
+// or pasted from an SAP export (daily rows are summed to monthly totals in
+// the browser; only these totals are ever stored). Kept separate from
+// EvidenceRecord on purpose: it is workload volume, not an accomplishment,
+// and it must not be double-counted with lots mentioned in daily entries.
+model InspectionVolume {
+  id        String   @id @default(cuid())
+  year      Int
+  month     Int      // 1-12
+  inspected Int      // lots inspected
+  accepted  Int
+  rejected  Int
+  source    String   @default("SAP")
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([year, month])
+}

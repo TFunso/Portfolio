@@ -1,5 +1,7 @@
 import { CLAUDE_MODEL, REFUSAL_FALLBACK, getAnthropic, responseText } from "@/lib/claude";
 import { formatMetrics, metricsOf, sumMetrics, RESULT_METRICS, type ResultMetricKey, type ResultMetrics } from "@/lib/metrics";
+import { formatVolume, unitsOutsideSapMonths, type VolumeTotals } from "@/lib/volume";
+import { getAllTimeVolume, getVolumeForRange } from "@/lib/volumeData";
 import { prisma } from "@/lib/prisma";
 import { fromJson } from "@/lib/json";
 import { startOfYear, endOfYear, formatDate } from "@/lib/dates";
@@ -56,6 +58,7 @@ interface GatheredData {
   evidenceCount: number;
   starredCount: number;
   results: Record<ResultMetricKey, number>;
+  volume: VolumeTotals | null; // official SAP inspection volume for the scope
   categoryTotals: { category: string; count: number }[];
   crossFunctional: { department: string; count: number }[];
   goalProgress: { label: string; actual: number; target: number; comparator: string; status: string }[];
@@ -159,6 +162,17 @@ async function gatherData(scope: PromotionReportScope): Promise<GatheredData> {
     .slice(0, MAX_RECORDS_FOR_DIGEST)
     .sort((a, b) => a.recordDate.getTime() - b.recordDate.getTime());
 
+  const sap =
+    scope.type === "year"
+      ? await getVolumeForRange(new Date(scope.year, 0, 1), new Date(scope.year, 11, 31, 23, 59, 59, 999))
+      : await getAllTimeVolume();
+  const volume = sap && sap.totals.months > 0 ? sap.totals : null;
+  const results = sumMetrics(allRecords.map(metricsOf));
+  // Same rule as review reports: SAP is the official lot count for the
+  // months it covers, so only lots logged in months without SAP figures
+  // are added to the results totals.
+  results.unitsHandled = unitsOutsideSapMonths(allRecords, sap?.months ?? []);
+
   const impactTotals = { high: 0, medium: 0, low: 0 };
   for (const r of allRecords) {
     if (r.impactLevel === "High") impactTotals.high++;
@@ -170,7 +184,8 @@ async function gatherData(scope: PromotionReportScope): Promise<GatheredData> {
     records: curated,
     evidenceCount: allRecords.length,
     starredCount: allRecords.filter((r) => r.starred).length,
-    results: sumMetrics(allRecords.map(metricsOf)),
+    results,
+    volume,
     categoryTotals,
     crossFunctional,
     goalProgress,
@@ -193,6 +208,7 @@ export async function getPromotionStats(scope: PromotionReportScope): Promise<Pr
     evidenceCount: data.evidenceCount,
     starredCount: data.starredCount,
     results: data.results,
+    volume: data.volume,
     categoryTotals: data.categoryTotals,
     crossFunctional: data.crossFunctional,
     goalProgress: data.goalProgress,
@@ -230,6 +246,7 @@ function buildDigestText(data: GatheredData): string {
     `Cross-functional support by team: ${deptLine}`,
     `Current-year DRIVE EFFICIENCY goal progress: ${goalLine}`,
     `Measurable results totaled across all evidence: ${resultsSentence(data.results) || "none recorded"}`,
+    `Official inspection volume from SAP: ${data.volume ? `${formatVolume(data.volume)} across ${data.volume.months} months` : "not entered"}`,
   ].join("\n");
 }
 
@@ -255,7 +272,7 @@ async function generateNarrative(data: GatheredData, scopeLbl: string): Promise<
       system: [
         `You write a concise, ONE-PAGE (450-650 words total) promotion case for a Quality Technician, to be handed directly to their manager for a promotion/performance discussion.`,
         `Use ONLY the facts provided below - never invent names, numbers, outcomes, dates, or details beyond what's given. If the evidence is thin in an area, say less about it rather than padding with generic claims.`,
-        `Entries marked [TOP WIN] are the person's own pick of their strongest work - feature them first. "Result:" figures and the measurable-results totals are the strongest proof available: use them exactly as given, and lead "Impact By The Numbers" with the totals.`,
+        `Entries marked [TOP WIN] are the person's own pick of their strongest work - feature them first. "Result:" figures and the measurable-results totals are the strongest proof available: use them exactly as given, and lead "Impact By The Numbers" with the totals. The SAP inspection volume is the official workload figure - state it as given; rejected lots are lots rejected at inspection.`,
         `Structure the output as exactly these sections, each as a "## Header" line followed by content: ${SECTION_HEADERS.join(", ")}.`,
         `"Overview": 2-3 sentences framing their overall trajectory and case for promotion.`,
         `"Where I Shine": 3-5 bullet points ("- " prefix), each naming a recurring strength theme with one concrete grounded example.`,
@@ -301,6 +318,7 @@ function buildFallback(data: GatheredData, scopeLbl: string): string {
   lines.push("Not available without an AI pass - the compiled version lists accomplishments but doesn't analyze trajectory.");
 
   lines.push("## Impact By The Numbers");
+  if (data.volume) lines.push(`- Inspection volume (SAP): ${formatVolume(data.volume)}`);
   const totals = resultsSentence(data.results);
   if (totals) lines.push(`- Measurable results: ${totals}`);
   for (const g of data.goalProgress) {

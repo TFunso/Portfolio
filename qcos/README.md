@@ -80,6 +80,16 @@ Later additions, built on the same data:
   before the review (entries with no result, no stars, months with nothing
   logged, goals with no progress), and exports to Word or PDF.
 
+- **SAP inspection volume** (`src/lib/volume.ts`, `src/lib/volumeData.ts`,
+  `/volume`, `InspectionVolume` table) - official monthly totals of lots
+  inspected / accepted / rejected, typed in or pasted from an SAP export
+  (daily or monthly rows; dates like 2026-03-04, 04.03.2026, 03/04/2026,
+  Mar 2026). Pasted rows are summed to monthly totals in the browser; only
+  the totals are sent and stored. Review reports show the volume for the
+  period's months with a reject rate, comparison and missing-month check;
+  the Promotion Report uses it too. For months SAP covers, lots mentioned
+  in daily entries are not added on top (no double counting).
+
 All Claude calls go through `src/lib/claude.ts` (`claude-opus-5-5`, with
 server-side refusal fallback enabled).
 

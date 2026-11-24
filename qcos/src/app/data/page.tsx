@@ -14,6 +14,7 @@ const LABELS: Record<string, string> = {
   weeklyDigests: "Weekly digests",
   promotionReports: "Promotion reports",
   gapChecks: "Gap checks",
+  inspectionVolumes: "SAP volume months",
 };
 
 export default function DataPage() {

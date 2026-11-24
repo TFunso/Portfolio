@@ -4,11 +4,25 @@ import { getPeriodReport, SECTION_LABELS, type PeriodReport } from "@/lib/review
 import { parsePeriodParams } from "@/lib/periods";
 import { comparison, goalLine, resultLines } from "@/lib/reviewFormat";
 import { heading, bullet, numbered } from "@/lib/docxHelpers";
+import { formatVolume } from "@/lib/volume";
 
 export const dynamic = "force-dynamic";
 
 function withResult(text: string, result: string): string {
   return result ? `${text} (Result: ${result})` : text;
+}
+
+function volumeSection(data: PeriodReport): Paragraph[] {
+  if (!data.volume) return [];
+  const t = data.volume.totals;
+  const prev = data.previousVolume;
+  const lines = [
+    `${formatVolume(t)}${prev ? ` (${prev.inspected.toLocaleString("en-US")} inspected, ${prev.rejected.toLocaleString("en-US")} rejected in ${data.previousLabel})` : ""}`,
+    ...data.volume.months.map(
+      (m) => `${m.label}: ${m.inspected.toLocaleString("en-US")} inspected, ${m.accepted.toLocaleString("en-US")} accepted, ${m.rejected.toLocaleString("en-US")} rejected`,
+    ),
+  ];
+  return [heading("Inspection Volume (SAP)"), ...lines.map((l) => bullet(l))];
 }
 
 function buildDocument(data: PeriodReport): Document {
@@ -26,6 +40,7 @@ function buildDocument(data: PeriodReport): Document {
     bullet(`${current.evidence} pieces of evidence${comparison(String(previous.evidence), previous, previousLabel)}`),
     bullet(`${current.highImpact} high-impact wins${comparison(String(previous.highImpact), previous, previousLabel)}`),
     ...resultLines(current, previous, previousLabel).map((l) => bullet(l)),
+    ...volumeSection(data),
     heading("Top Wins"),
     ...(data.topWins.length > 0
       ? data.topWins.map((w, i) => numbered(withResult(w.text, w.result), i))

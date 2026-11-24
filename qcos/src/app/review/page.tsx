@@ -88,6 +88,7 @@ export default function ReviewPage() {
     (health.total - health.withResults > 0 ||
       health.monthsWithoutEvidence.length > 0 ||
       health.goalsWithoutEvidence.length > 0 ||
+      health.volumeMonthsMissing.length > 0 ||
       (health.total > 0 && health.starred === 0));
 
   return (
@@ -163,6 +164,67 @@ export default function ReviewPage() {
             </Tile>
           </div>
 
+          {data.volume && (
+            <section className="card break-inside-avoid">
+              <div className="flex flex-wrap items-baseline justify-between gap-2">
+                <h3 className="font-semibold">Inspection Volume (SAP)</h3>
+                <a href="/volume" className="text-xs font-medium text-brand-600 hover:underline print:hidden dark:text-brand-400">
+                  Edit SAP figures
+                </a>
+              </div>
+              <p className="text-xs text-slate-400">
+                Official monthly totals &middot; {data.volume.months.length} month{data.volume.months.length === 1 ? "" : "s"} in this
+                period
+              </p>
+              <div className="mt-3 grid grid-cols-2 gap-3 sm:grid-cols-4 print:grid-cols-4">
+                {(
+                  [
+                    ["Lots inspected", data.volume.totals.inspected, data.previousVolume?.inspected],
+                    ["Accepted", data.volume.totals.accepted, data.previousVolume?.accepted],
+                    ["Rejected at inspection", data.volume.totals.rejected, data.previousVolume?.rejected],
+                  ] as const
+                ).map(([label, value, prevValue]) => (
+                  <div key={label} className="rounded-xl border border-slate-200 p-3 dark:border-slate-800">
+                    <p className="text-xs text-slate-500 dark:text-slate-400">{label}</p>
+                    <p className="mt-0.5 text-2xl font-bold">{value.toLocaleString("en-US")}</p>
+                    <Delta current={value} previous={prevValue ?? 0} label={prevLabel} noData={!data.previousVolume} />
+                  </div>
+                ))}
+                <div className="rounded-xl border border-slate-200 p-3 dark:border-slate-800">
+                  <p className="text-xs text-slate-500 dark:text-slate-400">Reject rate</p>
+                  <p className="mt-0.5 text-2xl font-bold">
+                    {data.volume.totals.rejectRate === null ? "-" : `${data.volume.totals.rejectRate}%`}
+                  </p>
+                  <p className="mt-0.5 text-xs text-slate-400">
+                    {data.previousVolume?.rejectRate != null ? `${data.previousVolume.rejectRate}% in ${prevLabel}` : `no data for ${prevLabel}`}
+                  </p>
+                </div>
+              </div>
+              {data.volume.months.length > 1 && (
+                <ul className="mt-4 space-y-1.5">
+                  {data.volume.months.map((m) => {
+                    const max = Math.max(1, ...data.volume!.months.map((x) => x.inspected));
+                    return (
+                      <li key={m.label} className="grid grid-cols-[4.5rem_1fr_auto] items-center gap-2 text-xs" title={`${m.label}: ${m.inspected} inspected, ${m.rejected} rejected`}>
+                        <span className="text-slate-500 dark:text-slate-400">{m.label}</span>
+                        <span className="h-2 rounded-full bg-slate-100 dark:bg-slate-800">
+                          <span className="block h-2 rounded-full bg-brand-500 dark:bg-brand-400" style={{ width: `${(m.inspected / max) * 100}%` }} />
+                        </span>
+                        <span className="text-right text-slate-600 dark:text-slate-300">
+                          {m.inspected.toLocaleString("en-US")} &middot; {m.rejected.toLocaleString("en-US")} rejected
+                        </span>
+                      </li>
+                    );
+                  })}
+                </ul>
+              )}
+              <p className="mt-3 text-xs text-slate-400">
+                Lots mentioned in your daily entries for these months are already inside the SAP totals, so they
+                aren&apos;t added again in Measurable Results.
+              </p>
+            </section>
+          )}
+
           <section className="card break-inside-avoid">
             <h3 className="font-semibold">Measurable Results</h3>
             {resultMetrics.length > 0 ? (
@@ -208,6 +270,15 @@ export default function ReviewPage() {
                 )}
                 {health.goalsWithoutEvidence.length > 0 && (
                   <li>No progress logged yet this year on: {health.goalsWithoutEvidence.join(", ")}.</li>
+                )}
+                {health.volumeMonthsMissing.length > 0 && (
+                  <li>
+                    No SAP volume entered for {health.volumeMonthsMissing.join(", ")} -{" "}
+                    <a href="/volume" className="font-medium text-brand-600 hover:underline dark:text-brand-400">
+                      add it
+                    </a>{" "}
+                    so the inspection totals are complete.
+                  </li>
                 )}
               </ul>
             </section>
