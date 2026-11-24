@@ -89,6 +89,10 @@ Later additions, built on the same data:
   period's months with a reject rate, comparison and missing-month check;
   the Promotion Report uses it too. For months SAP covers, lots mentioned
   in daily entries are not added on top (no double counting).
+  Any two of inspected / accepted / rejected give the third. Every rejected
+  lot counts as one QN raised; accept and reject rates are over lots with a
+  decision (so they sum to 100%); and QNs raised are set against logged QN
+  clarification requests for a "QNs right first time" rate.
 
 All Claude calls go through `src/lib/claude.ts` (`claude-opus-5-5`, with
 server-side refusal fallback enabled).

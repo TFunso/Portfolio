@@ -1,8 +1,10 @@
 import { describe, expect, it } from "vitest";
 import {
+  completeMonth,
   formatVolume,
   parseDateCell,
   parsePastedVolume,
+  qnFirstTimeRight,
   totalVolume,
   unitsOutsideSapMonths,
   validateMonth,
@@ -20,6 +22,24 @@ describe("parseDateCell", () => {
     expect(parseDateCell("March-26")).toEqual({ year: 2026, month: 3 });
     expect(parseDateCell("Date")).toBeNull();
     expect(parseDateCell("13/13/2026")).toBeNull();
+  });
+});
+
+describe("completeMonth", () => {
+  it("works out the third number from any two", () => {
+    expect(completeMonth({ inspected: 100, accepted: 97 })).toEqual({ inspected: 100, accepted: 97, rejected: 3 });
+    expect(completeMonth({ inspected: 100, rejected: 3 })).toEqual({ inspected: 100, accepted: 97, rejected: 3 });
+    expect(completeMonth({ accepted: 97, rejected: 3 })).toEqual({ inspected: 100, accepted: 97, rejected: 3 });
+  });
+
+  it("keeps all three as entered, allowing lots still pending", () => {
+    expect(completeMonth({ inspected: 105, accepted: 97, rejected: 3 })).toEqual({ inspected: 105, accepted: 97, rejected: 3 });
+  });
+
+  it("explains what's wrong", () => {
+    expect(completeMonth({ accepted: 5 })).toMatch(/at least two/);
+    expect(completeMonth({ inspected: 10, accepted: 12 })).toMatch(/whole number/); // would make rejected negative
+    expect(completeMonth({ inspected: 10, accepted: 8, rejected: 3 })).toMatch(/can't be more/);
   });
 });
 
@@ -42,6 +62,11 @@ describe("parsePastedVolume", () => {
     expect(r.skipped.map((s) => s.reason)).toEqual(["no date found", "no date found"]);
   });
 
+  it("reads two columns as inspected + accepted when told to", () => {
+    const r = parsePastedVolume("2026-03-02\t50\t48\n2026-03-03\t40\t40", "mdy", "inspected-accepted");
+    expect(r.months).toEqual([{ year: 2026, month: 3, inspected: 90, accepted: 88, rejected: 2 }]);
+  });
+
   it("accepts monthly rows with inspected, accepted, rejected", () => {
     const r = parsePastedVolume("Mar 2026;500;480;12\nApr 2026;450;445;5");
     expect(r.months).toEqual([
@@ -50,12 +75,12 @@ describe("parsePastedVolume", () => {
     ]);
   });
 
-  it("rejects rows that don't add up or lack counts", () => {
+  it("skips rows that don't add up or lack counts", () => {
     const r = parsePastedVolume("2026-03-01\t10\t9\t5\n2026-03-02\t7");
     expect(r.months).toEqual([]);
     expect(r.skipped.map((s) => s.reason)).toEqual([
-      "accepted + rejected is more than inspected",
-      "needs accepted and rejected counts",
+      "accepted + rejected can't be more than inspected",
+      "needs two or three counts after the date",
     ]);
   });
 });
@@ -73,14 +98,26 @@ describe("unitsOutsideSapMonths", () => {
 });
 
 describe("totals", () => {
-  it("totals months and computes the reject rate", () => {
+  it("totals months, rates over decided lots, and one QN per rejected lot", () => {
     const t = totalVolume([
       { year: 2026, month: 1, inspected: 1000, accepted: 970, rejected: 30 },
-      { year: 2026, month: 2, inspected: 500, accepted: 495, rejected: 5 },
+      { year: 2026, month: 2, inspected: 510, accepted: 495, rejected: 5 }, // 10 still pending
     ]);
-    expect(t).toEqual({ inspected: 1500, accepted: 1465, rejected: 35, months: 2, rejectRate: 2.3 });
-    expect(formatVolume(t)).toBe("1,500 lots inspected · 1,465 accepted · 35 rejected (2.3%)");
-    expect(validateMonth({ inspected: 10, accepted: 8, rejected: 3 })).toMatch(/can't be more/);
+    expect(t).toEqual({
+      inspected: 1510,
+      accepted: 1465,
+      rejected: 35,
+      months: 2,
+      acceptRate: 97.7,
+      rejectRate: 2.3,
+      qnsRaised: 35,
+    });
+    expect(formatVolume(t)).toBe("1,510 lots inspected · 1,465 accepted (97.7%) · 35 rejected (2.3%) → 35 QNs raised");
     expect(validateMonth({ inspected: 10, accepted: 7, rejected: 2 })).toBeNull();
+  });
+
+  it("turns QN clarification requests into a right-first-time rate", () => {
+    expect(qnFirstTimeRight(104, 2)).toEqual({ rate: 98.1, qns: 104, clarifications: 2 });
+    expect(qnFirstTimeRight(0, 0)).toBeNull();
   });
 });

@@ -195,10 +195,12 @@ export default function PromotionDashboard({ stats }: { stats: PromotionStats })
                   <p className="text-xs text-slate-500 dark:text-slate-400">Lots inspected (SAP)</p>
                 </div>
                 <div>
-                  <p className="text-2xl font-bold">{stats.volume.rejected.toLocaleString("en-US")}</p>
-                  <p className="text-xs text-slate-500 dark:text-slate-400">
-                    Rejected at inspection{stats.volume.rejectRate !== null ? ` (${stats.volume.rejectRate}%)` : ""}
-                  </p>
+                  <p className="text-2xl font-bold">{stats.volume.acceptRate !== null ? `${stats.volume.acceptRate}%` : "-"}</p>
+                  <p className="text-xs text-slate-500 dark:text-slate-400">Accept rate (SAP)</p>
+                </div>
+                <div>
+                  <p className="text-2xl font-bold">{stats.volume.qnsRaised.toLocaleString("en-US")}</p>
+                  <p className="text-xs text-slate-500 dark:text-slate-400">QNs raised (rejected lots)</p>
                 </div>
               </>
             )}

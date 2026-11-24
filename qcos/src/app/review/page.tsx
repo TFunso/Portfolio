@@ -177,26 +177,40 @@ export default function ReviewPage() {
                 period
               </p>
               <div className="mt-3 grid grid-cols-2 gap-3 sm:grid-cols-4 print:grid-cols-4">
-                {(
-                  [
-                    ["Lots inspected", data.volume.totals.inspected, data.previousVolume?.inspected],
-                    ["Accepted", data.volume.totals.accepted, data.previousVolume?.accepted],
-                    ["Rejected at inspection", data.volume.totals.rejected, data.previousVolume?.rejected],
-                  ] as const
-                ).map(([label, value, prevValue]) => (
-                  <div key={label} className="rounded-xl border border-slate-200 p-3 dark:border-slate-800">
-                    <p className="text-xs text-slate-500 dark:text-slate-400">{label}</p>
-                    <p className="mt-0.5 text-2xl font-bold">{value.toLocaleString("en-US")}</p>
-                    <Delta current={value} previous={prevValue ?? 0} label={prevLabel} noData={!data.previousVolume} />
-                  </div>
-                ))}
                 <div className="rounded-xl border border-slate-200 p-3 dark:border-slate-800">
-                  <p className="text-xs text-slate-500 dark:text-slate-400">Reject rate</p>
+                  <p className="text-xs text-slate-500 dark:text-slate-400">Lots inspected</p>
+                  <p className="mt-0.5 text-2xl font-bold">{data.volume.totals.inspected.toLocaleString("en-US")}</p>
+                  <Delta
+                    current={data.volume.totals.inspected}
+                    previous={data.previousVolume?.inspected ?? 0}
+                    label={prevLabel}
+                    noData={!data.previousVolume}
+                  />
+                </div>
+                <div className="rounded-xl border border-slate-200 p-3 dark:border-slate-800">
+                  <p className="text-xs text-slate-500 dark:text-slate-400">Accept rate</p>
                   <p className="mt-0.5 text-2xl font-bold">
-                    {data.volume.totals.rejectRate === null ? "-" : `${data.volume.totals.rejectRate}%`}
+                    {data.volume.totals.acceptRate === null ? "-" : `${data.volume.totals.acceptRate}%`}
                   </p>
                   <p className="mt-0.5 text-xs text-slate-400">
-                    {data.previousVolume?.rejectRate != null ? `${data.previousVolume.rejectRate}% in ${prevLabel}` : `no data for ${prevLabel}`}
+                    {data.volume.totals.accepted.toLocaleString("en-US")} accepted &middot;{" "}
+                    {data.previousVolume?.acceptRate != null ? `${data.previousVolume.acceptRate}% in ${prevLabel}` : `no data for ${prevLabel}`}
+                  </p>
+                </div>
+                <div className="rounded-xl border border-slate-200 p-3 dark:border-slate-800">
+                  <p className="text-xs text-slate-500 dark:text-slate-400">QNs raised</p>
+                  <p className="mt-0.5 text-2xl font-bold">{data.volume.totals.qnsRaised.toLocaleString("en-US")}</p>
+                  <p className="mt-0.5 text-xs text-slate-400">
+                    one per rejected lot &middot; {data.volume.totals.rejectRate ?? 0}% reject rate
+                  </p>
+                </div>
+                <div className="rounded-xl border border-slate-200 p-3 dark:border-slate-800">
+                  <p className="text-xs text-slate-500 dark:text-slate-400">QNs right first time</p>
+                  <p className="mt-0.5 text-2xl font-bold">{data.qnQuality ? `${data.qnQuality.rate}%` : "-"}</p>
+                  <p className="mt-0.5 text-xs text-slate-400">
+                    {data.qnQuality
+                      ? `${data.qnQuality.clarifications} clarification request${data.qnQuality.clarifications === 1 ? "" : "s"} logged`
+                      : "no QNs this period"}
                   </p>
                 </div>
               </div>

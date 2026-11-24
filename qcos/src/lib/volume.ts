@@ -19,7 +19,13 @@ export interface VolumeTotals {
   accepted: number;
   rejected: number;
   months: number; // months with data
-  rejectRate: number | null; // % of inspected, 1 decimal
+  // Rates are over lots with a decision (accepted + rejected), so they
+  // always add up to 100% even if some inspected lots are still pending.
+  acceptRate: number | null; // %, 1 decimal
+  rejectRate: number | null; // %, 1 decimal
+  // Every rejected lot needs a Quality Notification to disposition it, so
+  // QNs raised = lots rejected.
+  qnsRaised: number;
 }
 
 const MONTHS = ["jan", "feb", "mar", "apr", "may", "jun", "jul", "aug", "sep", "oct", "nov", "dec"];
@@ -40,11 +46,44 @@ export function totalVolume(rows: MonthVolume[]): VolumeTotals {
     t.accepted += r.accepted;
     t.rejected += r.rejected;
   }
+  const decided = t.accepted + t.rejected;
+  const acceptRate = decided > 0 ? Math.round((t.accepted / decided) * 1000) / 10 : null;
   return {
     ...t,
     months: rows.length,
-    rejectRate: t.inspected > 0 ? Math.round((t.rejected / t.inspected) * 1000) / 10 : null,
+    acceptRate,
+    rejectRate: acceptRate === null ? null : Math.round((100 - acceptRate) * 10) / 10,
+    qnsRaised: t.rejected,
   };
+}
+
+// Of the QNs raised, how many went through without a clarification request
+// - turns the "QN Clarification Requests" goal from a count into a quality
+// rate ("98% of QNs right first time").
+export function qnFirstTimeRight(qnsRaised: number, clarifications: number): { rate: number; qns: number; clarifications: number } | null {
+  if (qnsRaised <= 0) return null;
+  const ok = Math.max(0, qnsRaised - clarifications);
+  return { rate: Math.round((ok / qnsRaised) * 1000) / 10, qns: qnsRaised, clarifications };
+}
+
+export type PartialMonth = { inspected?: number | null; accepted?: number | null; rejected?: number | null };
+
+// Any two of inspected / accepted / rejected give the third:
+//   inspected + accepted -> rejected = inspected - accepted
+//   inspected + rejected -> accepted = inspected - rejected
+//   accepted + rejected  -> inspected = accepted + rejected
+// With all three given they're kept as entered (inspected may exceed
+// accepted + rejected when some lots are still awaiting a decision).
+export function completeMonth(p: PartialMonth): { inspected: number; accepted: number; rejected: number } | string {
+  const has = (v: number | null | undefined): v is number => typeof v === "number" && Number.isFinite(v);
+  const { inspected, accepted, rejected } = p;
+  let full: { inspected: number; accepted: number; rejected: number };
+  if (has(inspected) && has(accepted) && has(rejected)) full = { inspected, accepted, rejected };
+  else if (has(inspected) && has(accepted)) full = { inspected, accepted, rejected: inspected - accepted };
+  else if (has(inspected) && has(rejected)) full = { inspected, accepted: inspected - rejected, rejected };
+  else if (has(accepted) && has(rejected)) full = { inspected: accepted + rejected, accepted, rejected };
+  else return "enter at least two of inspected, accepted and rejected.";
+  return validateMonth(full) ?? full;
 }
 
 // Lots mentioned in daily entries, counting only entries from months that
@@ -65,10 +104,11 @@ export function unitsOutsideSapMonths(
 }
 
 // "4,512 lots inspected · 4,380 accepted · 132 rejected (2.9%)"
+// "4,764 lots inspected · 4,660 accepted (97.8%) · 104 rejected (2.2%) → 104 QNs raised"
 export function formatVolume(t: VolumeTotals): string {
   const n = (v: number) => v.toLocaleString("en-US");
-  const rate = t.rejectRate !== null ? ` (${t.rejectRate}%)` : "";
-  return `${n(t.inspected)} lots inspected · ${n(t.accepted)} accepted · ${n(t.rejected)} rejected${rate}`;
+  const pct = (r: number | null) => (r !== null ? ` (${r}%)` : "");
+  return `${n(t.inspected)} lots inspected · ${n(t.accepted)} accepted${pct(t.acceptRate)} · ${n(t.rejected)} rejected${pct(t.rejectRate)} → ${n(t.qnsRaised)} QNs raised`;
 }
 
 export function validateMonth(v: { inspected: number; accepted: number; rejected: number }): string | null {
@@ -143,10 +183,17 @@ export interface PasteResult {
   skipped: { line: number; text: string; reason: string }[];
 }
 
-// Each row needs a date, then either two numbers (accepted, rejected) or
-// three (inspected, accepted, rejected). Rows without a date - headers,
-// blank lines, subtotals - are skipped and reported back.
-export function parsePastedVolume(text: string, slashOrder: SlashDateOrder = "mdy"): PasteResult {
+// What two numbers after the date mean (three are always inspected,
+// accepted, rejected). The missing one is worked out by completeMonth().
+export type TwoColumnLayout = "accepted-rejected" | "inspected-accepted" | "inspected-rejected";
+
+// Each row needs a date, then two or three numbers. Rows without a date -
+// headers, blank lines, subtotals - are skipped and reported back.
+export function parsePastedVolume(
+  text: string,
+  slashOrder: SlashDateOrder = "mdy",
+  twoColumns: TwoColumnLayout = "accepted-rejected",
+): PasteResult {
   const byMonth = new Map<string, MonthVolume>();
   const skipped: PasteResult["skipped"] = [];
   let rowsUsed = 0;
@@ -165,21 +212,26 @@ export function parsePastedVolume(text: string, slashOrder: SlashDateOrder = "md
       .map(parseCount)
       .filter((n): n is number => n !== null);
 
-    let inspected: number;
-    let accepted: number;
-    let rejected: number;
-    if (numbers.length >= 3) [inspected, accepted, rejected] = numbers;
+    let partial: PartialMonth;
+    if (numbers.length >= 3) partial = { inspected: numbers[0], accepted: numbers[1], rejected: numbers[2] };
     else if (numbers.length === 2) {
-      [accepted, rejected] = numbers;
-      inspected = accepted + rejected;
+      const [a, b] = numbers;
+      partial =
+        twoColumns === "accepted-rejected"
+          ? { accepted: a, rejected: b }
+          : twoColumns === "inspected-accepted"
+            ? { inspected: a, accepted: b }
+            : { inspected: a, rejected: b };
     } else {
-      skipped.push({ line: i + 1, text: line.slice(0, 80), reason: "needs accepted and rejected counts" });
+      skipped.push({ line: i + 1, text: line.slice(0, 80), reason: "needs two or three counts after the date" });
       return;
     }
-    if (accepted + rejected > inspected) {
-      skipped.push({ line: i + 1, text: line.slice(0, 80), reason: "accepted + rejected is more than inspected" });
+    const full = completeMonth(partial);
+    if (typeof full === "string") {
+      skipped.push({ line: i + 1, text: line.slice(0, 80), reason: full.replace(/\.$/, "").toLowerCase() });
       return;
     }
+    const { inspected, accepted, rejected } = full;
 
     const key = monthKey(date.year, date.month);
     const m = byMonth.get(key) ?? { year: date.year, month: date.month, inspected: 0, accepted: 0, rejected: 0 };

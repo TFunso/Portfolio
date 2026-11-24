@@ -1,10 +1,10 @@
 import { prisma } from "@/lib/prisma";
-import { GOAL_METRICS, goalMetricStatus, ANNUAL_GOAL } from "@/lib/goals";
+import { GOAL_METRICS, goalMetricLabel, goalMetricStatus, ANNUAL_GOAL } from "@/lib/goals";
 import { formatMetrics, hasMetrics, metricsOf, sumMetrics, RESULT_METRICS } from "@/lib/metrics";
 import { isInProgress, previousPeriod, type Period } from "@/lib/periods";
 import { MONTH_NAMES } from "@/lib/dates";
 import { getVolumeForRange } from "@/lib/volumeData";
-import { unitsOutsideSapMonths, type VolumeTotals } from "@/lib/volume";
+import { qnFirstTimeRight, unitsOutsideSapMonths, type VolumeTotals } from "@/lib/volume";
 import type { EvidenceRecord } from "@prisma/client";
 
 // ---------------------------------------------------------------------------
@@ -122,14 +122,21 @@ function buildTalkingPoints(
   current: PeriodSummary,
   goals: { label: string; ytdActual: number; target: number; status: string; comparator: string }[],
   volume: VolumeTotals | null,
+  qnQuality: ReturnType<typeof qnFirstTimeRight>,
 ) {
   const promotion: string[] = [];
   const raise: string[] = [];
 
   if (volume && volume.inspected > 0) {
+    const n = (v: number) => v.toLocaleString("en-US");
     raise.push(
-      `Inspected ${volume.inspected.toLocaleString("en-US")} lots this period (SAP): ${volume.accepted.toLocaleString("en-US")} accepted, ${volume.rejected.toLocaleString("en-US")} rejected at inspection${volume.rejectRate !== null ? ` (${volume.rejectRate}% reject rate)` : ""}.`,
+      `Inspected ${n(volume.inspected)} lots this period (SAP): ${n(volume.accepted)} accepted${volume.acceptRate !== null ? ` (${volume.acceptRate}% accept rate)` : ""}, ${n(volume.rejected)} rejected at inspection and dispositioned through ${n(volume.qnsRaised)} QNs.`,
     );
+    if (qnQuality) {
+      raise.push(
+        `${qnQuality.rate}% of QNs right first time (${qnQuality.clarifications} clarification request${qnQuality.clarifications === 1 ? "" : "s"} on ${n(qnQuality.qns)} QNs).`,
+      );
+    }
   }
 
   for (const r of topWins.filter((w) => w.starred || w.impactLevel === "High").slice(0, 5)) {
@@ -223,6 +230,11 @@ export async function getPeriodReport(period: Period) {
   current.results.unitsHandled = unitsOutsideSapMonths(records, volume?.months ?? []);
   previous.results.unitsHandled = unitsOutsideSapMonths(prevRecords, prevVolume?.months ?? []);
 
+  // QNs raised in the period (one per SAP-rejected lot) against the QN
+  // clarification requests logged in the same period.
+  const clarifications = goals.find((g) => g.label === goalMetricLabel("qn_clarification_request"))?.periodActual ?? 0;
+  const qnQuality = volume ? qnFirstTimeRight(volume.totals.qnsRaised, clarifications) : null;
+
   return {
     period: {
       kind: period.kind,
@@ -241,7 +253,8 @@ export async function getPeriodReport(period: Period) {
     sections,
     volume: volume && volume.totals.months > 0 ? volume : null,
     previousVolume: prevVolume && prevVolume.totals.months > 0 ? prevVolume.totals : null,
-    talkingPoints: buildTalkingPoints(topWins, current, goals, volume?.totals ?? null),
+    qnQuality,
+    talkingPoints: buildTalkingPoints(topWins, current, goals, volume?.totals ?? null, qnQuality),
     health: {
       volumeMonthsMissing: volume?.missing ?? [],
       total: current.evidence,

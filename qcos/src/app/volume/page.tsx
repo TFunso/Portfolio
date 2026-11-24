@@ -5,10 +5,12 @@ import {
   monthLabel,
   parsePastedVolume,
   totalVolume,
-  validateMonth,
+  completeMonth,
   type MonthVolume,
+  type PartialMonth,
   type PasteResult,
   type SlashDateOrder,
+  type TwoColumnLayout,
 } from "@/lib/volume";
 
 type Draft = { inspected: string; accepted: string; rejected: string };
@@ -20,6 +22,12 @@ const n = (v: number) => v.toLocaleString("en-US");
 
 function toDraft(m?: MonthVolume): Draft {
   return m ? { inspected: String(m.inspected), accepted: String(m.accepted), rejected: String(m.rejected) } : EMPTY;
+}
+
+// Blank fields become null so completeMonth() can work them out.
+function toPartial(d: Draft): PartialMonth {
+  const num = (s: string) => (s.trim() === "" ? null : Number(s.replace(/[,\s]/g, "")));
+  return { inspected: num(d.inspected), accepted: num(d.accepted), rejected: num(d.rejected) };
 }
 
 function sameDraft(a: Draft, b: Draft) {
@@ -35,6 +43,7 @@ export default function VolumePage() {
   const [pasteOpen, setPasteOpen] = useState(false);
   const [pasteText, setPasteText] = useState("");
   const [dateOrder, setDateOrder] = useState<SlashDateOrder>("mdy");
+  const [twoColumns, setTwoColumns] = useState<TwoColumnLayout>("inspected-accepted");
   const [preview, setPreview] = useState<PasteResult | null>(null);
 
   const load = useCallback(async () => {
@@ -78,17 +87,12 @@ export default function VolumePage() {
         toClear.push(month);
         continue;
       }
-      const num = (s: string) => (s.trim() === "" ? NaN : Number(s.replace(/[,\s]/g, "")));
-      const accepted = num(d.accepted);
-      const rejected = num(d.rejected);
-      const inspected = d.inspected.trim() === "" ? accepted + rejected : num(d.inspected);
-      const row = { year, month, inspected, accepted, rejected };
-      const problem = Number.isNaN(accepted) || Number.isNaN(rejected) ? "enter accepted and rejected." : validateMonth(row);
-      if (problem) {
-        setMessage({ kind: "error", text: `${monthLabel(year, month)}: ${problem}` });
+      const full = completeMonth(toPartial(d));
+      if (typeof full === "string") {
+        setMessage({ kind: "error", text: `${monthLabel(year, month)}: ${full}` });
         return;
       }
-      toSave.push(row);
+      toSave.push({ year, month, ...full });
     }
     setSaving(true);
     try {
@@ -158,13 +162,14 @@ export default function VolumePage() {
         <section className="card space-y-3">
           <h2 className="font-semibold">Paste rows from your SAP export</h2>
           <p className="text-sm text-slate-500 dark:text-slate-400">
-            Copy columns from Excel and paste below - one row per day or per month: <strong>Date, Accepted, Rejected</strong>{" "}
-            or <strong>Date, Inspected, Accepted, Rejected</strong>. Header and total rows are skipped. Daily rows are added
-            up into monthly totals <em>on this device</em> - only the monthly totals are saved, never the rows.
+            Copy columns from Excel and paste below - one row per day or per month: the <strong>date</strong>, then any{" "}
+            <strong>two</strong> of inspected / accepted / rejected (the third is worked out), or all three in that order.
+            Header and total rows are skipped. Daily rows are added up into monthly totals <em>on this device</em> - only
+            the monthly totals are saved, never the rows.
           </p>
           <textarea
             className="input min-h-[160px] font-mono text-xs"
-            placeholder={"Date\tAccepted\tRejected\n01/05/2026\t42\t1\n01/06/2026\t38\t0"}
+            placeholder={"Date\tInspected\tAccepted\n01/05/2026\t43\t42\n01/06/2026\t38\t38"}
             value={pasteText}
             onChange={(e) => {
               setPasteText(e.target.value);
@@ -186,7 +191,26 @@ export default function VolumePage() {
                 <option value="dmy">day/month</option>
               </select>
             </label>
-            <button className="btn-secondary" disabled={!pasteText.trim()} onClick={() => setPreview(parsePastedVolume(pasteText, dateOrder))}>
+            <label className="text-sm">
+              Two numbers after the date are{" "}
+              <select
+                className="input inline-block w-auto py-1"
+                value={twoColumns}
+                onChange={(e) => {
+                  setTwoColumns(e.target.value as TwoColumnLayout);
+                  setPreview(null);
+                }}
+              >
+                <option value="inspected-accepted">inspected, accepted</option>
+                <option value="accepted-rejected">accepted, rejected</option>
+                <option value="inspected-rejected">inspected, rejected</option>
+              </select>
+            </label>
+            <button
+              className="btn-secondary"
+              disabled={!pasteText.trim()}
+              onClick={() => setPreview(parsePastedVolume(pasteText, dateOrder, twoColumns))}
+            >
               Preview totals
             </button>
           </div>
@@ -251,17 +275,15 @@ export default function VolumePage() {
 
       <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
         {[
-          ["Lots inspected", n(totals.inspected)],
-          ["Accepted", n(totals.accepted)],
-          ["Rejected", n(totals.rejected)],
-          ["Reject rate", totals.rejectRate === null ? "-" : `${totals.rejectRate}%`],
-        ].map(([label, value]) => (
+          ["Lots inspected", n(totals.inspected), `${year} · ${totals.months} month${totals.months === 1 ? "" : "s"} entered`],
+          ["Accept rate", totals.acceptRate === null ? "-" : `${totals.acceptRate}%`, `${n(totals.accepted)} lots accepted`],
+          ["QNs raised", n(totals.qnsRaised), "one per rejected lot"],
+          ["Reject rate", totals.rejectRate === null ? "-" : `${totals.rejectRate}%`, `${n(totals.rejected)} lots rejected`],
+        ].map(([label, value, hint]) => (
           <div key={label} className="card p-4">
             <p className="text-xs font-medium uppercase tracking-wide text-slate-500 dark:text-slate-400">{label}</p>
             <p className="mt-1 text-2xl font-bold">{value}</p>
-            <p className="text-xs text-slate-400">
-              {year} &middot; {totals.months} month{totals.months === 1 ? "" : "s"} entered
-            </p>
+            <p className="text-xs text-slate-400">{hint}</p>
           </div>
         ))}
       </div>
@@ -274,19 +296,23 @@ export default function VolumePage() {
           </button>
         </div>
         <p className="mb-3 text-xs text-slate-400">
-          Leave &ldquo;Inspected&rdquo; blank to use accepted + rejected. Clear all three to remove a month.
+          Fill in any two - the third is worked out (shown in grey). Each rejected lot counts as one QN raised. To
+          recalculate a number, clear it. Clear all three to remove a month.
         </p>
-        <div className="grid grid-cols-[4.5rem_1fr_1fr_1fr] items-center gap-x-2 gap-y-1.5 text-sm sm:grid-cols-[6rem_1fr_1fr_1fr_4rem]">
+        <div className="grid grid-cols-[3rem_1fr_1fr_1fr] items-center gap-x-2 gap-y-1.5 text-sm sm:grid-cols-[6rem_1fr_1fr_1fr_5rem]">
           <span className="text-xs uppercase text-slate-400">Month</span>
           <span className="text-xs uppercase text-slate-400">Inspected</span>
           <span className="text-xs uppercase text-slate-400">Accepted</span>
-          <span className="text-xs uppercase text-slate-400">Rejected</span>
-          <span className="hidden text-right text-xs uppercase text-slate-400 sm:block">Reject %</span>
+          <span className="text-xs uppercase text-slate-400">Rejected / QNs</span>
+          <span className="hidden text-right text-xs uppercase text-slate-400 sm:block">Accept %</span>
           {Array.from({ length: 12 }, (_, i) => i + 1).map((month) => {
             const d = drafts[month] ?? EMPTY;
             const disabled = month > maxMonth;
-            const s = saved[month];
-            const rate = s && s.inspected > 0 ? `${Math.round((s.rejected / s.inspected) * 1000) / 10}%` : "";
+            // Live preview of the worked-out number while typing.
+            const filled = completeMonth(toPartial(d));
+            const preview = typeof filled === "string" ? null : filled;
+            const decided = preview ? preview.accepted + preview.rejected : 0;
+            const rate = preview && decided > 0 ? `${Math.round((preview.accepted / decided) * 1000) / 10}%` : "";
             const set = (field: keyof Draft) => (e: React.ChangeEvent<HTMLInputElement>) =>
               setDrafts((prev) => ({ ...prev, [month]: { ...(prev[month] ?? EMPTY), [field]: e.target.value } }));
             return (
@@ -298,7 +324,7 @@ export default function VolumePage() {
                     className="input px-2 py-1.5"
                     inputMode="numeric"
                     disabled={disabled}
-                    placeholder={field === "inspected" && !disabled ? "auto" : ""}
+                    placeholder={!disabled && preview && d[field].trim() === "" ? `= ${n(preview[field])}` : ""}
                     value={d[field]}
                     onChange={set(field)}
                     aria-label={`${monthLabel(year, month)} ${field}`}

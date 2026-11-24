@@ -17,9 +17,15 @@ function volumeSection(data: PeriodReport): Paragraph[] {
   const t = data.volume.totals;
   const prev = data.previousVolume;
   const lines = [
-    `${formatVolume(t)}${prev ? ` (${prev.inspected.toLocaleString("en-US")} inspected, ${prev.rejected.toLocaleString("en-US")} rejected in ${data.previousLabel})` : ""}`,
+    `${formatVolume(t)}${prev ? ` (${prev.inspected.toLocaleString("en-US")} inspected, ${prev.acceptRate ?? "-"}% accepted in ${data.previousLabel})` : ""}`,
+    ...(data.qnQuality
+      ? [
+          `QNs right first time: ${data.qnQuality.rate}% (${data.qnQuality.clarifications} clarification requests on ${data.qnQuality.qns.toLocaleString("en-US")} QNs)`,
+        ]
+      : []),
     ...data.volume.months.map(
-      (m) => `${m.label}: ${m.inspected.toLocaleString("en-US")} inspected, ${m.accepted.toLocaleString("en-US")} accepted, ${m.rejected.toLocaleString("en-US")} rejected`,
+      (m) =>
+        `${m.label}: ${m.inspected.toLocaleString("en-US")} inspected, ${m.accepted.toLocaleString("en-US")} accepted, ${m.rejected.toLocaleString("en-US")} rejected / QNs`,
     ),
   ];
   return [heading("Inspection Volume (SAP)"), ...lines.map((l) => bullet(l))];

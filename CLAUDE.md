@@ -183,7 +183,10 @@ anything external.
   months it covers, `unitsHandled` from entries must not be added on top -
   use `unitsOutsideSapMonths()` (`src/lib/volume.ts`) wherever lots are
   totaled. Only monthly totals are stored; raw SAP rows are parsed in the
-  browser and never sent to the server.
+  browser and never sent to the server. Domain rules live in `volume.ts`:
+  `completeMonth()` derives the third of inspected/accepted/rejected from
+  any two, rejected lots = QNs raised (one QN per rejection), and rates are
+  computed over decided lots (accepted + rejected).
 - Full feature map (which spec feature lives where) and the four
   beyond-spec additions (weekly digest, email nudge, PWA/offline, Word
   export): `qcos/README.md`.
