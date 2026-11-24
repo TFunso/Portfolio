@@ -5,7 +5,8 @@ import { getAllTimeVolume, getVolumeForRange } from "@/lib/volumeData";
 import { prisma } from "@/lib/prisma";
 import { fromJson } from "@/lib/json";
 import { startOfYear, endOfYear, formatDate } from "@/lib/dates";
-import { GOAL_METRICS, goalMetricStatus, ANNUAL_GOAL } from "@/lib/goals";
+import { goalMetricStatus } from "@/lib/goals";
+import { getGoalSet } from "@/lib/goalStore";
 import type { Category, Department } from "@/types";
 
 export type PromotionReportScope = { type: "all-time" } | { type: "year"; year: number };
@@ -62,6 +63,8 @@ interface GatheredData {
   categoryTotals: { category: string; count: number }[];
   crossFunctional: { department: string; count: number }[];
   goalProgress: { label: string; actual: number; target: number; comparator: string; status: string }[];
+  goalName: string;
+  goalYear: number;
   impactTotals: { high: number; medium: number; low: number };
   monthly: { monthKey: string; label: string; count: number }[];
 }
@@ -149,7 +152,11 @@ async function gatherData(scope: PromotionReportScope): Promise<GatheredData> {
 
   const goalCounts = new Map<string, number>();
   for (const e of goalEvents) goalCounts.set(e.metricKey, (goalCounts.get(e.metricKey) ?? 0) + 1);
-  const goalProgress = GOAL_METRICS.map((m) => {
+  // Goal progress is per year: the scope's year, or the current year for
+  // all-time (matching the goal events queried above).
+  const goalYear = scope.type === "year" ? scope.year : new Date().getFullYear();
+  const goalSet = await getGoalSet(goalYear);
+  const goalProgress = goalSet.metrics.map((m) => {
     const actual = goalCounts.get(m.key) ?? 0;
     return { label: m.label, actual, target: m.target, comparator: m.comparator, status: goalMetricStatus(m, actual) };
   });
@@ -189,6 +196,8 @@ async function gatherData(scope: PromotionReportScope): Promise<GatheredData> {
     categoryTotals,
     crossFunctional,
     goalProgress,
+    goalName: goalSet.name,
+    goalYear,
     impactTotals,
     monthly: monthlyCounts(
       scope,
@@ -212,6 +221,8 @@ export async function getPromotionStats(scope: PromotionReportScope): Promise<Pr
     categoryTotals: data.categoryTotals,
     crossFunctional: data.crossFunctional,
     goalProgress: data.goalProgress,
+    goalName: data.goalName,
+    goalYear: data.goalYear,
     impactTotals: data.impactTotals,
     monthly: data.monthly,
     scopeLabel: scopeLabel(scope),
@@ -244,7 +255,7 @@ function buildDigestText(data: GatheredData): string {
     "",
     `Category totals across all evidence: ${categoryLine}`,
     `Cross-functional support by team: ${deptLine}`,
-    `Current-year DRIVE EFFICIENCY goal progress: ${goalLine}`,
+    `${data.goalYear} ${data.goalName} goal progress: ${goalLine}`,
     `Measurable results totaled across all evidence: ${resultsSentence(data.results) || "none recorded"}`,
     `Official inspection volume from SAP: ${data.volume ? `${formatVolume(data.volume)} across ${data.volume.months} months` : "not entered"}`,
   ].join("\n");
@@ -331,7 +342,7 @@ function buildFallback(data: GatheredData, scopeLbl: string): string {
   }
 
   lines.push("## Bottom Line");
-  lines.push(`${data.evidenceCount} documented contributions toward ${ANNUAL_GOAL.name} and team support this period.`);
+  lines.push(`${data.evidenceCount} documented contributions toward ${data.goalName} and team support this period.`);
 
   return lines.join("\n");
 }

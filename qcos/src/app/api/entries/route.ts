@@ -6,6 +6,7 @@ import { buildEvidenceDraft, shouldAutoFile } from "@/lib/evidence";
 import { polishProfessionalSummary } from "@/lib/ai";
 import { toJson } from "@/lib/json";
 import { extractMetrics } from "@/lib/metrics";
+import { getCurrentGoalSet } from "@/lib/goalStore";
 
 export const dynamic = "force-dynamic";
 
@@ -40,7 +41,8 @@ export async function POST(req: NextRequest) {
   }
 
   const { content } = parsed.data;
-  const classification = classifyEntry(content);
+  const goals = await getCurrentGoalSet();
+  const classification = classifyEntry(content, goals.metrics);
 
   if (shouldAutoFile(classification)) {
     classification.professionalSummary = await polishProfessionalSummary(
@@ -80,7 +82,7 @@ export async function POST(req: NextRequest) {
 
   let evidence = null;
   if (shouldAutoFile(classification)) {
-    const draft = buildEvidenceDraft(content, classification);
+    const draft = buildEvidenceDraft(content, classification, goals.metrics);
     evidence = await prisma.evidenceRecord.create({
       data: {
         entryId: entry.id,

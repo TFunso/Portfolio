@@ -6,6 +6,7 @@ import { classifyEntry } from "@/lib/classifier";
 import { buildEvidenceDraft } from "@/lib/evidence";
 import { polishProfessionalSummary } from "@/lib/ai";
 import { MONTH_NAMES } from "@/lib/dates";
+import { getGoalSet } from "@/lib/goalStore";
 
 export const dynamic = "force-dynamic";
 
@@ -41,6 +42,7 @@ export async function POST(req: NextRequest) {
   }
 
   const { month, year, answers } = parsed.data;
+  const goals = await getGoalSet(year);
   const monthName = MONTH_NAMES[month - 1];
 
   const reflection = await prisma.monthlyReflection.upsert({
@@ -51,8 +53,8 @@ export async function POST(req: NextRequest) {
 
   const evidenceRecords = await Promise.all(
     answers.map(async (answer) => {
-      const classification = classifyEntry(answer);
-      const draft = buildEvidenceDraft(answer, classification);
+      const classification = classifyEntry(answer, goals.metrics);
+      const draft = buildEvidenceDraft(answer, classification, goals.metrics);
       const polished = await polishProfessionalSummary(
         answer,
         {

@@ -2,6 +2,7 @@ import { z } from "zod";
 import { prisma } from "@/lib/prisma";
 import { fromJson } from "@/lib/json";
 import { buildEvidenceDraft } from "@/lib/evidence";
+import { getGoalSet } from "@/lib/goalStore";
 import type { Category, ClassificationResult, Department, GoalMetricKey, ImpactLevel } from "@/types";
 
 // ---------------------------------------------------------------------------
@@ -63,7 +64,8 @@ export async function ensureEvidenceForEntry(entryId: string) {
     goalKeys: fromJson<GoalMetricKey>(c.goalKeys),
     professionalSummary: c.professionalSummary,
   };
-  const draft = buildEvidenceDraft(entry.content, classification);
+  const goals = await getGoalSet(entry.entryDate.getFullYear());
+  const draft = buildEvidenceDraft(entry.content, classification, goals.metrics);
 
   return prisma.evidenceRecord.create({
     data: {

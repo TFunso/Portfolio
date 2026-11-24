@@ -1,7 +1,8 @@
 import { prisma } from "@/lib/prisma";
 import { startOfMonth, endOfMonth, startOfQuarter, startOfYear, endOfYear } from "@/lib/dates";
 import { fromJson } from "@/lib/json";
-import { GOAL_METRICS, goalMetricStatus } from "@/lib/goals";
+import { goalMetricStatus } from "@/lib/goals";
+import { getGoalSet } from "@/lib/goalStore";
 import type { Category, Department } from "@/types";
 
 export interface ManagerPrepHighlight {
@@ -32,7 +33,7 @@ function impactRank(level: string): number {
 
 // Builds a manager-ready 1:1 prep summary: this period's highlights (sorted
 // by impact), who you supported cross-functionally this period, and your
-// year-to-date progress against the DRIVE EFFICIENCY goals. Scoped to a
+// year-to-date progress against the current year's goals. Scoped to a
 // month or quarter rather than the whole year, since a 1:1 is about recent
 // work - for the full year, use the December Review Generator instead.
 export async function getManagerPrepData(
@@ -98,7 +99,8 @@ export async function getManagerPrepData(
 
   const goalCounts = new Map<string, number>();
   for (const e of goalEvents) goalCounts.set(e.metricKey, (goalCounts.get(e.metricKey) ?? 0) + 1);
-  const goalProgress: ManagerPrepGoalRow[] = GOAL_METRICS.map((m) => {
+  const goalSet = await getGoalSet(now.getFullYear());
+  const goalProgress: ManagerPrepGoalRow[] = goalSet.metrics.map((m) => {
     const actual = goalCounts.get(m.key) ?? 0;
     return { label: m.label, actual, target: m.target, comparator: m.comparator, status: goalMetricStatus(m, actual) };
   });

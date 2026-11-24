@@ -28,6 +28,7 @@ const TABLES = [
   { key: "promotionReports", fields: Prisma.PromotionReportScalarFieldEnum },
   { key: "gapChecks", fields: Prisma.GapCheckScalarFieldEnum },
   { key: "inspectionVolumes", fields: Prisma.InspectionVolumeScalarFieldEnum },
+  { key: "goalYears", fields: Prisma.GoalYearScalarFieldEnum },
 ] as const;
 
 type TableKey = (typeof TABLES)[number]["key"];
@@ -53,6 +54,7 @@ export async function buildBackup(): Promise<QcosBackup> {
     promotionReports,
     gapChecks,
     inspectionVolumes,
+    goalYears,
   ] = await Promise.all([
     prisma.dailyEntry.findMany({ orderBy: { entryDate: "asc" } }),
     prisma.classification.findMany({ orderBy: { createdAt: "asc" } }),
@@ -64,6 +66,7 @@ export async function buildBackup(): Promise<QcosBackup> {
     prisma.promotionReport.findMany({ orderBy: { generatedAt: "asc" } }),
     prisma.gapCheck.findMany({ orderBy: { createdAt: "asc" } }),
     prisma.inspectionVolume.findMany({ orderBy: [{ year: "asc" }, { month: "asc" }] }),
+    prisma.goalYear.findMany({ orderBy: { year: "asc" } }),
   ]);
 
   const data = {
@@ -77,6 +80,7 @@ export async function buildBackup(): Promise<QcosBackup> {
     promotionReports,
     gapChecks,
     inspectionVolumes,
+    goalYears,
   } as Record<TableKey, Row[]>;
 
   return {
@@ -93,7 +97,7 @@ function countRows(data: Record<TableKey, Row[]>): Record<TableKey, number> {
 }
 
 export async function backupCounts(): Promise<Record<TableKey, number>> {
-  const [a, b, c, d, e, f, g, h, i, j] = await Promise.all([
+  const [a, b, c, d, e, f, g, h, i, j, k] = await Promise.all([
     prisma.dailyEntry.count(),
     prisma.classification.count(),
     prisma.evidenceRecord.count(),
@@ -104,6 +108,7 @@ export async function backupCounts(): Promise<Record<TableKey, number>> {
     prisma.promotionReport.count(),
     prisma.gapCheck.count(),
     prisma.inspectionVolume.count(),
+    prisma.goalYear.count(),
   ]);
   return {
     dailyEntries: a,
@@ -116,6 +121,7 @@ export async function backupCounts(): Promise<Record<TableKey, number>> {
     promotionReports: h,
     gapChecks: i,
     inspectionVolumes: j,
+    goalYears: k,
   };
 }
 
@@ -207,6 +213,7 @@ export async function restoreBackup(input: unknown): Promise<{ added: Record<Tab
         promotionReports: (await tx.promotionReport.createMany({ data: rows.promotionReports as Prisma.PromotionReportCreateManyInput[], ...opts })).count,
         gapChecks: (await tx.gapCheck.createMany({ data: rows.gapChecks as Prisma.GapCheckCreateManyInput[], ...opts })).count,
         inspectionVolumes: (await tx.inspectionVolume.createMany({ data: rows.inspectionVolumes as Prisma.InspectionVolumeCreateManyInput[], ...opts })).count,
+        goalYears: (await tx.goalYear.createMany({ data: rows.goalYears as Prisma.GoalYearCreateManyInput[], ...opts })).count,
       } as Record<TableKey, number>;
     },
     { timeout: 30000 },

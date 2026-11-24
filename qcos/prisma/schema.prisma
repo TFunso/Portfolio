@@ -201,3 +201,15 @@ model InspectionVolume {
 
   @@unique([year, month])
 }
+
+// One annual goal set per year (name, objectives, measurable targets with
+// their auto-detect keywords), edited on the Goals page. A year without a
+// row uses the most recent earlier year's set (see src/lib/goalStore.ts),
+// so goals carry over until changed - and past years keep their own goals.
+model GoalYear {
+  year       Int      @id
+  name       String
+  objectives String // JSON string[]
+  metrics    String // JSON GoalMetricDefinition[]
+  updatedAt  DateTime @updatedAt
+}

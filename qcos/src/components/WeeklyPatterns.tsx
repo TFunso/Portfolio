@@ -2,7 +2,6 @@
 
 import { useState } from "react";
 import type { DigestSuggestion } from "@/types";
-import { goalMetricLabel } from "@/lib/goals";
 
 export interface WeeklyDigestData {
   id: string;
@@ -67,7 +66,7 @@ export default function WeeklyPatterns({ digest }: { digest: WeeklyDigestData | 
               <span>
                 {s.description}
                 {s.suggestedGoalKey && (
-                  <span className="ml-2 badge badge-category">{goalMetricLabel(s.suggestedGoalKey)}</span>
+                  <span className="ml-2 badge badge-category">{s.suggestedGoalLabel ?? s.suggestedGoalKey}</span>
                 )}
               </span>
               <button

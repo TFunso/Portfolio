@@ -1,6 +1,5 @@
 import { prisma } from "@/lib/prisma";
 import { startOfMonth, endOfMonth, MONTH_NAMES } from "@/lib/dates";
-import { GOAL_METRICS } from "@/lib/goals";
 import type { GoalMetricKey } from "@/types";
 import type { Prisma } from "@prisma/client";
 
@@ -12,7 +11,7 @@ export interface KpiTrendPoint {
   total: number;
 }
 
-// Monthly trend of DRIVE EFFICIENCY goal-metric events, split by how each
+// Monthly trend of annual goal events, split by how each
 // one was logged: "captured" means the classifier detected it from a daily
 // entry (GoalMetricEvent.entryId is set); "reported" means it was logged by
 // hand, either from the Goal Dashboard's "+ Log one manually" button or a
@@ -54,4 +53,4 @@ export async function getKpiTrend(months: number, metricKey?: GoalMetricKey): Pr
   });
 }
 
-export const KPI_TREND_METRIC_OPTIONS = GOAL_METRICS.map((m) => ({ key: m.key, label: m.label }));
+

@@ -22,13 +22,8 @@ export type Department =
   | "Receiving Inspection Team"
   | "Operations";
 
-export type GoalMetricKey =
-  | "no_inspect_candidate"
-  | "supplier_cert_candidate"
-  | "improvement_project"
-  | "qn_clarification_request"
-  | "communication_delay"
-  | "knowledge_sharing_event";
+// Ids of the year's goal metrics (see src/lib/goals.ts) - data, not a fixed list.
+export type GoalMetricKey = string;
 
 export type GoalStatus = "green" | "yellow" | "red";
 
@@ -53,6 +48,7 @@ export interface DidThisCountResult {
 export interface GoalMetricStatus {
   key: GoalMetricKey;
   label: string;
+  description?: string;
   target: number;
   comparator: "min" | "max" | "ongoing";
   actual: number;
@@ -64,6 +60,7 @@ export interface GoalMetricStatus {
 export interface DigestSuggestion {
   description: string;
   suggestedGoalKey: GoalMetricKey | null;
+  suggestedGoalLabel?: string | null; // goal name when suggested (goal ids vary by year)
   suggestedCategory: Category | null;
 }
 

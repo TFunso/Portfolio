@@ -4,6 +4,7 @@ import { extractMetrics, hasMetrics, isSirText } from "@/lib/metrics";
 import { classifyEntry } from "@/lib/classifier";
 import { buildEvidenceDraft, shouldAutoFile } from "@/lib/evidence";
 import { toJson } from "@/lib/json";
+import { getGoalSet } from "@/lib/goalStore";
 
 export const dynamic = "force-dynamic";
 export const maxDuration = 60;
@@ -58,9 +59,10 @@ export async function POST() {
   let filed = 0;
   for (const entry of unfiled) {
     if (!isSirText(entry.content)) continue;
-    const classification = classifyEntry(entry.content);
+    const goals = await getGoalSet(entry.entryDate.getFullYear());
+    const classification = classifyEntry(entry.content, goals.metrics);
     if (!shouldAutoFile(classification)) continue;
-    const draft = buildEvidenceDraft(entry.content, classification);
+    const draft = buildEvidenceDraft(entry.content, classification, goals.metrics);
     await prisma.$transaction([
       prisma.classification.update({
         where: { entryId: entry.id },

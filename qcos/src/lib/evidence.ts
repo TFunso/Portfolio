@@ -1,5 +1,5 @@
 import type { ClassificationResult } from "@/types";
-import { goalMetricLabel } from "@/lib/goals";
+import { DEFAULT_GOAL_SET, goalMetricLabel, type GoalMetricDefinition } from "@/lib/goals";
 
 export interface EvidenceDraft {
   whatHappened: string;
@@ -18,10 +18,16 @@ export function shouldAutoFile(classification: ClassificationResult): boolean {
   return classification.counts && classification.impactLevel !== "Low";
 }
 
-export function buildEvidenceDraft(content: string, classification: ClassificationResult): EvidenceDraft {
+// goalMetrics: the goals in force for the entry's year, used to name the
+// goal(s) the entry supported.
+export function buildEvidenceDraft(
+  content: string,
+  classification: ClassificationResult,
+  goalMetrics: GoalMetricDefinition[] = DEFAULT_GOAL_SET.metrics,
+): EvidenceDraft {
   const primaryCategory = classification.categories.find((c) => c !== "Promotion Evidence") ?? "Routine Work";
   const goalSupported =
-    classification.goalKeys.length > 0 ? classification.goalKeys.map(goalMetricLabel).join(", ") : null;
+    classification.goalKeys.length > 0 ? classification.goalKeys.map((k) => goalMetricLabel(k, goalMetrics)).join(", ") : null;
 
   return {
     whatHappened: content.trim(),

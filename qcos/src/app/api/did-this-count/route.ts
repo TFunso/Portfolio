@@ -3,6 +3,7 @@ import { z } from "zod";
 import { prisma } from "@/lib/prisma";
 import { classifyEntry, evaluateDidThisCount } from "@/lib/classifier";
 import { polishProfessionalSummary } from "@/lib/ai";
+import { getCurrentGoalSet } from "@/lib/goalStore";
 
 export const dynamic = "force-dynamic";
 
@@ -28,14 +29,15 @@ export async function POST(req: NextRequest) {
   }
 
   const { activity, saveAsEvidence } = parsed.data;
-  const result = evaluateDidThisCount(activity);
+  const goals = await getCurrentGoalSet();
+  const result = evaluateDidThisCount(activity, goals.metrics);
 
   // Only pay the AI-polish latency/cost when the user is actually saving
   // this as evidence - the instant "did this count?" verdict above stays
   // fully local and fast either way.
   let recommendedLanguage = result.recommendedLanguage;
   if (saveAsEvidence && result.counts) {
-    const classification = classifyEntry(activity);
+    const classification = classifyEntry(activity, goals.metrics);
     recommendedLanguage = await polishProfessionalSummary(
       activity,
       {

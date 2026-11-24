@@ -2,7 +2,8 @@ import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { fromJson } from "@/lib/json";
 import { startOfWeek, startOfYear, endOfYear } from "@/lib/dates";
-import { GOAL_METRICS, goalMetricStatus, forecastGoalMetric } from "@/lib/goals";
+import { goalMetricStatus, forecastGoalMetric } from "@/lib/goals";
+import { getCurrentGoalSet } from "@/lib/goalStore";
 import type { Category } from "@/types";
 
 export const dynamic = "force-dynamic";
@@ -40,7 +41,8 @@ export async function GET() {
 
   const countsByMetric = new Map<string, number>();
   for (const e of goalEvents) countsByMetric.set(e.metricKey, (countsByMetric.get(e.metricKey) ?? 0) + 1);
-  const goalStatuses = GOAL_METRICS.map((m) => {
+  const goalSet = await getCurrentGoalSet();
+  const goalStatuses = goalSet.metrics.map((m) => {
     const actual = countsByMetric.get(m.key) ?? 0;
     const { projected, paceStatus } = forecastGoalMetric(m, actual);
     return { ...m, actual, status: goalMetricStatus(m, actual), projected, paceStatus };
@@ -80,7 +82,7 @@ export async function GET() {
       evidenceCountThisYear,
       highImpactCount: promotionEvidenceCount,
     },
-    goalDashboard: { metrics: goalStatuses },
+    goalDashboard: { metrics: goalStatuses, goalName: goalSet.name },
     thingsThatCounted,
     recentEntries,
     evidenceHighlights,

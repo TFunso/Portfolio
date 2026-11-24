@@ -19,7 +19,7 @@ interface DashboardData {
     evidenceCountThisYear: number;
     highImpactCount: number;
   };
-  goalDashboard: { metrics: GoalMetricStatus[] };
+  goalDashboard: { metrics: GoalMetricStatus[]; goalName?: string };
   thingsThatCounted: CountedThing[];
   recentEntries: RecentEntry[];
   evidenceHighlights: EvidenceHighlight[];
@@ -54,7 +54,7 @@ export default function HomePage() {
         <>
           <PromotionReadinessSnapshot {...data.promotionReadiness} />
           <WeeklyPatterns digest={digest} />
-          <GoalDashboard metrics={data.goalDashboard.metrics} />
+          <GoalDashboard metrics={data.goalDashboard.metrics} goalName={data.goalDashboard.goalName} />
           <ThingsThatCounted items={data.thingsThatCounted} />
           <div className="grid gap-6 lg:grid-cols-2">
             <RecentEntries entries={data.recentEntries} />

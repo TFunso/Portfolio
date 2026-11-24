@@ -15,6 +15,7 @@ const LABELS: Record<string, string> = {
   promotionReports: "Promotion reports",
   gapChecks: "Gap checks",
   inspectionVolumes: "SAP volume months",
+  goalYears: "Years with saved goals",
 };
 
 export default function DataPage() {

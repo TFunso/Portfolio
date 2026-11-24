@@ -101,6 +101,14 @@ Later additions, built on the same data:
   / SIRs" section and talking point. The Evidence Vault's "Find numbers in
   older entries" also files older SIR entries the earlier rules missed.
 
+- **Per-year goals** (`src/lib/goals.ts`, `src/lib/goalStore.ts`,
+  `src/components/GoalEditor.tsx`, `GoalYear` table) - the annual goal, its
+  objectives and its measurable targets are edited on the Goals page for
+  each year, including the words that log a target automatically from a
+  daily entry. A year without saved goals carries over the previous year's
+  until changed; each report judges a year only against that year's goals,
+  so setting new goals never re-scores the past.
+
 All Claude calls go through `src/lib/claude.ts` (`claude-opus-5-5`, with
 server-side refusal fallback enabled).
 

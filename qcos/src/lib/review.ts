@@ -1,5 +1,6 @@
 import { prisma } from "@/lib/prisma";
-import { GOAL_METRICS, goalMetricLabel, goalMetricStatus, ANNUAL_GOAL } from "@/lib/goals";
+import { goalMetricStatus, QN_CLARIFICATION_KEY } from "@/lib/goals";
+import { getGoalSet } from "@/lib/goalStore";
 import { formatMetrics, hasMetrics, isSirText, metricsOf, sumMetrics, RESULT_METRICS } from "@/lib/metrics";
 import { isInProgress, previousPeriod, type Period } from "@/lib/periods";
 import { MONTH_NAMES } from "@/lib/dates";
@@ -184,6 +185,9 @@ export async function getPeriodReport(period: Period) {
   const prev = previousPeriod(period);
   const ytdStart = new Date(period.end.getFullYear(), 0, 1);
 
+  // A period is judged against the goals of the year it ends in.
+  const goalSet = await getGoalSet(period.end.getFullYear());
+
   const [records, prevRecords, periodGoalEvents, ytdGoalEvents, firstEntry] = await Promise.all([
     prisma.evidenceRecord.findMany({
       where: { recordDate: { gte: period.start, lte: period.end } },
@@ -205,9 +209,10 @@ export async function getPeriodReport(period: Period) {
 
   // Annual targets are judged on the year to date at the end of the period;
   // the period's own contribution is shown alongside.
-  const goals = GOAL_METRICS.map((m) => {
+  const goals = goalSet.metrics.map((m) => {
     const ytdActual = ytdCounts.get(m.key) ?? 0;
     return {
+      key: m.key,
       label: m.label,
       target: m.target,
       comparator: m.comparator,
@@ -247,7 +252,7 @@ export async function getPeriodReport(period: Period) {
 
   // QNs raised in the period (one per SAP-rejected lot) against the QN
   // clarification requests logged in the same period.
-  const clarifications = goals.find((g) => g.label === goalMetricLabel("qn_clarification_request"))?.periodActual ?? 0;
+  const clarifications = goals.find((g) => g.key === QN_CLARIFICATION_KEY)?.periodActual ?? 0;
   const qnQuality = volume ? qnFirstTimeRight(volume.totals.qnsRaised, clarifications) : null;
 
   const sirCurrent = sirSummary(records);
@@ -264,7 +269,7 @@ export async function getPeriodReport(period: Period) {
       inProgress: isInProgress(period),
     },
     previousLabel: prev.label,
-    goal: ANNUAL_GOAL,
+    goal: { name: goalSet.name, objectives: goalSet.objectives, year: goalSet.year, source: goalSet.source, fromYear: goalSet.fromYear },
     current,
     previous,
     topWins: topWins.map(toItem),

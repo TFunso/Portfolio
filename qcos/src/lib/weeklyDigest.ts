@@ -2,7 +2,8 @@ import { CLAUDE_MODEL, REFUSAL_FALLBACK, getAnthropic, responseText } from "@/li
 import { prisma } from "@/lib/prisma";
 import { fromJson, toJson } from "@/lib/json";
 import { startOfWeek, formatDate } from "@/lib/dates";
-import { goalMetricLabel } from "@/lib/goals";
+import type { GoalMetricDefinition } from "@/lib/goals";
+import { getGoalSet } from "@/lib/goalStore";
 import type { Category, DigestSuggestion, GoalMetricKey } from "@/types";
 
 // ---------------------------------------------------------------------------
@@ -32,14 +33,6 @@ export function lastCompletedWeek(reference: Date = new Date()): WeekRange {
   return { start, end };
 }
 
-const VALID_GOAL_KEYS: GoalMetricKey[] = [
-  "no_inspect_candidate",
-  "supplier_cert_candidate",
-  "improvement_project",
-  "qn_clarification_request",
-  "communication_delay",
-  "knowledge_sharing_event",
-];
 
 const VALID_CATEGORIES: Category[] = [
   "Routine Work",
@@ -55,7 +48,7 @@ const VALID_CATEGORIES: Category[] = [
   "Promotion Evidence",
 ];
 
-function parseSuggestions(raw: unknown): DigestSuggestion[] {
+function parseSuggestions(raw: unknown, goalMetrics: GoalMetricDefinition[]): DigestSuggestion[] {
   if (!Array.isArray(raw)) return [];
   const suggestions: DigestSuggestion[] = [];
   for (const item of raw) {
@@ -64,9 +57,11 @@ function parseSuggestions(raw: unknown): DigestSuggestion[] {
     if (!description.trim()) continue;
     const goalKeyRaw = (item as Record<string, unknown>).suggestedGoalKey;
     const categoryRaw = (item as Record<string, unknown>).suggestedCategory;
+    const goal = goalMetrics.find((m) => m.key === goalKeyRaw);
     suggestions.push({
       description: description.trim(),
-      suggestedGoalKey: VALID_GOAL_KEYS.includes(goalKeyRaw as GoalMetricKey) ? (goalKeyRaw as GoalMetricKey) : null,
+      suggestedGoalKey: goal ? goal.key : null,
+      suggestedGoalLabel: goal ? goal.label : null,
       suggestedCategory: VALID_CATEGORIES.includes(categoryRaw as Category) ? (categoryRaw as Category) : null,
     });
   }
@@ -75,11 +70,12 @@ function parseSuggestions(raw: unknown): DigestSuggestion[] {
 
 async function generateWithAI(
   entries: { content: string; categories: Category[]; impactLevel: string }[],
+  goalMetrics: GoalMetricDefinition[],
 ): Promise<{ summary: string; suggestions: DigestSuggestion[] } | null> {
   const anthropic = getAnthropic();
   if (!anthropic) return null;
 
-  const goalKeyList = VALID_GOAL_KEYS.map((k) => `"${k}" (${goalMetricLabel(k)})`).join(", ");
+  const goalKeyList = goalMetrics.map((m) => `"${m.key}" (${m.label})`).join(", ");
   const categoryList = VALID_CATEGORIES.join(", ");
 
   const entryLines = entries
@@ -104,7 +100,7 @@ async function generateWithAI(
     const parsed = JSON.parse(jsonText);
     const summary = typeof parsed.summary === "string" && parsed.summary.trim() ? parsed.summary.trim() : null;
     if (!summary) return null;
-    return { summary, suggestions: parseSuggestions(parsed.suggestions) };
+    return { summary, suggestions: parseSuggestions(parsed.suggestions, goalMetrics) };
   } catch (error) {
     console.error("Weekly digest AI pass failed, falling back to stats summary:", error);
     return null;
@@ -138,7 +134,8 @@ export async function getOrCreateWeeklyDigest(range: WeekRange = lastCompletedWe
   }));
   const countedCount = entries.filter((e) => e.classification?.counts).length;
 
-  const aiResult = entries.length > 0 ? await generateWithAI(forAI) : null;
+  const goals = await getGoalSet(range.start.getFullYear());
+  const aiResult = entries.length > 0 ? await generateWithAI(forAI, goals.metrics) : null;
   const summary = aiResult?.summary ?? fallbackSummary(entries.length, countedCount);
   const suggestions = aiResult?.suggestions ?? [];
 

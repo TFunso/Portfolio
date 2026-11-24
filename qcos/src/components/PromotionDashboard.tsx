@@ -179,7 +179,7 @@ export default function PromotionDashboard({ stats }: { stats: PromotionStats })
         <StatTile label="Evidence logged" value={String(stats.evidenceCount)} hint={stats.scopeLabel} />
         <StatTile label="High-impact wins" value={String(stats.impactTotals.high)} />
         <StatTile label="Teams supported" value={String(stats.crossFunctional.length)} />
-        <StatTile label="Goals on track" value={`${goalsOnTrack}/${stats.goalProgress.length}`} hint="current year" />
+        <StatTile label="Goals on track" value={`${goalsOnTrack}/${stats.goalProgress.length}`} hint={String(stats.goalYear)} />
       </div>
 
       {(results.length > 0 || stats.volume) && (
@@ -259,7 +259,7 @@ export default function PromotionDashboard({ stats }: { stats: PromotionStats })
 
         <section className="card break-inside-avoid">
           <h3 className="text-sm font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">
-            Goal progress &middot; DRIVE EFFICIENCY
+            Goal progress &middot; {stats.goalName}
           </h3>
           <p className="mb-3 text-xs text-slate-400">Current year</p>
           <GoalProgress goals={stats.goalProgress} />

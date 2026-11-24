@@ -7,6 +7,7 @@ import type {
   ImpactLevel,
 } from "@/types";
 import { SIR_PATTERNS } from "@/lib/metrics";
+import { DEFAULT_GOAL_SET, goalMetricLabel, type GoalMetricDefinition } from "@/lib/goals";
 
 // ---------------------------------------------------------------------------
 // The "AI Achievement Detector". This is a deterministic, explainable rules
@@ -185,20 +186,7 @@ const DEPARTMENT_RULES: { department: Department; keywords: string[] }[] = [
   { department: "Operations", keywords: ["operations", "ops team", "production floor", "line "] },
 ];
 
-const GOAL_METRIC_RULES: { key: GoalMetricKey; keywords: string[] }[] = [
-  { key: "no_inspect_candidate", keywords: ["no inspect", "no-inspect", "remove from inspection"] },
-  { key: "supplier_cert_candidate", keywords: ["supplier cert", "certify supplier", "supplier certification"] },
-  {
-    key: "improvement_project",
-    keywords: ["improvement project", "process improvement", "streamlin", "automat", "optimiz"],
-  },
-  { key: "qn_clarification_request", keywords: ["qn clarification", "clarify the qn", "qn needed clarification"] },
-  { key: "communication_delay", keywords: ["communication delay", "miscommunicat", "delayed because"] },
-  {
-    key: "knowledge_sharing_event",
-    keywords: ["taught", "shared", "showed", "explained", "documented", "trained", "walked through", "demoed"],
-  },
-];
+// Goal keyword rules come from the year's goals (GoalMetricDefinition.keywords).
 
 const HIGH_IMPACT_SIGNALS = [
   "urgent",
@@ -244,11 +232,12 @@ function detectDepartments(normalized: string): Department[] {
   return departments;
 }
 
-function detectGoalKeys(normalized: string): GoalMetricKey[] {
+function detectGoalKeys(normalized: string, goalMetrics: GoalMetricDefinition[]): GoalMetricKey[] {
   const keys: GoalMetricKey[] = [];
-  for (const rule of GOAL_METRIC_RULES) {
-    if (matchKeywords(normalized, rule.keywords).length > 0) {
-      keys.push(rule.key);
+  for (const metric of goalMetrics) {
+    const keywords = metric.keywords.map((k) => k.trim()).filter(Boolean);
+    if (keywords.length > 0 && matchKeywords(normalized, keywords).length > 0) {
+      keys.push(metric.key);
     }
   }
   return keys;
@@ -272,7 +261,7 @@ function buildReason(categories: Category[], departments: Department[]): string 
     parts.push("supported another team or function");
   }
   if (categories.includes("First Article (SIR)")) parts.push("verified a part against its drawing and specs through first article (SIR) inspection");
-  if (categories.includes("Goal Contribution")) parts.push("directly advanced a DRIVE EFFICIENCY objective");
+  if (categories.includes("Goal Contribution")) parts.push("directly advanced an annual goal objective");
   if (categories.includes("Continuous Improvement")) parts.push("improved a process or reduced waste");
   if (categories.includes("Leadership")) parts.push("showed initiative or ownership");
   if (categories.includes("Knowledge Sharing")) parts.push("built team capability");
@@ -338,11 +327,17 @@ function lowerFirst(text: string): string {
   return text.charAt(0).toLowerCase() + text.slice(1);
 }
 
-export function classifyEntry(content: string): ClassificationResult {
+// goalMetrics: the goals in force for the entry's year (getGoalSet in
+// goalStore.ts); defaults to the built-in set so the engine stays usable
+// without a database (tests, scripts).
+export function classifyEntry(
+  content: string,
+  goalMetrics: GoalMetricDefinition[] = DEFAULT_GOAL_SET.metrics,
+): ClassificationResult {
   const normalized = normalize(content);
   const { categories, score } = scoreCategories(normalized);
   const departments = detectDepartments(normalized);
-  const goalKeys = detectGoalKeys(normalized);
+  const goalKeys = detectGoalKeys(normalized, goalMetrics);
   const impact = impactLevel(normalized, categories, score);
 
   const counts = categories.length > 0;
@@ -369,8 +364,11 @@ export function classifyEntry(content: string): ClassificationResult {
 // "Did This Count?" - same engine, framed as a direct answer to that
 // question rather than a background classification.
 // ---------------------------------------------------------------------------
-export function evaluateDidThisCount(activity: string): DidThisCountResult {
-  const classification = classifyEntry(activity);
+export function evaluateDidThisCount(
+  activity: string,
+  goalMetrics: GoalMetricDefinition[] = DEFAULT_GOAL_SET.metrics,
+): DidThisCountResult {
+  const classification = classifyEntry(activity, goalMetrics);
 
   const businessImpact = classification.counts
     ? classification.reason
@@ -378,11 +376,11 @@ export function evaluateDidThisCount(activity: string): DidThisCountResult {
 
   const goalAlignment =
     classification.goalKeys.length > 0
-      ? `Aligns with DRIVE EFFICIENCY: ${classification.goalKeys
-          .map((k) => goalKeyToLabel(k))
+      ? `Aligns with your annual goal: ${classification.goalKeys
+          .map((k) => goalMetricLabel(k, goalMetrics))
           .join(", ")}.`
       : classification.categories.includes("Cross-Functional Support")
-        ? "Supports the 'cross-functional support' objective under DRIVE EFFICIENCY."
+        ? "Supports cross-functional work under your annual goal."
         : "No direct annual goal metric matched, but it may still be worth logging as general contribution.";
 
   const promotionValue =
@@ -401,16 +399,4 @@ export function evaluateDidThisCount(activity: string): DidThisCountResult {
       ? classification.professionalSummary
       : `Handled ${activity.trim().toLowerCase()} as part of routine responsibilities.`,
   };
-}
-
-function goalKeyToLabel(key: GoalMetricKey): string {
-  const map: Record<GoalMetricKey, string> = {
-    no_inspect_candidate: "No Inspect Candidates",
-    supplier_cert_candidate: "Supplier Certification Candidates",
-    improvement_project: "Improvement Projects",
-    qn_clarification_request: "QN Clarification Requests",
-    communication_delay: "Communication Delays",
-    knowledge_sharing_event: "Knowledge Sharing Events",
-  };
-  return map[key];
 }

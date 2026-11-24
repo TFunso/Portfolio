@@ -7,11 +7,19 @@ function actualLabel(m: GoalMetricStatus): string {
   return `${m.actual} / ${m.target}`;
 }
 
-export default function GoalDashboard({ metrics, compact = false }: { metrics: GoalMetricStatus[]; compact?: boolean }) {
+export default function GoalDashboard({
+  metrics,
+  goalName = "Goals",
+  compact = false,
+}: {
+  metrics: GoalMetricStatus[];
+  goalName?: string;
+  compact?: boolean;
+}) {
   return (
     <section className="card">
       <h2 className="text-sm font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">
-        Goal Dashboard &middot; DRIVE EFFICIENCY
+        Goal Dashboard &middot; {goalName}
       </h2>
       <ul className={`mt-3 grid gap-3 ${compact ? "sm:grid-cols-2" : "sm:grid-cols-3"}`}>
         {metrics.map((m) => (

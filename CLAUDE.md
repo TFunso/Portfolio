@@ -45,7 +45,8 @@ npm run db:seed                  # tsx prisma/seed.ts
 - `qcos` has unit tests under `tests/` for its pure logic (`metrics` -
   result-number and SIR extraction, `periods` - review-period boundaries,
   `volume` - SAP paste parsing and double-count rule, `classifier` - SIR
-  recognition and word-boundary false positives); run one with
+  recognition and word-boundary false positives, `goals` - goal-set ids,
+  validation, and per-year keyword detection); run one with
   `npx vitest run tests/periods.test.ts`. `vitest.config.ts` maps the `@/`
   alias, so modules that import each other through it can be tested.
   When filtering test output, include the `Test Files` line - a test file
@@ -181,6 +182,16 @@ anything external.
   year). Evidence carries optional result metrics and a `starred` "top win"
   flag; `src/lib/metrics.ts` is the single definition of the five metrics -
   every report, export, and AI prompt reads totals and wording from it.
+- **Goals are per-year data, not code.** `GoalYear` holds one goal set per
+  year (name, objectives, metrics with target/comparator/auto-detect
+  keywords); `getGoalSet(year)` in `src/lib/goalStore.ts` returns that
+  year's set, else the most recent earlier saved set (carried over), else
+  `DEFAULT_GOAL_SET` (the 2026 DRIVE EFFICIENCY goal, `src/lib/goals.ts`).
+  Never judge a year against another year's goals: reports use the goals
+  of the year they cover, and capture passes the current year's
+  `goals.metrics` into `classifyEntry()` / `buildEvidenceDraft()` (their
+  default arguments exist only for tests). Goal keys are stable ids that
+  `GoalMetricEvent.metricKey` stores, so editing keeps existing keys.
 - **First article inspection (SIR)** is its own classifier category
   (`"First Article (SIR)"`, matched by `SIR_PATTERNS` in `metrics.ts` -
   whole-word only; "FAIR" deliberately excluded). Evidence has
