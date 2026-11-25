@@ -246,8 +246,11 @@ export default function ReviewPage() {
             <section className="card break-inside-avoid">
               <h3 className="font-semibold">First Articles / SIRs</h3>
               <p className="text-xs text-slate-400">
-                From {data.sir.current.entries} logged entr{data.sir.current.entries === 1 ? "y" : "ies"} &middot; an SIR counts
-                once it&apos;s logged as completed
+                {data.sir.note}
+                {data.sir.note && " · "}
+                <a href="/volume#sir" className="underline print:hidden">
+                  Enter SIRs by month
+                </a>
               </p>
               <div className="mt-3 grid grid-cols-3 gap-3">
                 {(
@@ -260,7 +263,7 @@ export default function ReviewPage() {
                   <div key={label} className="rounded-xl border border-slate-200 p-3 dark:border-slate-800">
                     <p className="text-xs text-slate-500 dark:text-slate-400">{label}</p>
                     <p className="mt-0.5 text-2xl font-bold">{value.toLocaleString("en-US")}</p>
-                    <Delta current={value} previous={prevValue} label={prevLabel} noData={data.sir!.previous.entries === 0} />
+                    <Delta current={value} previous={prevValue} label={prevLabel} noData={!data.sir!.previousHasData} />
                   </div>
                 ))}
               </div>

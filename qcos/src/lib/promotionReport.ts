@@ -2,6 +2,8 @@ import { CLAUDE_MODEL, REFUSAL_FALLBACK, getAnthropic, responseText } from "@/li
 import { formatMetrics, metricsOf, sumMetrics, RESULT_METRICS, type ResultMetricKey, type ResultMetrics } from "@/lib/metrics";
 import { formatVolume, unitsOutsideSapMonths, type VolumeTotals } from "@/lib/volume";
 import { getAllTimeVolume, getVolumeForRange } from "@/lib/volumeData";
+import { combineSir, hasSirData, isSirRecord, type SirSummary } from "@/lib/sir";
+import { getAllSirMonths, getSirMonthsForRange } from "@/lib/sirData";
 import { prisma } from "@/lib/prisma";
 import { fromJson } from "@/lib/json";
 import { startOfYear, endOfYear, formatDate } from "@/lib/dates";
@@ -60,6 +62,7 @@ interface GatheredData {
   starredCount: number;
   results: Record<ResultMetricKey, number>;
   volume: VolumeTotals | null; // official SAP inspection volume for the scope
+  sir: SirSummary | null; // first article inspections: monthly totals + daily entries (sir.ts)
   categoryTotals: { category: string; count: number }[];
   crossFunctional: { department: string; count: number }[];
   goalProgress: { label: string; actual: number; target: number; comparator: string; status: string }[];
@@ -179,6 +182,14 @@ async function gatherData(scope: PromotionReportScope): Promise<GatheredData> {
   // months it covers, so only lots logged in months without SAP figures
   // are added to the results totals.
   results.unitsHandled = unitsOutsideSapMonths(allRecords, sap?.months ?? []);
+  // SIRs: monthly totals where entered, daily entries for other months.
+  const sirMonths =
+    scope.type === "year"
+      ? await getSirMonthsForRange(new Date(scope.year, 0, 1), new Date(scope.year, 11, 31, 23, 59, 59, 999))
+      : await getAllSirMonths();
+  const sirSummary = combineSir(allRecords.filter(isSirRecord), sirMonths);
+  const sir: SirSummary | null = hasSirData(sirSummary) ? sirSummary : null;
+  results.sirsCompleted = sirSummary.completed;
 
   const impactTotals = { high: 0, medium: 0, low: 0 };
   for (const r of allRecords) {
@@ -193,6 +204,7 @@ async function gatherData(scope: PromotionReportScope): Promise<GatheredData> {
     starredCount: allRecords.filter((r) => r.starred).length,
     results,
     volume,
+    sir,
     categoryTotals,
     crossFunctional,
     goalProgress,
@@ -218,6 +230,7 @@ export async function getPromotionStats(scope: PromotionReportScope): Promise<Pr
     starredCount: data.starredCount,
     results: data.results,
     volume: data.volume,
+    sir: data.sir,
     categoryTotals: data.categoryTotals,
     crossFunctional: data.crossFunctional,
     goalProgress: data.goalProgress,
@@ -258,6 +271,7 @@ function buildDigestText(data: GatheredData): string {
     `${data.goalYear} ${data.goalName} goal progress: ${goalLine}`,
     `Measurable results totaled across all evidence: ${resultsSentence(data.results) || "none recorded"}`,
     `Official inspection volume from SAP: ${data.volume ? `${formatVolume(data.volume)} across ${data.volume.months} months` : "not entered"}`,
+    `First article inspections (SIRs): ${data.sir ? `${data.sir.completed} completed, about ${data.sir.hours} hours invested, ${data.sir.findings} nonconformances found` : "none recorded"}`,
   ].join("\n");
 }
 

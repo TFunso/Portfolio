@@ -1,10 +1,12 @@
 import { prisma } from "@/lib/prisma";
 import { goalMetricStatus, QN_CLARIFICATION_KEY } from "@/lib/goals";
 import { getGoalSet } from "@/lib/goalStore";
-import { formatMetrics, hasMetrics, isSirText, metricsOf, sumMetrics, RESULT_METRICS } from "@/lib/metrics";
+import { formatMetrics, hasMetrics, metricsOf, sumMetrics, RESULT_METRICS } from "@/lib/metrics";
 import { isInProgress, previousPeriod, type Period } from "@/lib/periods";
 import { MONTH_NAMES } from "@/lib/dates";
 import { getVolumeForRange } from "@/lib/volumeData";
+import { combineSir, hasSirData, isSirRecord, sirSourceNote, type SirSummary } from "@/lib/sir";
+import { getSirMonthsForRange } from "@/lib/sirData";
 import { qnFirstTimeRight, unitsOutsideSapMonths, type VolumeTotals } from "@/lib/volume";
 import type { EvidenceRecord } from "@prisma/client";
 
@@ -255,9 +257,20 @@ export async function getPeriodReport(period: Period) {
   const clarifications = goals.find((g) => g.key === QN_CLARIFICATION_KEY)?.periodActual ?? 0;
   const qnQuality = volume ? qnFirstTimeRight(volume.totals.qnsRaised, clarifications) : null;
 
-  const sirCurrent = sirSummary(records);
-  const sirPrevious = sirSummary(prevRecords);
-  const sir = sirCurrent.entries > 0 || sirPrevious.entries > 0 ? { current: sirCurrent, previous: sirPrevious } : null;
+  // SIRs: monthly totals (bulk entry) for the months that have one, SIRs
+  // from daily entries for the rest - never both for the same month.
+  const [sirMonths, prevSirMonths] = await Promise.all([
+    getSirMonthsForRange(period.start, period.end),
+    getSirMonthsForRange(prev.start, prev.end),
+  ]);
+  const sirCurrent = combineSir(records.filter(isSirRecord), sirMonths);
+  const sirPrevious = combineSir(prevRecords.filter(isSirRecord), prevSirMonths);
+  current.results.sirsCompleted = sirCurrent.completed;
+  previous.results.sirsCompleted = sirPrevious.completed;
+  const sir =
+    hasSirData(sirCurrent) || hasSirData(sirPrevious)
+      ? { current: sirCurrent, previous: sirPrevious, previousHasData: hasSirData(sirPrevious), note: sirSourceNote(sirCurrent) }
+      : null;
 
   return {
     period: {
@@ -293,21 +306,3 @@ export async function getPeriodReport(period: Period) {
 
 export type PeriodReport = Awaited<ReturnType<typeof getPeriodReport>>;
 
-// First article / SIR work: the category, an SIR count, or the words in the
-// entry itself (covers evidence filed before SIR support existed).
-function isSirRecord(r: EvidenceRecord): boolean {
-  return r.category === "First Article (SIR)" || (r.sirsCompleted ?? 0) > 0 || isSirText(r.whatHappened);
-}
-
-function sirSummary(records: EvidenceRecord[]) {
-  const sirs = records.filter(isSirRecord);
-  const sum = (f: (r: EvidenceRecord) => number | null) => Math.round(sirs.reduce((t, r) => t + (f(r) ?? 0), 0) * 10) / 10;
-  return {
-    entries: sirs.length,
-    completed: sum((r) => r.sirsCompleted),
-    hours: sum((r) => r.hoursSpent),
-    findings: sum((r) => r.defectsCaught),
-  };
-}
-
-type SirSummary = ReturnType<typeof sirSummary>;

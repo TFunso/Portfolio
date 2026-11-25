@@ -213,3 +213,20 @@ model GoalYear {
   metrics    String // JSON GoalMetricDefinition[]
   updatedAt  DateTime @updatedAt
 }
+
+// First article inspections (SIRs) entered as monthly totals (bulk entry
+// on the Monthly Totals page). For a month with a row here, these totals
+// are the official SIR figures and SIR counts/hours from that month's daily
+// entries are not added on top (see src/lib/sir.ts).
+model SirMonth {
+  id        String   @id @default(cuid())
+  year      Int
+  month     Int      // 1-12
+  completed Int      // SIRs completed
+  hours     Float?   // hours spent on SIR work
+  findings  Int?     // nonconformances found during SIRs
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([year, month])
+}

@@ -12,6 +12,7 @@ import {
   type SlashDateOrder,
   type TwoColumnLayout,
 } from "@/lib/volume";
+import SirMonthsGrid from "@/components/SirMonthsGrid";
 
 type Draft = { inspected: string; accepted: string; rejected: string };
 const EMPTY: Draft = { inspected: "", accepted: "", rejected: "" };
@@ -127,10 +128,16 @@ export default function VolumePage() {
   return (
     <div className="mx-auto max-w-4xl space-y-6">
       <div>
-        <h1 className="text-2xl font-bold">Inspection Volume (SAP)</h1>
+        <h1 className="text-2xl font-bold">Monthly Totals</h1>
         <p className="mt-1 text-slate-500 dark:text-slate-400">
-          Your official monthly totals - lots inspected, accepted and rejected. Reports use these as your inspection
-          volume for each review period, kept separate from your daily entries so nothing is counted twice.
+          Figures you enter by the month instead of one entry at a time: your SAP inspection volume and your first
+          article inspections (SIRs). Reports use these for each review period, and a month&apos;s total replaces the
+          same figures from that month&apos;s daily entries, so nothing is counted twice.
+        </p>
+        <p className="mt-2 text-sm">
+          <a href="#sir" className="underline">
+            Jump to First Articles / SIRs
+          </a>
         </p>
       </div>
 
@@ -273,6 +280,7 @@ export default function VolumePage() {
         </section>
       )}
 
+      <h2 className="pt-2 text-lg font-semibold">Inspection volume (SAP)</h2>
       <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
         {[
           ["Lots inspected", n(totals.inspected), `${year} · ${totals.months} month${totals.months === 1 ? "" : "s"} entered`],
@@ -290,7 +298,7 @@ export default function VolumePage() {
 
       <section className="card">
         <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
-          <h2 className="font-semibold">Monthly totals &middot; {year}</h2>
+          <h2 className="font-semibold">SAP lots by month &middot; {year}</h2>
           <button className="btn-primary" disabled={saving || changed.length === 0} onClick={saveGrid}>
             {saving ? "Saving…" : changed.length > 0 ? `Save ${changed.length} change${changed.length === 1 ? "" : "s"}` : "Saved"}
           </button>
@@ -336,6 +344,8 @@ export default function VolumePage() {
           })}
         </div>
       </section>
+
+      <SirMonthsGrid year={year} />
     </div>
   );
 }

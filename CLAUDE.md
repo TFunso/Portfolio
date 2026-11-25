@@ -46,7 +46,8 @@ npm run db:seed                  # tsx prisma/seed.ts
   result-number and SIR extraction, `periods` - review-period boundaries,
   `volume` - SAP paste parsing and double-count rule, `classifier` - SIR
   recognition and word-boundary false positives, `goals` - goal-set ids,
-  validation, and per-year keyword detection); run one with
+  validation, and per-year keyword detection, `sir` - monthly SIR totals vs
+  daily entries); run one with
   `npx vitest run tests/periods.test.ts`. `vitest.config.ts` maps the `@/`
   alias, so modules that import each other through it can be tested.
   When filtering test output, include the `Test Files` line - a test file
@@ -199,6 +200,13 @@ anything external.
   a multi-day SIR isn't counted per day) and `hoursSpent` (effort, not a
   result - never part of `hasMetrics`). Reports group SIR work in its own
   section and talking point.
+- **SIRs can also be entered as monthly totals** (`SirMonth`, one row per
+  month: completed, optional hours and findings; grid on the `/volume`
+  "Monthly Totals" page). Same no-double-counting idea as SAP: a month with
+  a total uses it, and SIR figures from that month's entries are not added
+  on top (blank hours/findings fall back to the entries). Always total SIRs
+  through `combineSir()` / `combineSirMonths()` in `src/lib/sir.ts` (and
+  `isSirRecord()` there), never by summing `sirsCompleted` directly.
 - **SAP inspection volume** (`InspectionVolume`, one row per month) is the
   official lot count and is kept out of `EvidenceRecord` on purpose. For
   months it covers, `unitsHandled` from entries must not be added on top -

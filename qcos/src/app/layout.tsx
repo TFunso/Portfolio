@@ -33,7 +33,7 @@ const NAV_ITEMS = [
   { href: "/review", label: "Reviews" },
   { href: "/promotion-report", label: "Promotion Report" },
   { href: "/gap-check", label: "Gap Check" },
-  { href: "/volume", label: "SAP Volume" },
+  { href: "/volume", label: "Monthly Totals" },
 ];
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {

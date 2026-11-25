@@ -100,6 +100,12 @@ Later additions, built on the same data:
   (effort), and nonconformances found; review reports get a "First Articles
   / SIRs" section and talking point. The Evidence Vault's "Find numbers in
   older entries" also files older SIR entries the earlier rules missed.
+  SIRs can also be bulk-entered by month (`src/lib/sir.ts`,
+  `src/lib/sirData.ts`, `src/components/SirMonthsGrid.tsx`, `SirMonth`
+  table) on the Monthly Totals page (`/volume`, alongside SAP volume): SIRs
+  completed, hours and nonconformances per month. A month's total replaces
+  that month's SIR figures from daily entries (which stay in reports as
+  examples); blank hours / nonconformances fall back to the entries.
 
 - **Per-year goals** (`src/lib/goals.ts`, `src/lib/goalStore.ts`,
   `src/components/GoalEditor.tsx`, `GoalYear` table) - the annual goal, its
