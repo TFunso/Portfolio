@@ -163,7 +163,9 @@ export default function PromotionDashboard({ stats }: { stats: PromotionStats })
   const goalsOnTrack = stats.goalProgress.filter((g) => g.status === "green").length;
   const topStrengths = stats.categoryTotals.slice(0, 6).map((c) => ({ label: c.category, count: c.count }));
   const teams = stats.crossFunctional.slice(0, 6).map((d) => ({ label: d.department, count: d.count }));
-  const results = RESULT_METRICS.filter((m) => stats.results[m.key] > 0);
+  // SIRs get their own row below (with hours and nonconformances), so
+  // they're left out of the general results list when that row shows.
+  const results = RESULT_METRICS.filter((m) => stats.results[m.key] > 0 && !(m.key === "sirsCompleted" && stats.sir));
 
   if (stats.evidenceCount === 0) {
     return (
@@ -182,7 +184,7 @@ export default function PromotionDashboard({ stats }: { stats: PromotionStats })
         <StatTile label="Goals on track" value={`${goalsOnTrack}/${stats.goalProgress.length}`} hint={String(stats.goalYear)} />
       </div>
 
-      {(results.length > 0 || stats.volume) && (
+      {(results.length > 0 || stats.volume || stats.sir) && (
         <section className="card break-inside-avoid">
           <h3 className="text-sm font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">
             Measurable results
@@ -214,6 +216,27 @@ export default function PromotionDashboard({ stats }: { stats: PromotionStats })
               </div>
             ))}
           </div>
+          {stats.sir && (
+            <div className="mt-3 border-t border-slate-100 pt-3 dark:border-slate-800">
+              <p className="text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">
+                First articles (SIRs)
+              </p>
+              <div className="mt-1 grid grid-cols-3 gap-3">
+                {(
+                  [
+                    ["SIRs completed", stats.sir.completed],
+                    ["Hours invested", stats.sir.hours],
+                    ["Nonconformances caught", stats.sir.findings],
+                  ] as const
+                ).map(([label, value]) => (
+                  <div key={label}>
+                    <p className="text-2xl font-bold">{value.toLocaleString("en-US")}</p>
+                    <p className="text-xs text-slate-500 dark:text-slate-400">{label}</p>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
         </section>
       )}
 

@@ -106,6 +106,9 @@ Later additions, built on the same data:
   completed, hours and nonconformances per month. A month's total replaces
   that month's SIR figures from daily entries (which stay in reports as
   examples); blank hours / nonconformances fall back to the entries.
+  The Promotion Report (dashboard, AI narrative, compiled version and Word
+  export) shows the combined SIR totals - completed, hours invested and
+  nonconformances caught - as their own line.
 
 - **Per-year goals** (`src/lib/goals.ts`, `src/lib/goalStore.ts`,
   `src/components/GoalEditor.tsx`, `GoalYear` table) - the annual goal, its

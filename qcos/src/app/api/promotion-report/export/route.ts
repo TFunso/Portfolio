@@ -9,7 +9,7 @@ import {
 } from "@/lib/promotionReport";
 import { parsePromotionReportSections } from "@/lib/promotionReportFormat";
 import { heading, bullet } from "@/lib/docxHelpers";
-import { resultsSentence } from "@/lib/promotionReport";
+import { resultsSentence, resultsWithoutSirs, sirSentence } from "@/lib/promotionReport";
 import { formatVolume } from "@/lib/volume";
 
 export const dynamic = "force-dynamic";
@@ -31,11 +31,13 @@ function atAGlance(stats: PromotionStats): Paragraph[] {
     `${stats.evidenceCount} pieces of evidence logged`,
     `${high} high-impact wins`,
     `${stats.crossFunctional.length} teams supported cross-functionally`,
-    `${onTrack} of ${stats.goalProgress.length} DRIVE EFFICIENCY goals on track (current year)`,
+    `${onTrack} of ${stats.goalProgress.length} ${stats.goalName} goals on track (${stats.goalYear})`,
     `Impact mix: ${pct(high, impactSum)} high · ${pct(medium, impactSum)} medium · ${pct(low, impactSum)} low`,
   ];
   if (stats.volume) lines.push(`Inspection volume (SAP): ${formatVolume(stats.volume)}`);
-  const results = resultsSentence(stats.results);
+  const sirLine = sirSentence(stats.sir);
+  if (sirLine) lines.push(`First articles (SIRs): ${sirLine}`);
+  const results = resultsSentence(resultsWithoutSirs(stats.results, stats.sir));
   if (results) lines.push(`Measurable results: ${results}`);
   if (stats.categoryTotals.length > 0) {
     lines.push(

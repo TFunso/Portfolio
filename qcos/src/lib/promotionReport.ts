@@ -242,6 +242,24 @@ export async function getPromotionStats(scope: PromotionReportScope): Promise<Pr
   };
 }
 
+// "13 first article inspections (SIRs) completed · about 56 hours invested ·
+// 6 nonconformances caught at first article" - monthly totals + daily
+// entries combined (sir.ts). Empty when there's nothing to say.
+export function sirSentence(sir: SirSummary | null): string {
+  if (!sir) return "";
+  const parts: string[] = [];
+  if (sir.completed > 0) parts.push(`${sir.completed.toLocaleString("en-US")} first article inspection${sir.completed === 1 ? "" : "s"} (SIRs) completed`);
+  if (sir.hours > 0) parts.push(`about ${sir.hours.toLocaleString("en-US")} hours invested`);
+  if (sir.findings > 0) parts.push(`${sir.findings.toLocaleString("en-US")} nonconformance${sir.findings === 1 ? "" : "s"} caught at first article`);
+  return parts.join(" · ");
+}
+
+// SIRs get their own line wherever sirSentence() is shown, so leave them
+// out of the general results sentence there (no saying it twice).
+export function resultsWithoutSirs<T extends Record<ResultMetricKey, number>>(results: T, sir: SirSummary | null): T {
+  return sir ? { ...results, sirsCompleted: 0 } : results;
+}
+
 export function resultsSentence(results: Record<ResultMetricKey, number>): string {
   return RESULT_METRICS.filter((m) => results[m.key] > 0)
     .map((m) => `${m.key === "costAvoided" ? `$${results[m.key].toLocaleString("en-US")}` : results[m.key].toLocaleString("en-US")} ${m.unit}`)
@@ -269,9 +287,9 @@ function buildDigestText(data: GatheredData): string {
     `Category totals across all evidence: ${categoryLine}`,
     `Cross-functional support by team: ${deptLine}`,
     `${data.goalYear} ${data.goalName} goal progress: ${goalLine}`,
-    `Measurable results totaled across all evidence: ${resultsSentence(data.results) || "none recorded"}`,
+    `Measurable results totaled across all evidence: ${resultsSentence(resultsWithoutSirs(data.results, data.sir)) || "none recorded"}`,
     `Official inspection volume from SAP: ${data.volume ? `${formatVolume(data.volume)} across ${data.volume.months} months` : "not entered"}`,
-    `First article inspections (SIRs): ${data.sir ? `${data.sir.completed} completed, about ${data.sir.hours} hours invested, ${data.sir.findings} nonconformances found` : "none recorded"}`,
+    `First article inspections (SIRs), official totals: ${sirSentence(data.sir) || "none recorded"}`,
   ].join("\n");
 }
 
@@ -298,12 +316,13 @@ async function generateNarrative(data: GatheredData, scopeLbl: string): Promise<
         `You write a concise, ONE-PAGE (450-650 words total) promotion case for a Quality Technician, to be handed directly to their manager for a promotion/performance discussion.`,
         `Use ONLY the facts provided below - never invent names, numbers, outcomes, dates, or details beyond what's given. If the evidence is thin in an area, say less about it rather than padding with generic claims.`,
         `Entries marked [TOP WIN] are the person's own pick of their strongest work - feature them first. "Result:" figures and the measurable-results totals are the strongest proof available: use them exactly as given, and lead "Impact By The Numbers" with the totals. The SAP inspection volume is the official workload figure - state it as given; rejected lots are lots rejected at inspection.`,
+        `If first article inspection (SIR) totals are given, they are a distinct strength: owning the first-article verification of new or changed parts before production. Give SIR work its own bullet in "Where I Shine" and its own line in "Impact By The Numbers" using the SIR totals exactly as given (completed, hours invested, nonconformances caught at first article). Do not claim anything about what those nonconformances led to unless the evidence says so.`,
         `Structure the output as exactly these sections, each as a "## Header" line followed by content: ${SECTION_HEADERS.join(", ")}.`,
         `"Overview": 2-3 sentences framing their overall trajectory and case for promotion.`,
         `"Where I Shine": 3-5 bullet points ("- " prefix), each naming a recurring strength theme with one concrete grounded example.`,
         `"Leadership & Ownership": a short paragraph or 2-3 bullets on initiative/ownership shown, grounded in the evidence.`,
         `"Growth Over Time": a short paragraph noting any visible trajectory across the dated entries (new skills, bigger scope, more complex problems) - only claim growth the dates/content actually support.`,
-        `"Impact By The Numbers": bullets of the goal-progress and cross-functional totals given.`,
+        `"Impact By The Numbers": bullets of the measurable-results totals, SAP volume, SIR totals, goal-progress and cross-functional totals given.`,
         `"Bottom Line": 1-2 closing sentences making the case plainly.`,
         `Output plain text only - no markdown bold/italics, no extra commentary before or after the sections.`,
       ].join(" "),
@@ -326,6 +345,7 @@ function buildFallback(data: GatheredData, scopeLbl: string): string {
   );
 
   lines.push("## Where I Shine");
+  if (data.sir && data.sir.completed > 0) lines.push(`- First article inspection (SIR) ownership: ${sirSentence(data.sir)}`);
   for (const c of data.categoryTotals.slice(0, 5)) {
     lines.push(`- ${c.category}: ${c.count} logged instance${c.count === 1 ? "" : "s"}`);
   }
@@ -344,7 +364,11 @@ function buildFallback(data: GatheredData, scopeLbl: string): string {
 
   lines.push("## Impact By The Numbers");
   if (data.volume) lines.push(`- Inspection volume (SAP): ${formatVolume(data.volume)}`);
-  const totals = resultsSentence(data.results);
+  if (data.sir) {
+    const sirLine = sirSentence(data.sir);
+    if (sirLine) lines.push(`- First articles (SIRs): ${sirLine}`);
+  }
+  const totals = resultsSentence(resultsWithoutSirs(data.results, data.sir));
   if (totals) lines.push(`- Measurable results: ${totals}`);
   for (const g of data.goalProgress) {
     lines.push(
